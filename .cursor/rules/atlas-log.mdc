@@ -1,0 +1,38 @@
+---
+description: Atlas Log — tech stack, Gym Test, design principles, and docs
+globs: 
+alwaysApply: true
+---
+
+# Atlas Log — Project Rules
+
+## Tech stack
+
+- **Language**: Swift 6.0 (strict concurrency; no @unchecked unless justified).
+- **UI**: SwiftUI with NavigationStack architecture.
+- **Persistence**: SwiftData. Local-first; schema designed for future CloudKit sync.
+- **Target**: iOS 18+ (use Live Activities for rest timer).
+- **Project layout**: App, Models, Views, Features (Workout, Templates, History), Services/Persistence, Resources.
+
+## Data model (SwiftData)
+
+- **Exercise**: id (UUID), displayName, aliases ([String]), notes, isBodyweight (Bool).
+- **DayTemplate**: id, name, orderedExerciseIds ([UUID]), lastPerformedDate (optional).
+- **WorkoutSession**: id, date, templateId, overallFeeling (Int 1–5, optional).
+- **SetEntry**: id, sessionId, exerciseId, weight (Double), reps (Int), rpe (Double 1–10), isWarmup (Bool), isCompleted (Bool), setIndex (Int).
+- Use @Relationship / inverse where useful (e.g. Session → SetEntries). Register all model types in ModelContainer schema.
+
+## Gym Test
+
+- **Goal**: User can log one set (weight, reps, optional RPE, warmup) in **under 3 seconds** under physical stress.
+- **Implied**: Default next set to last weight/reps (and last RPE). One primary CTA to complete set. Large tap targets. Optional RPE (picker 1–10), not required. No multi-step set entry. Rest timer accessible in-flow and on Lock Screen (Live Activity).
+
+## Design and docs
+
+- **Design principles**: See `docs/design-principles.md` (minimalism, clarity, speed, consistency, accessibility).
+- **Visual language**: See `docs/visual-language.md` (accent color, cards, hierarchy, success feedback; Cash App–inspired).
+- **Competitors / analysis**: `docs/competitors.md`, `docs/competitors-analysis.md`.
+- **Behavior / cognitive**: `docs/cognitive-principles.md`, `docs/behavior-change.md`, `docs/mental-models.md`.
+- **Strategy**: `docs/values.md`, `docs/goals.md`, `docs/skills-reference.md`.
+
+When adding UI or flows, prefer minimalism and speed; align with these docs. No social feed, no videos, no discovery.

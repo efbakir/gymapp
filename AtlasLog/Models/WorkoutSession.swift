@@ -1,0 +1,36 @@
+//
+//  WorkoutSession.swift
+//  AtlasLog
+//
+//  SwiftData model: one instance of a template performed on a date.
+//
+
+import Foundation
+import SwiftData
+
+@Model
+final class WorkoutSession {
+    var id: UUID
+    var date: Date
+    var templateId: UUID
+    var isCompleted: Bool = false
+    /// 1–5, optional; 0 or nil = not set
+    var overallFeeling: Int
+
+    @Relationship(deleteRule: .cascade, inverse: \SetEntry.session)
+    var setEntries: [SetEntry] = []
+
+    init(
+        id: UUID = UUID(),
+        date: Date = Date(),
+        templateId: UUID,
+        isCompleted: Bool = false,
+        overallFeeling: Int = 0
+    ) {
+        self.id = id
+        self.date = date
+        self.templateId = templateId
+        self.isCompleted = isCompleted
+        self.overallFeeling = overallFeeling
+    }
+}
