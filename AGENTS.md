@@ -22,6 +22,7 @@ Atlas Log is a **high-performance, minimalist gym logger** for iOS. Users have t
 | Cognitive / behavior / mental models | `docs/cognitive-principles.md`, `docs/behavior-change.md`, `docs/mental-models.md` |
 | Values and goals | `docs/values.md`, `docs/goals.md` |
 | Skills reference (OpenClaw-inspired) | `docs/skills-reference.md` |
+| GPT custom instructions (UX/product execution) | `docs/custom-instructions.md` |
 
 ## Conventions
 
