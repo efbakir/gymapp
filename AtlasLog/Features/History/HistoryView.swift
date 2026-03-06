@@ -86,7 +86,7 @@ private struct CalendarHeatmap: View {
         // 3 months back
         let start = cal.date(byAdding: .month, value: -2, to: today) ?? today
         let startOfWeek: Date = {
-            var comps = cal.dateComponents([.yearForWeekOfYear, .weekOfYear], from: start)
+            let comps = cal.dateComponents([.yearForWeekOfYear, .weekOfYear], from: start)
             return cal.date(from: comps) ?? start
         }()
 

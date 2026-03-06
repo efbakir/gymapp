@@ -7,6 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		541C84E82F5B818100D0DB57 /* Cycle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 541C84E72F5B818100D0DB57 /* Cycle.swift */; };
+		541C84EA2F5B818100D0DB57 /* ProgressionRule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 541C84E92F5B818100D0DB57 /* ProgressionRule.swift */; };
+		541C84EC2F5B819E00D0DB57 /* ProgressionEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 541C84EB2F5B819E00D0DB57 /* ProgressionEngine.swift */; };
+		541C84EE2F5B819E00D0DB57 /* CyclesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 541C84ED2F5B819E00D0DB57 /* CyclesView.swift */; };
+		541C84F02F5B81BA00D0DB57 /* PRLibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 541C84EF2F5B81BA00D0DB57 /* PRLibraryView.swift */; };
 		A10000000000000000000001 /* AtlasLogApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000001 /* AtlasLogApp.swift */; };
 		A10000000000000000000002 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000002 /* ContentView.swift */; };
 		A10000000000000000000003 /* Exercise.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000003 /* Exercise.swift */; };
@@ -39,6 +44,11 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		541C84E72F5B818100D0DB57 /* Cycle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Cycle.swift; sourceTree = "<group>"; };
+		541C84E92F5B818100D0DB57 /* ProgressionRule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressionRule.swift; sourceTree = "<group>"; };
+		541C84EB2F5B819E00D0DB57 /* ProgressionEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressionEngine.swift; sourceTree = "<group>"; };
+		541C84ED2F5B819E00D0DB57 /* CyclesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CyclesView.swift; sourceTree = "<group>"; };
+		541C84EF2F5B81BA00D0DB57 /* PRLibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PRLibraryView.swift; sourceTree = "<group>"; };
 		A20000000000000000000000 /* AtlasLog.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AtlasLog.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A20000000000000000000001 /* AtlasLogApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AtlasLogApp.swift; sourceTree = "<group>"; };
 		A20000000000000000000002 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -79,6 +89,20 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		541C84E52F5B815D00D0DB57 /* Engine 2 */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = "Engine 2";
+			sourceTree = "<group>";
+		};
+		541C84E62F5B815D00D0DB57 /* Cycles 2 */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = "Cycles 2";
+			sourceTree = "<group>";
+		};
 		A40000000000000000000001 = {
 			isa = PBXGroup;
 			children = (
@@ -96,6 +120,7 @@
 				A40000000000000000000004 /* Models */,
 				A40000000000000000000005 /* Features */,
 				A2000000000000000000000F /* Assets.xcassets */,
+				541C84E52F5B815D00D0DB57 /* Engine 2 */,
 			);
 			path = AtlasLog;
 			sourceTree = "<group>";
@@ -116,6 +141,9 @@
 				A20000000000000000000004 /* DayTemplate.swift */,
 				A20000000000000000000005 /* WorkoutSession.swift */,
 				A20000000000000000000006 /* SetEntry.swift */,
+				541C84E72F5B818100D0DB57 /* Cycle.swift */,
+				541C84E92F5B818100D0DB57 /* ProgressionRule.swift */,
+				541C84EB2F5B819E00D0DB57 /* ProgressionEngine.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -126,6 +154,7 @@
 				A40000000000000000000006 /* Today */,
 				A40000000000000000000007 /* Templates */,
 				A40000000000000000000008 /* History */,
+				541C84E62F5B815D00D0DB57 /* Cycles 2 */,
 			);
 			path = Features;
 			sourceTree = "<group>";
@@ -136,6 +165,7 @@
 				A20000000000000000000007 /* TodayView.swift */,
 				A20000000000000000000008 /* ActiveWorkoutView.swift */,
 				A20000000000000000000010 /* RestTimerAttributes.swift */,
+				541C84ED2F5B819E00D0DB57 /* CyclesView.swift */,
 			);
 			path = Today;
 			sourceTree = "<group>";
@@ -156,6 +186,7 @@
 			children = (
 				A2000000000000000000000D /* HistoryView.swift */,
 				A2000000000000000000000E /* SessionDetailView.swift */,
+				541C84EF2F5B81BA00D0DB57 /* PRLibraryView.swift */,
 			);
 			path = History;
 			sourceTree = "<group>";
@@ -265,13 +296,18 @@
 				A10000000000000000000004 /* DayTemplate.swift in Sources */,
 				A10000000000000000000005 /* WorkoutSession.swift in Sources */,
 				A10000000000000000000006 /* SetEntry.swift in Sources */,
+				541C84E82F5B818100D0DB57 /* Cycle.swift in Sources */,
 				A10000000000000000000007 /* TodayView.swift in Sources */,
 				A10000000000000000000008 /* ActiveWorkoutView.swift in Sources */,
+				541C84EC2F5B819E00D0DB57 /* ProgressionEngine.swift in Sources */,
 				A10000000000000000000009 /* TemplatesView.swift in Sources */,
+				541C84EE2F5B819E00D0DB57 /* CyclesView.swift in Sources */,
+				541C84F02F5B81BA00D0DB57 /* PRLibraryView.swift in Sources */,
 				A1000000000000000000000A /* TemplateDetailView.swift in Sources */,
 				A1000000000000000000000B /* AddTemplateView.swift in Sources */,
 				A1000000000000000000000C /* ExercisesListView.swift in Sources */,
 				A1000000000000000000000D /* HistoryView.swift in Sources */,
+				541C84EA2F5B818100D0DB57 /* ProgressionRule.swift in Sources */,
 				A1000000000000000000000E /* SessionDetailView.swift in Sources */,
 				A10000000000000000000010 /* RestTimerAttributes.swift in Sources */,
 			);

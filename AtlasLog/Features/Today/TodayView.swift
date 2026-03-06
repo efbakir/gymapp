@@ -367,7 +367,7 @@ final class TodayDashboardViewModel: ObservableObject {
 
         // Find the template for today based on the split order
         let templateForToday: DayTemplate? = {
-            guard let split = templates.first(where: { $0.splitId == cycle.splitId }) else { return nil }
+            guard templates.contains(where: { $0.splitId == cycle.splitId }) else { return nil }
             // Completed sessions this cycle in order
             let cycleSessionCount = sessions.filter { $0.cycleId == cycle.id }.count
             let templateIds = templates
