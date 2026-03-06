@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "WebSearch",
+      "WebFetch(domain:www.bitcot.com)",
+      "WebFetch(domain:dev.to)",
+      "WebFetch(domain:gist.github.com)",
+      "WebFetch(domain:www.nadcab.com)",
+      "Bash(xcodebuild:*)",
+      "Bash(gem list:*)",
+      "Bash(sudo gem:*)",
+      "Bash(gem install:*)",
+      "Bash(git add:*)"
+    ]
+  }
+}

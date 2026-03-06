@@ -2,15 +2,19 @@
 //  HistoryView.swift
 //  AtlasLog
 //
-//  History tab: completed workout sessions.
+//  History tab: calendar heatmap + completed session list.
 //
 
+import Charts
 import SwiftUI
 import SwiftData
 
 struct HistoryView: View {
     @Query(sort: \WorkoutSession.date, order: .reverse) private var sessions: [WorkoutSession]
     @Query(sort: \DayTemplate.name) private var templates: [DayTemplate]
+    @Query(sort: \Exercise.displayName) private var exercises: [Exercise]
+
+    @State private var showingPRLibrary = false
 
     private var completedSessions: [WorkoutSession] {
         sessions.filter(\.isCompleted)
@@ -19,22 +23,46 @@ struct HistoryView: View {
     var body: some View {
         NavigationStack {
             List {
+                // Calendar heatmap section
+                Section {
+                    CalendarHeatmap(sessions: completedSessions)
+                        .listRowInsets(EdgeInsets())
+                        .listRowBackground(Color.clear)
+                }
+
+                // Session list
                 if completedSessions.isEmpty {
                     Text("No completed sessions yet.")
                         .font(AtlasTheme.Typography.body)
                         .foregroundStyle(AtlasTheme.Colors.textSecondary)
                         .frame(minHeight: 44)
                 } else {
-                    ForEach(completedSessions, id: \.id) { session in
-                        NavigationLink(value: session) {
-                            SessionRow(session: session, templateName: templateName(for: session.templateId))
+                    Section("Sessions") {
+                        ForEach(completedSessions, id: \.id) { session in
+                            NavigationLink(value: session) {
+                                SessionRow(session: session, templateName: templateName(for: session.templateId))
+                            }
                         }
                     }
                 }
             }
+            .listStyle(.insetGrouped)
             .navigationTitle("History")
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        showingPRLibrary = true
+                    } label: {
+                        Label("PRs", systemImage: "trophy.fill")
+                    }
+                    .accessibilityLabel("Personal Records Library")
+                }
+            }
             .navigationDestination(for: WorkoutSession.self) { session in
                 SessionDetailView(session: session, templateName: templateName(for: session.templateId))
+            }
+            .sheet(isPresented: $showingPRLibrary) {
+                PRLibraryView(sessions: completedSessions, exercises: exercises)
             }
         }
     }
@@ -43,6 +71,98 @@ struct HistoryView: View {
         templates.first { $0.id == templateID }?.name ?? "Unknown"
     }
 }
+
+// MARK: - Calendar Heatmap
+
+private struct CalendarHeatmap: View {
+    let sessions: [WorkoutSession]
+
+    private let columns = Array(repeating: GridItem(.flexible(), spacing: 4), count: 7)
+    private let dayHeaders = ["M", "T", "W", "T", "F", "S", "S"]
+
+    private var calendarDays: [CalendarDay] {
+        let cal = Calendar.current
+        let today = cal.startOfDay(for: Date())
+        // 3 months back
+        let start = cal.date(byAdding: .month, value: -2, to: today) ?? today
+        let startOfWeek: Date = {
+            var comps = cal.dateComponents([.yearForWeekOfYear, .weekOfYear], from: start)
+            return cal.date(from: comps) ?? start
+        }()
+
+        // Total tonnage per day for quick lookup
+        var tonnageByDay: [Date: Double] = [:]
+        for session in sessions {
+            let day = cal.startOfDay(for: session.date)
+            let t = session.setEntries.filter(\.isCompleted).reduce(0.0) { $0 + $1.weight * Double($1.reps) }
+            tonnageByDay[day, default: 0] += t
+        }
+
+        let maxTonnage = tonnageByDay.values.max() ?? 1
+
+        var days: [CalendarDay] = []
+        var current = startOfWeek
+        while current <= today {
+            let tonnage = tonnageByDay[current] ?? 0
+            days.append(CalendarDay(date: current, tonnage: tonnage, maxTonnage: maxTonnage))
+            current = cal.date(byAdding: .day, value: 1, to: current) ?? current
+        }
+        return days
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: AtlasTheme.Spacing.xs) {
+            HStack(spacing: 4) {
+                ForEach(dayHeaders, id: \.self) { h in
+                    Text(h)
+                        .font(AtlasTheme.Typography.caption)
+                        .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                        .frame(maxWidth: .infinity)
+                }
+            }
+            .padding(.horizontal, AtlasTheme.Spacing.md)
+
+            LazyVGrid(columns: columns, spacing: 4) {
+                ForEach(calendarDays) { day in
+                    RoundedRectangle(cornerRadius: 3, style: .continuous)
+                        .fill(day.fillColor)
+                        .aspectRatio(1, contentMode: .fit)
+                        .accessibilityLabel(day.accessibilityLabel)
+                }
+            }
+            .padding(.horizontal, AtlasTheme.Spacing.md)
+            .padding(.vertical, AtlasTheme.Spacing.sm)
+        }
+    }
+}
+
+private struct CalendarDay: Identifiable {
+    let id = UUID()
+    let date: Date
+    let tonnage: Double
+    let maxTonnage: Double
+
+    var intensity: Double {
+        guard maxTonnage > 0, tonnage > 0 else { return 0 }
+        return min(tonnage / maxTonnage, 1)
+    }
+
+    var fillColor: Color {
+        if intensity == 0 { return Color(uiColor: .tertiarySystemFill) }
+        return AtlasTheme.Colors.accent.opacity(0.2 + intensity * 0.8)
+    }
+
+    var accessibilityLabel: String {
+        let fmt = DateFormatter()
+        fmt.dateStyle = .medium
+        if tonnage > 0 {
+            return "\(fmt.string(from: date)): \(Int(tonnage))kg total volume"
+        }
+        return "\(fmt.string(from: date)): rest day"
+    }
+}
+
+// MARK: - Session Row
 
 struct SessionRow: View {
     let session: WorkoutSession
@@ -62,10 +182,21 @@ struct SessionRow: View {
             Text(dateText)
                 .font(AtlasTheme.Typography.caption)
                 .foregroundStyle(AtlasTheme.Colors.textSecondary)
-            if session.overallFeeling > 0 {
-                Text("Feeling: \(session.overallFeeling)/5")
-                    .font(AtlasTheme.Typography.caption)
-                    .foregroundStyle(AtlasTheme.Colors.textSecondary)
+            HStack(spacing: AtlasTheme.Spacing.xs) {
+                if session.overallFeeling > 0 {
+                    Text("Feeling: \(session.overallFeeling)/5")
+                        .font(AtlasTheme.Typography.caption)
+                        .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                }
+                if session.weekNumber > 0 {
+                    Text("Week \(session.weekNumber)")
+                        .font(AtlasTheme.Typography.caption)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(AtlasTheme.Colors.accentSoft)
+                        .clipShape(Capsule())
+                        .foregroundStyle(AtlasTheme.Colors.accent)
+                }
             }
         }
         .padding(.vertical, AtlasTheme.Spacing.xs)

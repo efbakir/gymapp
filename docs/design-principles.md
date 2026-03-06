@@ -44,10 +44,11 @@ Principles that support “good design” and **always the one wins with the bes
 
 ---
 
-## 6. Reference: Cash App–style inspiration
+## 6. Dark Mode Native
 
-- **Visual**: Clean backgrounds, clear hierarchy, accent color for primary actions, card-style grouping, ample whitespace. (See [visual-language.md](visual-language.md).)
-- **Interaction**: Modal sheets for focused actions (e.g. add money); success feedback (e.g. checkmark). We adapt this for “add set,” “complete set,” and “workout complete” rather than copying Cash App’s flows.
+- **What**: Atlas Log runs dark-only surfaces. All colors are system semantic (`Color(.systemBackground)`, `Color(.systemGroupedBackground)`, `Color(uiColor: .separator)`). Orange accent `#FF4400` unchanged.
+- **Why**: The gym environment — often overhead lit or backlit — makes dark surfaces easier to read. System semantic colors respect the OS dark/light context automatically, but our UI is designed for dark.
+- **Apply**: Never hardcode white surfaces or black borders. Use `Color(.systemBackground)` for cards, `Color(.systemGroupedBackground)` for page backgrounds, `Color(uiColor: .separator)` for borders.
 
 ---
 
@@ -55,10 +56,11 @@ Principles that support “good design” and **always the one wins with the bes
 
 | Principle | One-line |
 |-----------|----------|
-| Minimalism | Only what’s needed to log and run a template. |
-| Clarity | Obvious purpose, controls, and state. |
-| Speed | Gym Test: log a set in under 3 seconds. |
+| Minimalism | Only what’s needed to log, track, and run a cycle. |
+| Clarity | Obvious purpose, controls, and state — including Target vs. Actual. |
+| Speed | Gym Test: log a set with RIR in under 3 seconds. |
 | Consistency | Same patterns and accent everywhere. |
-| Accessibility | Readable, tappable, adaptable. |
+| Accessibility | HIG-compliant: 44pt targets, 4.5:1 contrast, VoiceOver, Reduce Motion. |
+| Dark Mode Native | System semantic surfaces; orange `#FF4400` accent unchanged. |
 
 Every design decision should be checked against these; when in doubt, favor **speed** and **minimalism** for the active workout experience.

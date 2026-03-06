@@ -6,10 +6,13 @@ Inspired by [Cash App](https://cash.app/) and the referenced collage: a high-per
 
 ## 1. Color
 
-- **Backgrounds**: Prefer clean white or very light grey. High contrast so content and accent read clearly in bright gyms.
-- **Primary accent**: One strong **bright orange/red** primary color for actions (e.g. “Complete set,” “Start rest”), completed state, and key highlights. The accent should carry through CTAs, selection states, and success indicators, similar to how Cash App’s foundations use a single vivid brand color across surfaces ([design.cash.app/foundations](https://design.cash.app/foundations)).
-- **Supportive neutrals**: Primary text black or near-black; secondary (hints, labels) in grey. No low-contrast grey-on-white for critical info.
-- **Secondary accents**: Optional subtle secondary color (e.g. soft warm grey or muted blue) for progress or charts; it must not compete with the bright orange/red primary.
+- **Surfaces**: Dark-mode native. Use system semantic colors: `Color(.systemBackground)` for cards, `Color(.systemGroupedBackground)` for page backgrounds. No hardcoded white.
+- **Primary accent**: `#FF4400` orange — actions (“Complete set,” “Start rest”), completed state, cycle progress, and key highlights. Unchanged across themes.
+- **Ghost / target text**: `Color.secondary` — used for computed targets, read-only values. Visually subordinate; not interactive.
+- **Failure state**: `Color.red` — missed targets, failure row background `Color.red.opacity(0.08)`, border `Color.red.opacity(0.5)`. Always paired with an icon (never color alone — HIG).
+- **Deload badge**: `Color.orange.opacity(0.8)` — signals auto-deload. Paired with `arrow.down.circle.fill` icon.
+- **Borders**: `Color(uiColor: .separator)` — adapts to dark/light automatically.
+- **Progress accent**: Slightly darker orange `rgb(214, 84, 0)` for volume charts and PR sparklines where full `#FF4400` would compete.
 
 ---
 
@@ -56,9 +59,9 @@ Inspired by [Cash App](https://cash.app/) and the referenced collage: a high-per
 
 ## 7. What we’re not doing (yet)
 
-- No full design system (tokens, component library) in v1—enough structure to keep UI consistent and to guide future tokens.
-- No dark mode requirement in v1 (can be added later with same principles).
+- No full design system (tokens, component library) — enough structure to keep UI consistent.
 - No illustrations or marketing imagery in-app; focus on data and actions.
+- Dark mode is now mandatory (user requirement). Light mode support is not planned.
 
 ---
 

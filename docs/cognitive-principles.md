@@ -60,16 +60,25 @@ Principles from [abtest.design](https://abtest.design/) and [growth.design/psych
 
 ---
 
+## 8. Predictability
+
+- **Principle**: Showing the target eliminates the cognitive load of deciding what to lift. The user’s decision-making at the bar is reduced to “did I hit it or not?”
+- **Atlas Log**: The engine computes the target weight before every set and displays it as ghost text in the Target Column. The user does not need to remember last week’s weight, estimate an increment, or calculate a deload. The number is there.
+- **Apply**: Target must be visible in < 0.5s after session start. Ghost text styling (`Color.secondary`) distinguishes it from editable inputs. The user never enters the target — they only enter the actual.
+
+---
+
 ## Summary
 
 | Principle | Atlas Log application |
 |-----------|------------------------|
-| Reduced friction | Defaults, one-tap set, optional RPE, Live Activity rest. |
-| Clarity of value | “Your program, logged fast”; no feed. |
-| Commitment/consistency | Micro-commitments (set → session); future streaks. |
+| Reduced friction | Defaults, one-tap set, RIR stepper, Live Activity rest. |
+| Clarity of value | “Your target, computed. Log actual. Engine adjusts.”; no feed. |
+| Commitment/consistency | 8-week cycle as commitment architecture; streak counter. |
 | Social proof | Minimal; personal progress only, no feed. |
 | Loss aversion | Easy logging so data isn’t lost; clear saved state. |
-| Clear CTAs | “Complete set,” “Start rest,” “End workout.” |
-| Ability + motivation | Gym Test + identity and progress. |
+| Clear CTAs | “Done,” “Start Session,” “End Workout.” |
+| Ability + motivation | Gym Test + engine-driven progress signal. |
+| Predictability | Target shown before set; zero cognitive load at the bar. |
 
-These principles guide feature and copy choices so Atlas Log supports **behavior change** (logging consistently) without dark patterns.
+These principles guide feature and copy choices so Atlas Log supports **behavior change** (logging consistently, following the progressive overload plan) without dark patterns.

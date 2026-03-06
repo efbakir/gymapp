@@ -2,7 +2,7 @@
 //  ActiveWorkoutView.swift
 //  AtlasLog
 //
-//  Active workout: large set rows, smart prefill, one-tap complete, overload signal, and rest timer.
+//  Active workout: target column, RIR stepper, failure detection, deload badge, rest timer.
 //
 
 import ActivityKit
@@ -13,16 +13,30 @@ struct ActiveWorkoutView: View {
     @Bindable var session: WorkoutSession
 
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
     @Query(sort: \Exercise.displayName) private var exercises: [Exercise]
     @Query(sort: \WorkoutSession.date, order: .reverse) private var sessions: [WorkoutSession]
     @Query(sort: \DayTemplate.name) private var templates: [DayTemplate]
+    @Query private var progressionRules: [ProgressionRule]
+    @Query private var cycles: [Cycle]
 
     @StateObject private var viewModel = ActiveWorkoutViewModel()
     @StateObject private var restTimer = RestTimerManager()
+
     @State private var showingEndWorkoutFeeling = false
+    @State private var toastMessage: String?
+    @State private var showFailureModal = false
+    @State private var pendingFailureExerciseName = ""
+    @State private var pendingFailureCompletion: ((Bool) -> Void)?
 
     private var template: DayTemplate? {
         templates.first(where: { $0.id == session.templateId })
+    }
+
+    private var activeCycle: Cycle? {
+        guard let cid = session.cycleId else { return nil }
+        return cycles.first(where: { $0.id == cid })
     }
 
     private var orderedExercises: [Exercise] {
@@ -33,73 +47,120 @@ struct ActiveWorkoutView: View {
     }
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: AtlasTheme.Spacing.md) {
-                headerCard
+        ZStack(alignment: .bottom) {
+            ScrollView {
+                VStack(alignment: .leading, spacing: AtlasTheme.Spacing.md) {
+                    headerCard
 
-                ForEach(orderedExercises, id: \.id) { exercise in
-                    ExerciseLoggingCard(
-                        exercise: exercise,
-                        currentEntries: currentEntries(for: exercise.id),
-                        prefill: viewModel.prefillSet(
-                            for: exercise.id,
-                            currentSession: session,
-                            sessions: sessions
-                        ),
-                        referenceProvider: { setIndex in
-                            viewModel.referenceSet(
+                    ForEach(orderedExercises, id: \.id) { exercise in
+                        let rule = progressionRules.first(where: {
+                            $0.exerciseId == exercise.id && $0.cycleId == session.cycleId
+                        })
+                        ExerciseLoggingCard(
+                            exercise: exercise,
+                            progressionRule: rule,
+                            activeCycle: activeCycle,
+                            weekNumber: session.weekNumber,
+                            currentEntries: currentEntries(for: exercise.id),
+                            prefill: viewModel.prefillSet(
                                 for: exercise.id,
-                                setIndex: setIndex,
                                 currentSession: session,
-                                sessions: sessions
-                            )
-                        },
-                        onComplete: { weight, reps, rpe, isWarmup in
-                            completeSet(
-                                exercise: exercise,
-                                weight: weight,
-                                reps: reps,
-                                rpe: rpe,
-                                isWarmup: isWarmup
-                            )
-                        }
-                    )
-                }
-
-                RestTimerPanel(manager: restTimer)
-
-                Button {
-                    showingEndWorkoutFeeling = true
-                } label: {
-                    HStack {
-                        Text("End Workout")
-                            .font(AtlasTheme.Typography.sectionTitle)
-                        Spacer(minLength: 0)
-                        Image(systemName: "checkmark.circle.fill")
+                                sessions: sessions,
+                                rule: rule,
+                                cycle: activeCycle
+                            ),
+                            referenceProvider: { setIndex in
+                                viewModel.referenceSet(
+                                    for: exercise.id,
+                                    setIndex: setIndex,
+                                    currentSession: session,
+                                    sessions: sessions
+                                )
+                            },
+                            onComplete: { weight, reps, rir, isWarmup in
+                                completeSet(exercise: exercise, rule: rule, weight: weight, reps: reps, rir: rir, isWarmup: isWarmup)
+                            },
+                            onRIRZero: { exerciseName, completion in
+                                pendingFailureExerciseName = exerciseName
+                                pendingFailureCompletion = completion
+                                showFailureModal = true
+                            }
+                        )
                     }
-                    .foregroundStyle(AtlasTheme.Colors.accent)
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 52)
-                    .atlasCardStyle()
+
+                    RestTimerPanel(manager: restTimer)
+
+                    Button {
+                        showingEndWorkoutFeeling = true
+                    } label: {
+                        HStack {
+                            Text("End Workout")
+                                .font(AtlasTheme.Typography.sectionTitle)
+                            Spacer(minLength: 0)
+                            Image(systemName: "checkmark.circle.fill")
+                        }
+                        .foregroundStyle(AtlasTheme.Colors.accent)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 52)
+                        .atlasCardStyle()
+                    }
+                    .buttonStyle(.plain)
                 }
-                .buttonStyle(.plain)
+                .padding(AtlasTheme.Spacing.md)
+                .padding(.bottom, toastMessage != nil ? 80 : 0)
             }
-            .padding(AtlasTheme.Spacing.md)
+            .background(AtlasTheme.Colors.background)
+
+            // Toast overlay
+            if let msg = toastMessage {
+                toastView(msg)
+                    .transition(reduceMotion ? .opacity : .move(edge: .bottom).combined(with: .opacity))
+                    .zIndex(10)
+            }
         }
-        .background(AtlasTheme.Colors.background)
         .navigationTitle(template?.name ?? "Workout")
         .navigationBarTitleDisplayMode(.inline)
+        .animation(reduceMotion ? nil : .spring(response: 0.4, dampingFraction: 0.8), value: toastMessage)
         .sheet(isPresented: $showingEndWorkoutFeeling) {
             EndWorkoutFeelingView(session: session) {
                 showingEndWorkoutFeeling = false
+                checkAndShowRecalibrationToast()
             }
+        }
+        .sheet(isPresented: $showFailureModal) {
+            FailureConfirmationSheet(
+                exerciseName: pendingFailureExerciseName,
+                onConfirm: {
+                    pendingFailureCompletion?(true)
+                    pendingFailureCompletion = nil
+                },
+                onSkip: {
+                    pendingFailureCompletion?(false)
+                    pendingFailureCompletion = nil
+                }
+            )
+            .presentationDetents([.height(280)])
         }
     }
 
+    // MARK: - Header
+
     private var headerCard: some View {
         VStack(alignment: .leading, spacing: AtlasTheme.Spacing.xs) {
-            Text(template?.name ?? "Workout")
-                .font(AtlasTheme.Typography.hero)
+            HStack {
+                Text(template?.name ?? "Workout")
+                    .font(AtlasTheme.Typography.hero)
+                Spacer(minLength: 0)
+                if session.weekNumber > 0 {
+                    Text("Week \(session.weekNumber)")
+                        .font(AtlasTheme.Typography.caption)
+                        .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                        .padding(.horizontal, AtlasTheme.Spacing.xs)
+                        .padding(.vertical, AtlasTheme.Spacing.xxs)
+                        .background(AtlasTheme.Colors.accentSoft)
+                        .clipShape(Capsule())
+                }
+            }
             Text("Dumbbell logging uses total weight by default.")
                 .font(AtlasTheme.Typography.caption)
                 .foregroundStyle(AtlasTheme.Colors.textSecondary)
@@ -107,145 +168,302 @@ struct ActiveWorkoutView: View {
         .atlasCardStyle()
     }
 
+    // MARK: - Helpers
+
     private func currentEntries(for exerciseID: UUID) -> [SetEntry] {
         session.setEntries
             .filter { $0.exerciseId == exerciseID }
             .sorted { $0.setIndex < $1.setIndex }
     }
 
-    private func completeSet(exercise: Exercise, weight: Double, reps: Int, rpe: Double, isWarmup: Bool) {
+    private func completeSet(
+        exercise: Exercise,
+        rule: ProgressionRule?,
+        weight: Double,
+        reps: Int,
+        rir: Int,
+        isWarmup: Bool
+    ) {
         let setIndex = currentEntries(for: exercise.id).count
+
+        // Compute target snapshot for this set
+        var targetWeight = 0.0
+        var targetReps = 0
+        if let rule, let cycle = activeCycle, session.weekNumber > 0 {
+            let snapshot = rule.snapshot(weekCount: cycle.weekCount)
+            let outcomes = rule.buildOutcomes(from: Array(sessions))
+            if let wt = ProgressionEngine.target(for: session.weekNumber, rule: snapshot, outcomes: outcomes) {
+                targetWeight = wt.weightKg
+                targetReps = wt.reps
+            }
+        }
+
+        let metTarget = (targetWeight > 0) ? (weight >= targetWeight && reps >= targetReps) : false
+
         let entry = SetEntry(
             sessionId: session.id,
             exerciseId: exercise.id,
             weight: weight,
             reps: reps,
-            rpe: rpe,
+            rpe: 0,
+            rir: rir,
+            targetWeight: targetWeight,
+            targetReps: targetReps,
+            metTarget: metTarget,
             isWarmup: isWarmup,
             isCompleted: true,
             setIndex: setIndex
         )
         entry.session = session
         modelContext.insert(entry)
-
-        // Resilience requirement: persist on every completed set.
         try? modelContext.save()
 
         restTimer.start(totalSeconds: 90)
     }
+
+    private func checkAndShowRecalibrationToast() {
+        // Show toast if any future weeks were recalibrated (i.e. any set failed target)
+        let hasFailures = session.setEntries.contains { !$0.metTarget && $0.targetWeight > 0 }
+        if hasFailures, let cycle = activeCycle, session.weekNumber > 0 {
+            let futureWeeks = cycle.weekCount - session.weekNumber
+            if futureWeeks > 0 {
+                showToast("Future targets adjusted: Weeks \(session.weekNumber + 1)–\(cycle.weekCount) recalibrated")
+            }
+        }
+    }
+
+    private func showToast(_ message: String) {
+        toastMessage = message
+        Task {
+            try? await Task.sleep(for: .seconds(3))
+            toastMessage = nil
+        }
+    }
+
+    @ViewBuilder
+    private func toastView(_ message: String) -> some View {
+        Text(message)
+            .font(AtlasTheme.Typography.caption)
+            .foregroundStyle(.white)
+            .padding(.horizontal, AtlasTheme.Spacing.md)
+            .padding(.vertical, AtlasTheme.Spacing.sm)
+            .background(Color.black.opacity(0.85))
+            .clipShape(Capsule())
+            .padding(.horizontal, AtlasTheme.Spacing.md)
+            .padding(.bottom, AtlasTheme.Spacing.lg)
+            .accessibilityAddTraits(.isStaticText)
+    }
 }
+
+// MARK: - Exercise Logging Card
 
 private struct ExerciseLoggingCard: View {
     let exercise: Exercise
+    let progressionRule: ProgressionRule?
+    let activeCycle: Cycle?
+    let weekNumber: Int
     let currentEntries: [SetEntry]
     let prefill: SetPrefill?
     let referenceProvider: (Int) -> SetEntry?
-    let onComplete: (_ weight: Double, _ reps: Int, _ rpe: Double, _ isWarmup: Bool) -> Void
+    let onComplete: (_ weight: Double, _ reps: Int, _ rir: Int, _ isWarmup: Bool) -> Void
+    let onRIRZero: (_ exerciseName: String, _ completion: @escaping (Bool) -> Void) -> Void
 
     @State private var weightText = ""
     @State private var repsText = ""
-    @State private var rpe: Double = 0
+    @State private var rir: Int = -1
     @State private var isWarmup = false
     @State private var seeded = false
 
     private var parsedWeight: Double {
         Double(weightText.replacingOccurrences(of: ",", with: ".")) ?? 0
     }
+    private var parsedReps: Int { Int(repsText) ?? 0 }
+    private var canComplete: Bool { parsedWeight > 0 || parsedReps > 0 }
 
-    private var parsedReps: Int {
-        Int(repsText) ?? 0
-    }
-
-    private var canComplete: Bool {
-        parsedWeight > 0 || parsedReps > 0
+    private var weekTarget: ProgressionEngine.WeekTarget? {
+        guard let rule = progressionRule, let cycle = activeCycle, weekNumber > 0 else { return nil }
+        return ProgressionEngine.target(for: weekNumber, rule: rule.snapshot(weekCount: cycle.weekCount), outcomes: [])
     }
 
     var body: some View {
         VStack(alignment: .leading, spacing: AtlasTheme.Spacing.sm) {
-            Text(exercise.displayName)
-                .font(AtlasTheme.Typography.sectionTitle)
-
-            VStack(spacing: AtlasTheme.Spacing.xs) {
-                ForEach(currentEntries, id: \.id) { entry in
-                    CompletedSetRow(
-                        index: entry.setIndex + 1,
-                        entry: entry,
-                        reference: referenceProvider(entry.setIndex)
-                    )
+            // Exercise header + deload badge
+            HStack(alignment: .firstTextBaseline) {
+                Text(exercise.displayName)
+                    .font(AtlasTheme.Typography.sectionTitle)
+                Spacer(minLength: 0)
+                if progressionRule?.isDeloaded == true {
+                    Label("Deload", systemImage: "arrow.down.circle.fill")
+                        .font(AtlasTheme.Typography.caption)
+                        .foregroundStyle(AtlasTheme.Colors.deloadBadge)
+                        .accessibilityLabel("Deload week")
                 }
             }
 
-            VStack(spacing: AtlasTheme.Spacing.sm) {
-                HStack(spacing: AtlasTheme.Spacing.xs) {
-                    MetricInputField(title: "Weight (kg)", text: $weightText, keyboard: .decimalPad)
-                    MetricInputField(title: "Reps", text: $repsText, keyboard: .numberPad)
-                }
-
-                HStack(spacing: AtlasTheme.Spacing.xs) {
-                    Menu {
-                        Button("Clear RPE") { rpe = 0 }
-                        ForEach(1...10, id: \.self) { value in
-                            Button("\(value)") { rpe = Double(value) }
-                        }
-                    } label: {
-                        HStack {
-                            Text(rpe > 0 ? "RPE \(Int(rpe))" : "RPE Optional")
-                                .font(AtlasTheme.Typography.body)
-                            Spacer(minLength: 0)
-                            Image(systemName: "chevron.down")
-                                .font(.caption)
-                        }
-                        .padding(.horizontal, AtlasTheme.Spacing.sm)
-                        .frame(height: 44)
-                        .background(AtlasTheme.Colors.background)
-                        .clipShape(RoundedRectangle(cornerRadius: AtlasTheme.Radius.md, style: .continuous))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: AtlasTheme.Radius.md, style: .continuous)
-                                .stroke(AtlasTheme.Colors.border, lineWidth: 1)
+            // Completed set rows
+            if !currentEntries.isEmpty {
+                VStack(spacing: AtlasTheme.Spacing.xs) {
+                    ForEach(currentEntries, id: \.id) { entry in
+                        CompletedSetRow(
+                            index: entry.setIndex + 1,
+                            entry: entry,
+                            reference: referenceProvider(entry.setIndex)
                         )
                     }
-                    .buttonStyle(.plain)
+                }
+            }
 
+            // 3-column input: TARGET | WEIGHT | REPS
+            VStack(spacing: AtlasTheme.Spacing.sm) {
+                HStack(spacing: AtlasTheme.Spacing.xs) {
+                    if let target = weekTarget {
+                        TargetColumn(weightKg: target.weightKg, reps: target.reps)
+                    }
+                    MetricInputField(title: "WEIGHT (kg)", text: $weightText, keyboard: .decimalPad)
+                    MetricInputField(title: "REPS", text: $repsText, keyboard: .numberPad)
+                }
+
+                // RIR stepper (0–5 capsule buttons)
+                RIRStepper(selected: $rir)
+
+                // Warmup toggle + Done button
+                HStack(spacing: AtlasTheme.Spacing.xs) {
                     Toggle("Warmup", isOn: $isWarmup)
                         .toggleStyle(.switch)
                         .frame(minHeight: 44)
-                }
 
-                Button {
-                    onComplete(parsedWeight, parsedReps, rpe, isWarmup)
-                } label: {
-                    Text("Done")
-                        .font(AtlasTheme.Typography.sectionTitle)
-                        .foregroundStyle(.white)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 48)
-                        .background(canComplete ? AtlasTheme.Colors.accent : Color.gray.opacity(0.35))
-                        .clipShape(RoundedRectangle(cornerRadius: AtlasTheme.Radius.md, style: .continuous))
+                    Spacer(minLength: 0)
+
+                    Button {
+                        handleDone()
+                    } label: {
+                        Text("Done")
+                            .font(AtlasTheme.Typography.sectionTitle)
+                            .foregroundStyle(.white)
+                            .frame(minWidth: 80, minHeight: 44)
+                            .padding(.horizontal, AtlasTheme.Spacing.sm)
+                            .background(canComplete ? AtlasTheme.Colors.accent : Color.gray.opacity(0.35))
+                            .clipShape(RoundedRectangle(cornerRadius: AtlasTheme.Radius.md, style: .continuous))
+                    }
+                    .buttonStyle(.plain)
+                    .disabled(!canComplete)
                 }
-                .buttonStyle(.plain)
-                .disabled(!canComplete)
             }
         }
         .atlasCardStyle()
-        .onAppear {
-            seedFromPrefillIfNeeded()
+        .onAppear { seedFromPrefillIfNeeded() }
+    }
+
+    private func handleDone() {
+        if rir == 0 {
+            onRIRZero(exercise.displayName) { confirmed in
+                let finalRir = confirmed ? 0 : -1
+                onComplete(parsedWeight, parsedReps, finalRir, isWarmup)
+                resetInputs()
+            }
+        } else {
+            onComplete(parsedWeight, parsedReps, rir, isWarmup)
+            resetInputs()
         }
+    }
+
+    private func resetInputs() {
+        // Keep weight/reps prefilled for next set
+        rir = -1
     }
 
     private func seedFromPrefillIfNeeded() {
         guard !seeded else { return }
         seeded = true
-
         guard let prefill else { return }
-        weightText = formatWeight(prefill.weight)
+        weightText = prefill.weight.weightString
         repsText = "\(prefill.reps)"
-        rpe = prefill.rpe
-    }
-
-    private func formatWeight(_ value: Double) -> String {
-        value == floor(value) ? "\(Int(value))" : String(format: "%.1f", value)
+        rir = prefill.rir
     }
 }
+
+// MARK: - Target Column (ghost, read-only)
+
+private struct TargetColumn: View {
+    let weightKg: Double
+    let reps: Int
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: AtlasTheme.Spacing.xxs) {
+            Text("TARGET")
+                .font(AtlasTheme.Typography.caption)
+                .foregroundStyle(AtlasTheme.Colors.ghostText)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(weightKg.weightString + "kg")
+                    .font(AtlasTheme.Typography.metric)
+                    .foregroundStyle(AtlasTheme.Colors.ghostText)
+                    .monospacedDigit()
+                Text("× \(reps)")
+                    .font(AtlasTheme.Typography.caption)
+                    .foregroundStyle(AtlasTheme.Colors.ghostText)
+            }
+        }
+        .frame(maxWidth: .infinity)
+        .frame(minHeight: 52)
+        .padding(.horizontal, AtlasTheme.Spacing.sm)
+        .background(AtlasTheme.Colors.background)
+        .clipShape(RoundedRectangle(cornerRadius: AtlasTheme.Radius.md, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: AtlasTheme.Radius.md, style: .continuous)
+                .stroke(AtlasTheme.Colors.border, lineWidth: 1)
+                .opacity(0.5)
+        )
+        .accessibilityLabel("Target: \(weightKg.weightString)kg × \(reps) reps")
+    }
+}
+
+// MARK: - RIR Stepper
+
+private struct RIRStepper: View {
+    @Binding var selected: Int
+
+    private let values = [-1, 0, 1, 2, 3, 4, 5]
+    private let labels = ["—", "0", "1", "2", "3", "4", "5"]
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: AtlasTheme.Spacing.xxs) {
+            Text("RIR (Reps in Reserve)")
+                .font(AtlasTheme.Typography.caption)
+                .foregroundStyle(AtlasTheme.Colors.textSecondary)
+            HStack(spacing: AtlasTheme.Spacing.xxs) {
+                ForEach(Array(zip(values, labels)), id: \.0) { value, label in
+                    Button {
+                        selected = value
+                    } label: {
+                        Text(label)
+                            .font(AtlasTheme.Typography.body.weight(selected == value ? .bold : .regular))
+                            .frame(maxWidth: .infinity)
+                            .frame(minHeight: 44)
+                            .background(capsuleBackground(for: value))
+                            .foregroundStyle(capsuleForeground(for: value))
+                            .clipShape(Capsule())
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel(value == -1 ? "No RIR set" : "RIR \(value)\(value == 0 ? " — failure" : "")")
+                }
+            }
+        }
+    }
+
+    private func capsuleBackground(for value: Int) -> Color {
+        if selected == value {
+            return value == 0 ? Color.red : AtlasTheme.Colors.accent
+        }
+        return AtlasTheme.Colors.background
+    }
+
+    private func capsuleForeground(for value: Int) -> Color {
+        if selected == value { return .white }
+        return value == 0 ? AtlasTheme.Colors.failureAccent : AtlasTheme.Colors.textPrimary
+    }
+}
+
+// MARK: - Metric Input Field
 
 private struct MetricInputField: View {
     let title: String
@@ -274,19 +492,21 @@ private struct MetricInputField: View {
     }
 }
 
+// MARK: - Completed Set Row
+
 private struct CompletedSetRow: View {
     let index: Int
     let entry: SetEntry
     let reference: SetEntry?
 
+    private var isFailed: Bool {
+        entry.targetWeight > 0 && (entry.weight < entry.targetWeight || entry.reps < entry.targetReps)
+    }
+
     private var isProgressive: Bool {
         guard let reference else { return false }
-        if entry.weight > reference.weight {
-            return true
-        }
-        if entry.weight == reference.weight {
-            return entry.reps > reference.reps
-        }
+        if entry.weight > reference.weight { return true }
+        if entry.weight == reference.weight { return entry.reps > reference.reps }
         return false
     }
 
@@ -295,36 +515,56 @@ private struct CompletedSetRow: View {
             Text("Set \(index)")
                 .font(AtlasTheme.Typography.caption)
                 .foregroundStyle(AtlasTheme.Colors.textSecondary)
-                .frame(width: 50, alignment: .leading)
-            Text("\(formatWeight(entry.weight)) kg")
+                .frame(width: 44, alignment: .leading)
+
+            Text("\(entry.weight.weightString) kg")
                 .font(AtlasTheme.Typography.body)
                 .monospacedDigit()
             Text("× \(entry.reps)")
                 .font(AtlasTheme.Typography.body)
                 .monospacedDigit()
+
             Spacer(minLength: 0)
-            if entry.rpe > 0 {
-                Text("RPE \(formatWeight(entry.rpe))")
+
+            if isFailed {
+                // HIG: never color alone — add icon + label
+                Label("Missed", systemImage: "xmark.circle.fill")
+                    .font(AtlasTheme.Typography.caption)
+                    .foregroundStyle(AtlasTheme.Colors.failureAccent)
+                    .accessibilityLabel("Set missed target")
+            } else if entry.rir >= 0 {
+                Text("RIR \(entry.rir)")
                     .font(AtlasTheme.Typography.caption)
                     .foregroundStyle(AtlasTheme.Colors.textSecondary)
             }
-            Image(systemName: "checkmark.circle.fill")
-                .foregroundStyle(AtlasTheme.Colors.accent)
+
+            Image(systemName: isFailed ? "xmark.circle.fill" : "checkmark.circle.fill")
+                .foregroundStyle(isFailed ? AtlasTheme.Colors.failureAccent : AtlasTheme.Colors.accent)
+                .accessibilityHidden(true)
         }
         .padding(.horizontal, AtlasTheme.Spacing.sm)
-        .frame(height: 52)
-        .background(AtlasTheme.Colors.background)
+        .frame(minHeight: 52)
+        .background(isFailed ? AtlasTheme.Colors.failureAccent.opacity(0.08) : AtlasTheme.Colors.background)
         .clipShape(RoundedRectangle(cornerRadius: AtlasTheme.Radius.md, style: .continuous))
         .overlay(
             RoundedRectangle(cornerRadius: AtlasTheme.Radius.md, style: .continuous)
-                .stroke(isProgressive ? AtlasTheme.Colors.progress : AtlasTheme.Colors.border, lineWidth: isProgressive ? 2 : 1)
+                .stroke(
+                    isFailed ? AtlasTheme.Colors.failureAccent.opacity(0.5) :
+                    isProgressive ? AtlasTheme.Colors.progress : AtlasTheme.Colors.border,
+                    lineWidth: (isFailed || isProgressive) ? 2 : 1
+                )
         )
+        .accessibilityElement(children: .combine)
+        .accessibilityValue(accessibilityValue)
     }
 
-    private func formatWeight(_ value: Double) -> String {
-        value == floor(value) ? "\(Int(value))" : String(format: "%.1f", value)
+    private var accessibilityValue: String {
+        let target = entry.targetWeight > 0 ? "Target: \(entry.targetWeight.weightString)kg × \(entry.targetReps). " : ""
+        return "\(target)Actual: \(entry.weight.weightString)kg × \(entry.reps)."
     }
 }
+
+// MARK: - Rest Timer Panel
 
 private struct RestTimerPanel: View {
     @ObservedObject var manager: RestTimerManager
@@ -333,21 +573,16 @@ private struct RestTimerPanel: View {
         VStack(alignment: .leading, spacing: AtlasTheme.Spacing.sm) {
             Text("Rest Timer")
                 .font(AtlasTheme.Typography.sectionTitle)
-
             HStack {
                 Text(manager.label)
                     .font(.system(size: 32, weight: .bold, design: .rounded))
                     .monospacedDigit()
-
                 Spacer(minLength: 0)
-
                 if manager.isRunning {
-                    Button("Stop") {
-                        manager.stop()
-                    }
-                    .font(AtlasTheme.Typography.body)
-                    .foregroundStyle(.red)
-                    .frame(minWidth: 64, minHeight: 44)
+                    Button("Stop") { manager.stop() }
+                        .font(AtlasTheme.Typography.body)
+                        .foregroundStyle(.red)
+                        .frame(minWidth: 64, minHeight: 44)
                 } else {
                     HStack(spacing: AtlasTheme.Spacing.xs) {
                         Button("1:30") { manager.start(totalSeconds: 90) }
@@ -362,9 +597,10 @@ private struct RestTimerPanel: View {
     }
 }
 
+// MARK: - End Workout Feeling
+
 struct EndWorkoutFeelingView: View {
     @Bindable var session: WorkoutSession
-
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
     let onDone: () -> Void
@@ -374,7 +610,6 @@ struct EndWorkoutFeelingView: View {
             VStack(spacing: AtlasTheme.Spacing.lg) {
                 Text("How did this workout feel?")
                     .font(AtlasTheme.Typography.sectionTitle)
-
                 HStack(spacing: AtlasTheme.Spacing.md) {
                     ForEach(1...5, id: \.self) { value in
                         Button("\(value)") {
@@ -383,22 +618,16 @@ struct EndWorkoutFeelingView: View {
                         }
                         .font(AtlasTheme.Typography.sectionTitle)
                         .frame(width: 44, height: 44)
-                        .background(
-                            session.overallFeeling == value ? AtlasTheme.Colors.accent : AtlasTheme.Colors.background
-                        )
+                        .background(session.overallFeeling == value ? AtlasTheme.Colors.accent : AtlasTheme.Colors.background)
                         .foregroundStyle(session.overallFeeling == value ? .white : AtlasTheme.Colors.textPrimary)
                         .clipShape(Circle())
                         .overlay(Circle().stroke(AtlasTheme.Colors.border, lineWidth: 1))
                     }
                 }
-
-                Button("Skip") {
-                    finishSession()
-                }
-                .font(AtlasTheme.Typography.body)
-                .foregroundStyle(AtlasTheme.Colors.textSecondary)
-                .frame(minHeight: 44)
-
+                Button("Skip") { finishSession() }
+                    .font(AtlasTheme.Typography.body)
+                    .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                    .frame(minHeight: 44)
                 Spacer(minLength: 0)
             }
             .padding(AtlasTheme.Spacing.md)
@@ -415,28 +644,103 @@ struct EndWorkoutFeelingView: View {
     }
 }
 
+// MARK: - Failure Confirmation Sheet
+
+private struct FailureConfirmationSheet: View {
+    let exerciseName: String
+    let onConfirm: () -> Void
+    let onSkip: () -> Void
+
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        NavigationStack {
+            VStack(spacing: AtlasTheme.Spacing.lg) {
+                Image(systemName: "exclamationmark.triangle.fill")
+                    .font(.system(size: 40))
+                    .foregroundStyle(AtlasTheme.Colors.failureAccent)
+                    .accessibilityHidden(true)
+
+                Text("You hit failure on \(exerciseName).")
+                    .font(AtlasTheme.Typography.sectionTitle)
+                    .multilineTextAlignment(.center)
+
+                VStack(spacing: AtlasTheme.Spacing.xs) {
+                    Button {
+                        onConfirm()
+                        dismiss()
+                    } label: {
+                        Text("Log as Failure")
+                            .font(AtlasTheme.Typography.sectionTitle)
+                            .foregroundStyle(.white)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 52)
+                            .background(AtlasTheme.Colors.failureAccent)
+                            .clipShape(RoundedRectangle(cornerRadius: AtlasTheme.Radius.md, style: .continuous))
+                    }
+                    .buttonStyle(.plain)
+
+                    Button {
+                        onSkip()
+                        dismiss()
+                    } label: {
+                        Text("Skip")
+                            .font(AtlasTheme.Typography.body)
+                            .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 44)
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+            .padding(AtlasTheme.Spacing.md)
+            .background(AtlasTheme.Colors.background.ignoresSafeArea())
+            .navigationBarTitleDisplayMode(.inline)
+        }
+    }
+}
+
+// MARK: - SetPrefill
+
 struct SetPrefill {
     let weight: Double
     let reps: Int
-    let rpe: Double
+    let rir: Int
 }
+
+// MARK: - ActiveWorkoutViewModel
 
 @MainActor
 final class ActiveWorkoutViewModel: ObservableObject {
-    func prefillSet(for exerciseID: UUID, currentSession: WorkoutSession, sessions: [WorkoutSession]) -> SetPrefill? {
+
+    func prefillSet(
+        for exerciseID: UUID,
+        currentSession: WorkoutSession,
+        sessions: [WorkoutSession],
+        rule: ProgressionRule?,
+        cycle: Cycle?
+    ) -> SetPrefill? {
+        // First: use the current session's last completed set for this exercise
         let current = currentSession.setEntries
             .filter { $0.exerciseId == exerciseID }
             .sorted { $0.setIndex < $1.setIndex }
 
         if let currentLast = current.last {
-            return SetPrefill(weight: currentLast.weight, reps: currentLast.reps, rpe: currentLast.rpe)
+            return SetPrefill(weight: currentLast.weight, reps: currentLast.reps, rir: currentLast.rir)
         }
 
+        // If a progression rule exists, use the engine target as prefill weight
+        if let rule, let cycle, currentSession.weekNumber > 0 {
+            if let target = ProgressionEngine.target(for: currentSession.weekNumber, rule: rule.snapshot(weekCount: cycle.weekCount), outcomes: []) {
+                return SetPrefill(weight: target.weightKg, reps: target.reps, rir: -1)
+            }
+        }
+
+        // Fallback: last historical set
         guard let reference = latestSessionSet(for: exerciseID, currentSession: currentSession, sessions: sessions) else {
             return nil
         }
-
-        return SetPrefill(weight: reference.weight, reps: reference.reps, rpe: reference.rpe)
+        return SetPrefill(weight: reference.weight, reps: reference.reps, rir: reference.rir)
     }
 
     func referenceSet(
@@ -448,25 +752,15 @@ final class ActiveWorkoutViewModel: ObservableObject {
         guard let lastSession = latestSession(for: exerciseID, currentSession: currentSession, sessions: sessions) else {
             return nil
         }
-
         let sets = lastSession.setEntries
             .filter { $0.exerciseId == exerciseID && $0.isCompleted }
             .sorted { $0.setIndex < $1.setIndex }
-
         guard !sets.isEmpty else { return nil }
-
-        if setIndex < sets.count {
-            return sets[setIndex]
-        }
-
-        return sets.last
+        return setIndex < sets.count ? sets[setIndex] : sets.last
     }
 
     private func latestSessionSet(for exerciseID: UUID, currentSession: WorkoutSession, sessions: [WorkoutSession]) -> SetEntry? {
-        guard let session = latestSession(for: exerciseID, currentSession: currentSession, sessions: sessions) else {
-            return nil
-        }
-
+        guard let session = latestSession(for: exerciseID, currentSession: currentSession, sessions: sessions) else { return nil }
         return session.setEntries
             .filter { $0.exerciseId == exerciseID && $0.isCompleted }
             .sorted { $0.setIndex < $1.setIndex }
@@ -481,6 +775,8 @@ final class ActiveWorkoutViewModel: ObservableObject {
         }
     }
 }
+
+// MARK: - RestTimerManager
 
 @MainActor
 final class RestTimerManager: ObservableObject {
@@ -498,7 +794,6 @@ final class RestTimerManager: ObservableObject {
 
     func start(totalSeconds: Int) {
         stop()
-
         secondsRemaining = totalSeconds
         isRunning = true
 
@@ -506,12 +801,7 @@ final class RestTimerManager: ObservableObject {
         let attributes = RestTimerAttributes()
         let state = RestTimerAttributes.ContentState(endDate: endDate)
         let content = ActivityContent(state: state, staleDate: endDate.addingTimeInterval(60))
-
-        activity = try? Activity<RestTimerAttributes>.request(
-            attributes: attributes,
-            content: content,
-            pushType: nil
-        )
+        activity = try? Activity<RestTimerAttributes>.request(attributes: attributes, content: content, pushType: nil)
 
         task = Task { [weak self] in
             guard let self else { return }
@@ -527,10 +817,8 @@ final class RestTimerManager: ObservableObject {
     func stop() {
         task?.cancel()
         task = nil
-
         isRunning = false
         secondsRemaining = 0
-
         endCurrentActivity(dismissalPolicy: .immediate)
     }
 
@@ -545,26 +833,20 @@ final class RestTimerManager: ObservableObject {
 
     private func endCurrentActivity(dismissalPolicy: ActivityUIDismissalPolicy) {
         guard let activity else { return }
-        Task {
-            await activity.end(nil, dismissalPolicy: dismissalPolicy)
-        }
+        Task { await activity.end(nil, dismissalPolicy: dismissalPolicy) }
         self.activity = nil
     }
 
-    deinit {
-        task?.cancel()
-    }
+    deinit { task?.cancel() }
 }
 
 #Preview {
     NavigationStack {
         let container = PreviewSampleData.makePreviewContainer()
         let session = (try? container.mainContext.fetch(FetchDescriptor<WorkoutSession>()))?.first
-
         return Group {
             if let session {
-                ActiveWorkoutView(session: session)
-                    .modelContainer(container)
+                ActiveWorkoutView(session: session).modelContainer(container)
             }
         }
     }

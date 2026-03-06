@@ -4,10 +4,15 @@ Ordered goals with success criteria. Used to prioritize and say no.
 
 ---
 
-## 1. Ship a minimal lovable product (MLP)
+## 1. Ship the 8-Week Cycle + Cascading Failure Engine
 
-- **Goal**: Launch an iOS app that does one thing exceptionally well: log strength workouts from your own templates, with a rest timer, in under 3 seconds per set.
-- **Success**: App in TestFlight or App Store; users can create templates, start a session, log sets (weight, reps, optional RPE), run rest (including Live Activity), and rate session feeling. No critical bugs in core flow.
+- **Goal**: Launch the Adaptive Periodization Engine: 8-week cycle creation, per-exercise progression rules, target weight displayed before every set, cascading failure detection (3 misses → 10% deload), and auto-recalibration of future weeks.
+- **Success criteria**:
+  - Target weight visible on set row in < 0.5s after session start.
+  - Create Cycle → Week 1 shows targets → log below target → Week 2 shows same weight.
+  - 3 consecutive failures triggers deload badge and 10% weight reduction.
+  - App passes Gym Test: log a set with RIR in under 3 seconds on device.
+  - No critical bugs in core cycle flow.
 
 ---
 

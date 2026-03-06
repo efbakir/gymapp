@@ -2,7 +2,7 @@
 //  ContentView.swift
 //  AtlasLog
 //
-//  Root: Tab navigation (Home, Program, History).
+//  Root: Tab navigation (Home, Program, Cycles, History).
 //
 
 import SwiftUI
@@ -14,24 +14,23 @@ struct ContentView: View {
     var body: some View {
         TabView(selection: $selectedTab) {
             TodayView()
-                .tabItem {
-                    Label("Home", systemImage: "house.fill")
-                }
+                .tabItem { Label("Home", systemImage: "house.fill") }
                 .tag(0)
             TemplatesView()
-                .tabItem {
-                    Label("Program", systemImage: "list.bullet.rectangle")
-                }
+                .tabItem { Label("Program", systemImage: "list.bullet.rectangle") }
                 .tag(1)
-            HistoryView()
-                .tabItem {
-                    Label("History", systemImage: "chart.line.uptrend.xyaxis")
-                }
+            CyclesView()
+                .tabItem { Label("Cycles", systemImage: "calendar.badge.clock") }
                 .tag(2)
+            HistoryView()
+                .tabItem { Label("History", systemImage: "chart.line.uptrend.xyaxis") }
+                .tag(3)
         }
         .tint(AtlasTheme.Colors.accent)
     }
 }
+
+// MARK: - AtlasTheme
 
 enum AtlasTheme {
     enum Spacing {
@@ -52,18 +51,35 @@ enum AtlasTheme {
     }
 
     enum Shadow {
-        static let card = Color.black.opacity(0.06)
+        static let card = Color(uiColor: .separator).opacity(0.3)
     }
 
     enum Colors {
+        /// Brand accent: orange #FF4400
         static let accent = Color(red: 1.0, green: 0.27, blue: 0.0)
         static let accentSoft = Color(red: 1.0, green: 0.27, blue: 0.0).opacity(0.12)
+
+        // Dark-mode native semantic surfaces
         static let background = Color(.systemGroupedBackground)
         static let card = Color(.systemBackground)
+
         static let textPrimary = Color.primary
         static let textSecondary = Color.secondary
-        static let border = Color.black.opacity(0.08)
+
+        /// System separator — works on both light and dark
+        static let border = Color(uiColor: .separator)
+
+        /// Ghost / target text: muted, read-only
+        static let ghostText = Color.secondary
+
+        /// Progress / PR accent: slightly darker orange for dense contexts
         static let progress = Color(red: 0.84, green: 0.33, blue: 0.0)
+
+        /// Failure state: red accent
+        static let failureAccent = Color.red
+
+        /// Deload badge: orange with slight transparency
+        static let deloadBadge = Color.orange.opacity(0.8)
     }
 
     enum Typography {
@@ -74,6 +90,18 @@ enum AtlasTheme {
         static let metric = Font.system(.title3, design: .rounded).weight(.semibold)
     }
 }
+
+// MARK: - Double Formatting
+
+extension Double {
+    /// Format as weight string: whole numbers as integers, fractional as 1 decimal place.
+    /// e.g. 100.0 → "100", 92.5 → "92.5"
+    var weightString: String {
+        self == floor(self) ? "\(Int(self))" : String(format: "%.1f", self)
+    }
+}
+
+// MARK: - View Extensions
 
 extension View {
     func atlasCardStyle() -> some View {
