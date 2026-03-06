@@ -27,7 +27,14 @@ struct AtlasLogApp: App {
         do {
             return try ModelContainer(for: schema, configurations: [modelConfiguration])
         } catch {
-            fatalError("Could not create ModelContainer: \(error)")
+            // Keep the app launchable if an on-device store is incompatible.
+            assertionFailure("Persistent ModelContainer failed: \(error)")
+            let memoryConfig = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
+            do {
+                return try ModelContainer(for: schema, configurations: [memoryConfig])
+            } catch {
+                fatalError("Could not create fallback ModelContainer: \(error)")
+            }
         }
     }()
 

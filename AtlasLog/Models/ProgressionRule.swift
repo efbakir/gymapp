@@ -16,6 +16,9 @@ final class ProgressionRule {
     var incrementKg: Double
     var baseWeightKg: Double
     var baseReps: Int
+    /// Fractional deload amount after repeated failures. 0.10 = 10%
+    var deloadPercent: Double
+    var consecutiveFailures: Int
     var isDeloaded: Bool
 
     init(
@@ -25,6 +28,8 @@ final class ProgressionRule {
         incrementKg: Double = 2.5,
         baseWeightKg: Double,
         baseReps: Int,
+        deloadPercent: Double = 0.10,
+        consecutiveFailures: Int = 0,
         isDeloaded: Bool = false
     ) {
         self.id = id
@@ -33,32 +38,8 @@ final class ProgressionRule {
         self.incrementKg = incrementKg
         self.baseWeightKg = baseWeightKg
         self.baseReps = baseReps
+        self.deloadPercent = deloadPercent
+        self.consecutiveFailures = consecutiveFailures
         self.isDeloaded = isDeloaded
-    }
-
-    func snapshot(weekCount: Int) -> ProgressionEngine.ProgressionRuleSnapshot {
-        ProgressionEngine.ProgressionRuleSnapshot(
-            baseWeightKg: baseWeightKg,
-            baseReps: baseReps,
-            incrementKg: incrementKg,
-            weekCount: weekCount
-        )
-    }
-
-    func buildOutcomes(from sessions: [WorkoutSession]) -> [ProgressionEngine.SessionOutcome] {
-        sessions
-            .filter { $0.cycleId == cycleId && $0.weekNumber > 0 && $0.isCompleted }
-            .filter { session in
-                session.setEntries.contains { $0.exerciseId == exerciseId && !$0.isWarmup && $0.isCompleted }
-            }
-            .map { session in
-                let didFail = session.setEntries.contains { entry in
-                    entry.exerciseId == exerciseId
-                        && !entry.isWarmup
-                        && entry.isCompleted
-                        && ((entry.targetWeight > 0 && !entry.metTarget) || entry.rir == 0)
-                }
-                return ProgressionEngine.SessionOutcome(weekNumber: session.weekNumber, didFail: didFail)
-            }
     }
 }

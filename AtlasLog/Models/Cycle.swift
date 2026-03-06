@@ -45,4 +45,11 @@ final class Cycle {
         let week = max(1, (days / 7) + 1)
         return min(week, weekCount)
     }
+
+    func dateRange(for weekNumber: Int) -> ClosedRange<Date> {
+        let calendar = Calendar.current
+        let start = calendar.date(byAdding: .day, value: max(0, (weekNumber - 1) * 7), to: calendar.startOfDay(for: startDate)) ?? startDate
+        let end = calendar.date(byAdding: .day, value: 6, to: start) ?? start
+        return start...end
+    }
 }
