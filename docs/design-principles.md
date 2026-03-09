@@ -46,9 +46,9 @@ Principles that support “good design” and **always the one wins with the bes
 
 ## 6. Dark Mode Native
 
-- **What**: Unit runs dark-only surfaces. All colors are system semantic (`Color(.systemBackground)`, `Color(.systemGroupedBackground)`, `Color(uiColor: .separator)`). Orange accent `#FF4400` unchanged.
-- **Why**: The gym environment — often overhead lit or backlit — makes dark surfaces easier to read. System semantic colors respect the OS dark/light context automatically, but our UI is designed for dark.
-- **Apply**: Never hardcode white surfaces or black borders. Use `Color(.systemBackground)` for cards, `Color(.systemGroupedBackground)` for page backgrounds, `Color(uiColor: .separator)` for borders.
+- **What**: Unit runs dark-only surfaces. Base is a softened near-black with a subtle blue-grey or neutral grey tone — not pure black, not AMOLED black. Cards are separated from the background through fill contrast alone, never shadows.
+- **Why**: The gym environment — overhead lit or backlit — makes dark surfaces easier to read. A softened base prevents eye strain and feels premium, not gaming-like.
+- **Apply**: Never hardcode white surfaces or pure black. Never use shadows. Use `Color(.systemBackground)` for base, `Color(.systemGroupedBackground)` for elevated context, a distinct card fill for cards. Borders (`Color(uiColor: .separator)`) are sparse — only when fill contrast is insufficient. Orange accent `#FF4400` is restrained: one primary CTA per screen, not used for decoration or passive states.
 
 ---
 
@@ -61,6 +61,6 @@ Principles that support “good design” and **always the one wins with the bes
 | Speed | Gym Test: log a set with RIR in under 3 seconds. |
 | Consistency | Same patterns and accent everywhere. |
 | Accessibility | HIG-compliant: 44pt targets, 4.5:1 contrast, VoiceOver, Reduce Motion. |
-| Dark Mode Native | System semantic surfaces; orange `#FF4400` accent unchanged. |
+| Dark Mode Native | Softened near-black base, fill-contrast cards, no shadows, restrained orange. |
 
 Every design decision should be checked against these; when in doubt, favor **speed** and **minimalism** for the active workout experience.

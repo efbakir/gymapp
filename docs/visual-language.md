@@ -1,79 +1,131 @@
 # Unit — Visual Language
 
-Inspired by [Cash App](https://cash.app/) and the referenced collage: a high-performance, minimalist look that supports the Gym Test and feels focused and modern.
+Dark, calm, performance-focused. Benchmark for surface treatment: Revolut dark mode. Core test: can a tired user read this screen and log a set in under 3 seconds?
 
 ---
 
 ## 1. Color
 
-- **Surfaces**: Dark-mode native. Use system semantic colors: `Color(.systemBackground)` for cards, `Color(.systemGroupedBackground)` for page backgrounds. No hardcoded white.
-- **Primary accent**: `#FF4400` orange — actions (“Complete set,” “Start rest”), completed state, cycle progress, and key highlights. Unchanged across themes.
-- **Ghost / target text**: `Color.secondary` — used for computed targets, read-only values. Visually subordinate; not interactive.
+### Dark surfaces
+- **Base background**: Softened near-black with a subtle blue-grey or neutral grey influence. Not pure black. Not AMOLED black. Not a gaming aesthetic. Think `#0F1117` or `#111318` range — visually settled and premium.
+- **Elevated surface**: One step lighter than base. Used for sheets, grouped section backgrounds.
+- **Card surface**: One step lighter than elevated. Cards sit on the background through fill contrast alone — no shadows, no borders required to define them. A card must read as a card without decoration.
+- System semantic colors map to this intention: `Color(.systemBackground)` for base, `Color(.systemGroupedBackground)` for elevated context, card fill as a distinct UIColor fill value.
+
+### Accent
+- **Primary accent**: `#FF4400` orange. Used for: primary CTA, active rest timer state, current target highlight, cycle progress marker.
+- **Usage constraint**: Restrained. Orange is intentional — it signals "act here." Do not use it for decoration, secondary labels, passive states, or more than one interactive element per screen.
+- **Tone**: Mature, controlled. Not neon. Not overly saturated. It should feel like a precision instrument, not a sale tag. Study how Revolut deploys orange or red CTAs: singular, purposeful, calm.
+- **Adapt for dark**: On dark backgrounds `#FF4400` is bold enough — do not add glow, shadow, or background fill behind the accent button unless it is a full filled CTA.
+
+### Supporting colors
+- **Ghost / target text**: `Color.secondary` — computed targets, read-only engine values. Visually subordinate, never interactive.
+- **Completed state**: Muted, readable. Not loud. A filled checkmark or subdued green tone. Should not compete with active data.
 - **Failure state**: `Color.red` — missed targets, failure row background `Color.red.opacity(0.08)`, border `Color.red.opacity(0.5)`. Always paired with an icon (never color alone — HIG).
-- **Deload badge**: `Color.orange.opacity(0.8)` — signals auto-deload. Paired with `arrow.down.circle.fill` icon.
-- **Borders**: `Color(uiColor: .separator)` — adapts to dark/light automatically.
-- **Progress accent**: Slightly darker orange `rgb(214, 84, 0)` for volume charts and PR sparklines where full `#FF4400` would compete.
+- **Deload badge**: `Color.orange.opacity(0.8)` paired with `arrow.down.circle.fill`. Sparse use only.
+- **Borders**: `Color(uiColor: .separator)` — sparse, subtle. Only use when fill contrast alone cannot distinguish two surfaces. Default assumption: no border needed.
+- **Progress chart accent**: Slightly deeper orange `rgb(214, 84, 0)` for volume charts and PR sparklines where full `#FF4400` would compete with interactive elements.
 
 ---
 
-## 2. Typography
+## 2. Design system size (hard constraint)
 
-- **Hierarchy**: Large, bold for critical numbers (e.g. weight, reps) and main headings (e.g. exercise name, “Push A”). Medium for subheadings and action labels. Regular/light and smaller for secondary info (e.g. “Set 3,” “Last: 80 kg × 5”).
-- **Font**: System font (San Francisco) for consistency and accessibility. Prefer Dynamic Type–friendly styles.
-- **Rule**: The most important thing on screen (e.g. current set to log, rest countdown) should be the most prominent.
+The design system must stay minimal. Aim for exactly:
 
----
+| Role | Count |
+|------|-------|
+| Background levels | 3 (base / elevated / card) |
+| Accent colors | 1 (orange `#FF4400`) |
+| Border styles | 1 (separator, sparse) |
+| Success treatment | 1 |
+| Destructive treatment | 1 |
+| Text hierarchy levels | 3 (primary / secondary / ghost) |
+| Button variants | 2 (primary filled / secondary text or outlined) |
+| Card variants | 1 |
 
-## 3. Layout and structure
-
-- **Whitespace**: Generous spacing so content breathes. Avoid cramped set lists.
-- **Cards**: Group content in rounded-rectangle cards (e.g. one card per exercise, or one per set row) with subtle shadow or border. Clearly segment “this exercise” vs “this set.”
-- **Navigation**: Consistent top bar (title, back/close where needed). Bottom bar or floating action for primary actions (e.g. “Start rest,” “Complete set”) so they’re thumb-friendly.
-
----
-
-## 4. Components and patterns
-
-- **Primary CTA**: Rounded, filled with accent color (e.g. “Complete set,” “Start workout”). High visibility and large tap target.
-- **Secondary actions**: Outlined or text-only with accent color (e.g. “Skip RPE,” “Edit”).
-- **Inputs**: Large tappable areas for weight/reps. Pre-filled defaults. Optional RPE as picker (1–10) or compact control, not required.
-- **Success feedback**: Clear confirmation after logging a set (e.g. checkmark, brief state change). No ambiguous “did it save?”
-- **Modals / sheets**: Use bottom sheets or modals for focused tasks (e.g. edit set, pick template) so the user stays in context without full-screen jumps.
+Any addition must be justified by a Gym Test improvement. If it doesn't make logging faster or clearer, it doesn't ship.
 
 ---
 
-## 5. Iconography
+## 3. Typography
 
-- **Style**: Simple, consistent (e.g. SF Symbols). Line or flat; avoid decorative detail.
-- **Color**: Icons in black/grey; accent for active or primary (e.g. play for rest timer when running).
-- **Use**: Rest timer, add set, complete set, templates, history. No clutter.
-
----
-
-## 6. Rest timer and Live Activity
-
-- **In-app**: Rest timer visible on the active workout screen: big countdown or “Rest: 1:30” with start/pause. Same accent for “running.”
-- **Live Activity**: When rest is running, show countdown on Lock Screen and in Dynamic Island so the user can put the phone down. Minimal, legible, same visual language (accent, clear numbers).
+- **Hierarchy**: Numbers and key workout data (weight, reps, rest countdown) dominate. They are the largest and boldest elements. Exercise names are secondary. Labels and metadata are tertiary.
+- **Font**: System font (San Francisco). Dynamic Type–friendly styles only.
+- **Rule**: If text is not helping the user log or understand state, it should not be there.
 
 ---
 
-## 7. What we’re not doing (yet)
+## 4. Layout and structure
 
-- No full design system (tokens, component library) — enough structure to keep UI consistent.
-- No illustrations or marketing imagery in-app; focus on data and actions.
-- Dark mode is now mandatory (user requirement). Light mode support is not planned.
+- **No shadows**: Zero shadow use. Surface separation comes from fill contrast between background levels. Elevate without shadowing.
+- **Cards**: One card variant. Rounded rectangle. Card surface fill sits visibly above background. Minimal internal padding that keeps data dense but not cramped.
+- **One primary CTA per screen**: Every screen has exactly one filled, high-contrast primary action. Everything else is secondary or removed.
+- **Spacing**: Consistent 8pt grid. Generous between sections; tighter within a card to keep related data close.
+- **Navigation**: Consistent top bar. Bottom area reserved for primary CTA or rest timer. Thumb-friendly. No floating buttons that obscure data.
+
+---
+
+## 5. Components and patterns
+
+- **Primary CTA**: Filled, `#FF4400`, large, ≥ 44pt. One per screen. Label states the outcome ("Complete Set", "Start Workout", "Start Rest").
+- **Secondary actions**: Text or outlined, not orange. Small, not competing with primary.
+- **Inputs**: Large tap targets for weight and reps. Pre-filled from last session. No required fields beyond weight and reps.
+- **Success feedback**: Clear, unambiguous state change after logging (checkmark, row completion styling). No "did it save?" ambiguity.
+- **Bottom sheets**: For focused sub-tasks (edit set, template picker). User stays in context.
+- **RIR stepper**: 6 capsule buttons (0–5). Button "0" = red signal. ≥ 44pt each. Pre-fills from last session.
+
+---
+
+## 6. Iconography
+
+- **Style**: SF Symbols only. Line weight consistent. No decorative icons.
+- **Color**: `Color.secondary` for passive icons. Accent only for active/primary (e.g. running rest timer).
+- **Quantity**: Minimal. Only where icon replaces a label more efficiently, or where HIG requires icon+label pairing (e.g. failure state).
+
+---
+
+## 7. Rest timer and Live Activity
+
+- **In-app**: Big countdown. Same accent for "running." Visible without leaving the workout screen.
+- **Live Activity**: Lock Screen and Dynamic Island. Minimal, legible. Same visual language — no stylistic deviation.
+
+---
+
+## 8. Benchmark for dark surface treatment
+
+**Revolut dark mode** is the reference for how dark cards and dark surfaces should feel:
+- Cards are visibly distinct from backgrounds without borders or shadows
+- The overall surface feels layered, not flat and not cluttered
+- Color is sparse and purposeful
+- Typography and spacing carry hierarchy — not decoration
+
+When in doubt about a dark surface decision, ask: "Would this look appropriate in Revolut's dark UI?"
+
+---
+
+## 9. What we are not doing
+
+- No light mode
+- No gradients
+- No shadows
+- No glows or visual effects
+- No multiple accent colors
+- No decorative illustrations or imagery
+- No component proliferation
 
 ---
 
 ## Summary
 
-| Element | Guideline |
-|--------|-----------|
-| Color | Light backgrounds, one strong accent, black/grey text. |
-| Type | Clear hierarchy; critical numbers and headings prominent. |
-| Layout | Cards, whitespace, consistent nav and bottom actions. |
-| CTAs | Primary = accent, filled, large; secondary = outline/text. |
-| Feedback | Clear success state (e.g. checkmark) after logging. |
-| Rest timer | Big in-app; same language in Live Activity. |
+| Element | Rule |
+|---------|------|
+| Base background | Softened near-black, subtle blue-grey tone. Not pure black. |
+| Cards | Fill contrast only. No shadows. One variant. |
+| Accent | `#FF4400`. Restrained. One primary CTA per screen. |
+| Typography | Numbers dominate. 3 levels: primary / secondary / ghost. |
+| Borders | Sparse. Separator color. Use only when fill contrast is insufficient. |
+| Shadows | Never. |
+| Design system | Minimal. If it doesn't serve the Gym Test, it's not added. |
+| Benchmark | Revolut dark mode for surface control. |
 
-This visual language supports the **Gym Test** (fast, clear, low friction) and aligns with the design principles in [design-principles.md](design-principles.md).
+This visual language supports the **Gym Test**: fast, clear, low cognitive load, every screen.

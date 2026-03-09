@@ -70,14 +70,48 @@ If not:
 
 Match the project’s visual language. Default rules:
 
-- Light surfaces; near-black text.
-- One accent color only (as defined in the files).
-- No gradients, no “multi-accent palette,” no decoration-first UI.
-- Minimal visual noise; generous spacing.
+- Dark surfaces. Softened near-black base with subtle blue-grey or neutral grey tone. Not pure black. Not AMOLED.
+- Cards separated from background through fill contrast only. No shadows. Ever.
+- One accent color only: `#FF4400` orange. Restrained — one primary CTA per screen.
+- Orange must feel mature and controlled, not neon or loud.
+- No gradients, no multi-accent palette, no decorative effects.
+- Minimal visual noise; consistent spacing.
 - Numbers (weights, reps, timers) must dominate hierarchy.
-- Calm, structured, performance-oriented tone.
+- Calm, premium, performance-oriented tone.
 
-If another app (e.g. Cash App) is referenced, extract the principles (hierarchy, spacing, single CTA), not the brand look.
+When reference apps are shared (e.g. Revolut), extract the principles (surface layering, hierarchy, restrained color, single CTA) — not the brand look.
+
+---
+
+## What to do when benchmark apps or screenshots are shared
+
+When benchmark app screens or inspiration screenshots are provided, use this structure:
+
+### 1. What works in these references
+- Short bullets only
+- Focus on hierarchy, spacing, surfaces, cards, CTA clarity, and consistency
+
+### 2. What should NOT be brought into Unit
+- Short bullets only
+- Reject anything decorative, brand-specific, feature-adding, or complexity-increasing
+
+### 3. Principles Unit should adopt
+- Concrete and system-level, written as design rules
+
+### 4. Design system updates for Unit
+Exact recommendations for: color roles, background/surface/card layering, accent usage, typography hierarchy, corner radius, border usage, icon usage, spacing rhythm, component count reduction.
+
+### 5. Component updates
+Map to actual Unit components: app shell, top bar, tab bar, day card, exercise card, set row, bottom sheet, CTA button, secondary button, input fields, chips/tags, rest timer surface, progress indicators.
+For each: what to change, why, what to remove, what to standardize.
+
+### 6. Do / Don't
+Tight list of rules for future UI decisions.
+
+### 7. Priority
+- **High**: materially improves clarity, consistency, or speed of logging
+- **Medium**: improves coherence without affecting core speed
+- **Low**: polish, nice-to-have
 
 ---
 
