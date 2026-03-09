@@ -1,6 +1,6 @@
 //
 //  SetEntry.swift
-//  AtlasLog
+//  Unit
 //
 //  SwiftData model: one set (weight, reps, RPE, warmup, completed).
 //

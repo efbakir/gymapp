@@ -1,6 +1,6 @@
 //
 //  CyclesView.swift
-//  AtlasLog
+//  Unit
 //
 //  Minimal cycles screen so app can compile and run.
 //

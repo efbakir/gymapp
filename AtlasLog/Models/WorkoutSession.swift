@@ -1,6 +1,6 @@
 //
 //  WorkoutSession.swift
-//  AtlasLog
+//  Unit
 //
 //  SwiftData model: one instance of a template performed on a date.
 //

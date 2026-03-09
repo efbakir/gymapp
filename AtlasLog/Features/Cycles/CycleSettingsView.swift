@@ -1,6 +1,6 @@
 //
 //  CycleSettingsView.swift
-//  AtlasLog
+//  Unit
 //
 //  Settings sheet for an active cycle: increment, auto-deload, name, danger zone.
 //
@@ -15,6 +15,8 @@ struct CycleSettingsView: View {
     @Environment(\.dismiss) private var dismiss
 
     @Query private var rules: [ProgressionRule]
+    @Query(sort: \WorkoutSession.date, order: .reverse) private var sessions: [WorkoutSession]
+    @Query(sort: \Exercise.displayName) private var exercises: [Exercise]
     @State private var showingResetConfirm = false
 
     private var cycleRules: [ProgressionRule] {
@@ -44,6 +46,23 @@ struct CycleSettingsView: View {
                         }
                     }
                     .frame(minHeight: 44)
+                }
+
+                if !cycleRules.isEmpty {
+                    Section {
+                        ForEach(cycleRules, id: \.id) { rule in
+                            ExerciseWeightRow(
+                                rule: rule,
+                                cycle: cycle,
+                                sessions: Array(sessions),
+                                exerciseName: exercises.first(where: { $0.id == rule.exerciseId })?.displayName ?? "Exercise"
+                            )
+                        }
+                    } header: {
+                        Text("Exercise Base Weights")
+                    } footer: {
+                        Text("Changing base weight recalculates all future week targets.")
+                    }
                 }
 
                 Section("Danger Zone") {
@@ -89,4 +108,57 @@ struct CycleSettingsView: View {
         dismiss()
     }
 
+}
+
+// MARK: - Exercise Weight Row
+
+private struct ExerciseWeightRow: View {
+    @Bindable var rule: ProgressionRule
+    let cycle: Cycle
+    let sessions: [WorkoutSession]
+    let exerciseName: String
+
+    // The next planned weight for the current (or next) week
+    private var nextWeight: Double {
+        let weekNum = max(cycle.currentWeekNumber, 1)
+        let snapshot = rule.snapshot(weekCount: cycle.weekCount)
+        let outcomes = rule.buildOutcomes(from: sessions)
+        return ProgressionEngine.target(for: weekNum, rule: snapshot, outcomes: outcomes)?.weightKg ?? rule.baseWeightKg
+    }
+
+    // What the weight was before the current base (simulated with base - increment)
+    private var previousWeight: Double {
+        rule.baseWeightKg - rule.incrementKg
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: AtlasTheme.Spacing.xs) {
+            Text(exerciseName)
+                .font(AtlasTheme.Typography.body)
+
+            Stepper(
+                value: $rule.baseWeightKg,
+                in: 0...500,
+                step: 2.5
+            ) {
+                HStack {
+                    Text("Base")
+                        .font(AtlasTheme.Typography.caption)
+                        .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                    Spacer()
+                    Text("\(rule.baseWeightKg.weightString)kg")
+                        .font(AtlasTheme.Typography.body)
+                        .monospacedDigit()
+                }
+            }
+            .frame(minHeight: 44)
+
+            // Inline preview
+            Text("Next target: \(nextWeight.weightString)kg  ·  was \(previousWeight.weightString)kg")
+                .font(AtlasTheme.Typography.caption)
+                .foregroundStyle(AtlasTheme.Colors.accent)
+                .monospacedDigit()
+        }
+        .padding(.vertical, AtlasTheme.Spacing.xxs)
+    }
 }

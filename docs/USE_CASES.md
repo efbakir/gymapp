@@ -1,4 +1,4 @@
-# Atlas Log — Use Cases
+# Unit — Use Cases
 
 ## Use Case 1: The Architect Runs a Structured Cycle
 
@@ -18,7 +18,7 @@ Marcus opens Create Cycle, selects his PPL split, sets per-exercise base weights
 **Scenario:** Priya has been doing 80kg squat for 6 weeks. She doesn't know why she isn't progressing — she shows up, she tries. Her app shows the history but offers no diagnosis.
 
 **How the Engine Serves Her:**
-Atlas Log's failure count detects that she has missed the target 3 times in a row on squat. The deload badge appears in her logging card. Week 7 shows 72kg — 10% below her stall weight. She completes the deload. Week 8 targets 75kg. The plateau breaks.
+Unit's failure count detects that she has missed the target 3 times in a row on squat. The deload badge appears in her logging card. Week 7 shows 72kg — 10% below her stall weight. She completes the deload. Week 8 targets 75kg. The plateau breaks.
 
 ---
 

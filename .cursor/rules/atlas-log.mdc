@@ -1,10 +1,10 @@
 ---
-description: Atlas Log — tech stack, Gym Test, design principles, and docs
+description: Unit — tech stack, Gym Test, design principles, and docs
 globs: 
 alwaysApply: true
 ---
 
-# Atlas Log — Project Rules
+# Unit — Project Rules
 
 ## Tech stack
 

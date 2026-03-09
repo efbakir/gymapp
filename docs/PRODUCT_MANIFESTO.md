@@ -1,4 +1,4 @@
-# Atlas Log — Product Manifesto
+# Unit — Product Manifesto
 
 ## The Problem
 
@@ -10,7 +10,7 @@ Logging without progression is bookkeeping.
 
 ## The Solution: Adaptive Periodization Engine
 
-Atlas Log is an **Adaptive Periodization Engine**. It does not record what you did — it computes what you should do next, then adjusts when reality diverges from the plan.
+Unit is an **Adaptive Periodization Engine**. It does not record what you did — it computes what you should do next, then adjusts when reality diverges from the plan.
 
 The 8-Week Cycle is the primary container. Every exercise in your program has a base weight, a weekly increment, and a failure tolerance. The engine applies these rules every week:
 
@@ -32,16 +32,16 @@ Eight weeks. No guesswork. Every set has a number. When you fail, the plan adapt
 
 Goals are numeric and tracked. Wants to know the optimal load for every exercise every session. Frustrated that other apps show history but not direction. Lives in spreadsheets between sessions.
 
-Atlas Log's engine replaces the spreadsheet. The Architect sets the cycle parameters once and trusts the output.
+Unit's engine replaces the spreadsheet. The Architect sets the cycle parameters once and trusts the output.
 
 ### The Grinder
 
 Shows up every session, puts in the work, but never feels like they're making progress. Stalls happen and they don't know why — or what to do. Often repeats the same weights for months.
 
-Atlas Log's cascading failure detection surfaces the stall immediately and prescribes a deload before the plateau becomes permanent.
+Unit's cascading failure detection surfaces the stall immediately and prescribes a deload before the plateau becomes permanent.
 
 ### The Recoverer
 
 Returning after injury, break, or life interruption. Cautious about loading. Doesn't know where to restart.
 
-Atlas Log's CreateCycle flow seeds base weights from the last recorded session — a conservative, calibrated starting point. The 10% deload logic prevents overloading a recovery phase.
+Unit's CreateCycle flow seeds base weights from the last recorded session — a conservative, calibrated starting point. The 10% deload logic prevents overloading a recovery phase.

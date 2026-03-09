@@ -1,8 +1,8 @@
-# Atlas Log
+# Unit
 
 **The only gym logger that auto-adjusts your 8-week plan when you fail.**
 
-Atlas Log is an **Adaptive Periodization Engine** for iOS. It doesn't just record what you lifted — it computes what you should lift next, then recalibrates the entire plan the moment you miss a target.
+Unit is an **Adaptive Periodization Engine** for iOS. It doesn't just record what you lifted — it computes what you should lift next, then recalibrates the entire plan the moment you miss a target.
 
 ## Core paradigm: Target vs. Actual
 

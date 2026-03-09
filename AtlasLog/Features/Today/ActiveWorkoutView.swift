@@ -1,6 +1,6 @@
 //
 //  ActiveWorkoutView.swift
-//  AtlasLog
+//  Unit
 //
 //  Active workout: target column, RIR stepper, failure detection, deload badge, rest timer.
 //
@@ -56,12 +56,24 @@ struct ActiveWorkoutView: View {
                         let rule = progressionRules.first(where: {
                             $0.exerciseId == exercise.id && $0.cycleId == session.cycleId
                         })
+                        let lastActual: (weight: Double, reps: Int)? = {
+                            guard let lastSession = sessions.first(where: {
+                                $0.templateId == session.templateId &&
+                                $0.id != session.id &&
+                                $0.isCompleted
+                            }) else { return nil }
+                            let best = lastSession.setEntries
+                                .filter { $0.exerciseId == exercise.id && $0.isCompleted && !$0.isWarmup }
+                                .max { $0.weight < $1.weight }
+                            return best.map { ($0.weight, $0.reps) }
+                        }()
                         ExerciseLoggingCard(
                             exercise: exercise,
                             progressionRule: rule,
                             activeCycle: activeCycle,
                             weekNumber: session.weekNumber,
                             currentEntries: currentEntries(for: exercise.id),
+                            lastActual: lastActual,
                             prefill: viewModel.prefillSet(
                                 for: exercise.id,
                                 currentSession: session,
@@ -263,6 +275,7 @@ private struct ExerciseLoggingCard: View {
     let activeCycle: Cycle?
     let weekNumber: Int
     let currentEntries: [SetEntry]
+    let lastActual: (weight: Double, reps: Int)?
     let prefill: SetPrefill?
     let referenceProvider: (Int) -> SetEntry?
     let onComplete: (_ weight: Double, _ reps: Int, _ rir: Int, _ isWarmup: Bool) -> Void
@@ -298,6 +311,27 @@ private struct ExerciseLoggingCard: View {
                         .foregroundStyle(AtlasTheme.Colors.deloadBadge)
                         .accessibilityLabel("Deload week")
                 }
+            }
+
+            // Last vs. Planned context lines
+            if let last = lastActual, let target = weekTarget {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Last: \(last.weight.weightString)kg × \(last.reps)")
+                        .font(AtlasTheme.Typography.caption)
+                        .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                        .monospacedDigit()
+                    Text("Planned: \(target.weightKg.weightString)kg × \(target.reps)")
+                        .font(AtlasTheme.Typography.caption)
+                        .foregroundStyle(AtlasTheme.Colors.ghostText)
+                        .monospacedDigit()
+                }
+                .accessibilityElement(children: .combine)
+                .accessibilityLabel("Last: \(last.weight.weightString)kg × \(last.reps). Planned: \(target.weightKg.weightString)kg × \(target.reps)")
+            } else if let target = weekTarget {
+                Text("First session · Planned: \(target.weightKg.weightString)kg × \(target.reps)")
+                    .font(AtlasTheme.Typography.caption)
+                    .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                    .monospacedDigit()
             }
 
             // Completed set rows

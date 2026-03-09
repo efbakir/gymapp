@@ -1,6 +1,6 @@
 //
 //  PRLibraryView.swift
-//  AtlasLog
+//  Unit
 //
 //  Personal record list by exercise.
 //

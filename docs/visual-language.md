@@ -1,4 +1,4 @@
-# Atlas Log — Visual Language
+# Unit — Visual Language
 
 Inspired by [Cash App](https://cash.app/) and the referenced collage: a high-performance, minimalist look that supports the Gym Test and feels focused and modern.
 

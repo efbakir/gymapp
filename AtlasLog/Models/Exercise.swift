@@ -1,6 +1,6 @@
 //
 //  Exercise.swift
-//  AtlasLog
+//  Unit
 //
 //  SwiftData model: exercise definition (display name, aliases, bodyweight flag).
 //

@@ -1,6 +1,6 @@
 //
 //  ProgressionRule+Helpers.swift
-//  AtlasLog
+//  Unit
 //
 //  Convenience extensions on ProgressionRule that bridge model data → engine types.
 //  Single canonical location for snapshot creation and outcome extraction.

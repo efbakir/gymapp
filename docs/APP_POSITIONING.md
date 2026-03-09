@@ -1,10 +1,10 @@
-# Atlas Log — App Positioning
+# Unit — App Positioning
 
 ## Single Differentiator
 
 **The only gym logger that auto-adjusts your 8-week plan when you fail.**
 
-Strong logs sets. Hevy tracks volume. Atlas Log computes your next target and recalibrates the entire cycle the moment you miss one.
+Strong logs sets. Hevy tracks volume. Unit computes your next target and recalibrates the entire cycle the moment you miss one.
 
 ---
 
@@ -24,7 +24,7 @@ Zero cognitive load at the bar. The target weight is on screen before you touch 
 
 ## Against Strong and Hevy
 
-| Feature | Strong | Hevy | Atlas Log |
+| Feature | Strong | Hevy | Unit |
 |---------|--------|------|-----------|
 | Set logging | ✓ | ✓ | ✓ |
 | Historical PRs | ✓ | ✓ | ✓ |
@@ -33,7 +33,7 @@ Zero cognitive load at the bar. The target weight is on screen before you touch 
 | Failure detection + deload | — | — | ✓ |
 | Target shown before set | — | — | ✓ |
 
-Strong and Hevy are excellent loggers. They are not coaches. Atlas Log is built on the premise that showing you what happened is not enough — the app must tell you what's next.
+Strong and Hevy are excellent loggers. They are not coaches. Unit is built on the premise that showing you what happened is not enough — the app must tell you what's next.
 
 ---
 

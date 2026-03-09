@@ -1,6 +1,6 @@
 //
 //  ProgressionEngine.swift
-//  AtlasLog
+//  Unit
 //
 //  Pure target computation logic for adaptive periodization.
 //

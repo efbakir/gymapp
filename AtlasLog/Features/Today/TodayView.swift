@@ -1,11 +1,10 @@
 //
 //  TodayView.swift
-//  AtlasLog
+//  Unit
 //
 //  Home: Adaptive context card (training day / rest day / no cycle) + day cards for quick start.
 //
 
-import Charts
 import SwiftUI
 import SwiftData
 
@@ -13,7 +12,7 @@ import SwiftData
 
 enum HomeContext {
     case trainingDay(weekNumber: Int, templateName: String, targets: [ExerciseTarget])
-    case restDay(nextSession: String, streakCount: Int, weeklyTonnage: [DayTonnage])
+    case restDay(nextSession: String, nextSessionTiming: String, wins: [SessionWin])
     case noCycle
 }
 
@@ -21,13 +20,14 @@ struct ExerciseTarget {
     let exerciseName: String
     let weightKg: Double
     let reps: Int
-    let deltaKg: Double  // +/- vs. prior week
+    let deltaKg: Double       // today target minus last actual
+    let lastWeightKg: Double? // actual from last same-template session
+    let lastReps: Int?        // reps from last same-template session
 }
 
-struct DayTonnage: Identifiable {
-    let id = UUID()
-    let dayLabel: String   // "M", "T", "W" …
-    let tonnage: Double    // kg × reps
+struct SessionWin {
+    let exerciseName: String
+    let deltaKg: Double
 }
 
 // MARK: - TodayView
@@ -140,8 +140,8 @@ struct TodayView: View {
                     startWorkout(template)
                 }
             }
-        case .restDay(let next, let streak, let tonnage):
-            RestDayCard(nextSession: next, streakCount: streak, weeklyTonnage: tonnage)
+        case .restDay(let next, let timing, let wins):
+            RestDayCard(nextSession: next, nextSessionTiming: timing, wins: wins)
         case .noCycle:
             NoCycleCard()
         }
@@ -178,7 +178,7 @@ private struct TrainingDayCard: View {
         VStack(alignment: .leading, spacing: AtlasTheme.Spacing.sm) {
             HStack {
                 VStack(alignment: .leading, spacing: AtlasTheme.Spacing.xxs) {
-                    Text("Week \(weekNumber) of 8  ·  Training Day")
+                    Text("Compared to last \(templateName)")
                         .font(AtlasTheme.Typography.caption)
                         .foregroundStyle(AtlasTheme.Colors.textSecondary)
                     Text(templateName)
@@ -186,7 +186,7 @@ private struct TrainingDayCard: View {
                 }
                 Spacer(minLength: 0)
                 Button(action: onStart) {
-                    Label("Start", systemImage: "play.circle.fill")
+                    Label("Start Session", systemImage: "play.circle.fill")
                         .font(AtlasTheme.Typography.sectionTitle)
                         .foregroundStyle(.white)
                         .padding(.horizontal, AtlasTheme.Spacing.md)
@@ -200,23 +200,7 @@ private struct TrainingDayCard: View {
             if !targets.isEmpty {
                 Divider()
                 ForEach(targets.prefix(3), id: \.exerciseName) { target in
-                    HStack {
-                        Text(target.exerciseName)
-                            .font(AtlasTheme.Typography.body)
-                            .lineLimit(1)
-                        Spacer(minLength: 0)
-                        if target.deltaKg != 0 {
-                            Text(target.deltaKg > 0 ? "+\(target.deltaKg.weightString)kg" : "\(target.deltaKg.weightString)kg")
-                                .font(AtlasTheme.Typography.caption)
-                                .foregroundStyle(target.deltaKg > 0 ? AtlasTheme.Colors.accent : AtlasTheme.Colors.ghostText)
-                        }
-                        Text("\(target.weightKg.weightString)kg × \(target.reps)")
-                            .font(AtlasTheme.Typography.body)
-                            .foregroundStyle(AtlasTheme.Colors.ghostText)
-                            .monospacedDigit()
-                    }
-                    .accessibilityElement(children: .combine)
-                    .accessibilityValue("Target: \(target.weightKg.weightString)kg × \(target.reps) reps")
+                    ExerciseTargetRow(target: target)
                 }
             }
         }
@@ -224,55 +208,96 @@ private struct TrainingDayCard: View {
     }
 }
 
-// MARK: - Rest Day Card
-
-private struct RestDayCard: View {
-    let nextSession: String
-    let streakCount: Int
-    let weeklyTonnage: [DayTonnage]
+private struct ExerciseTargetRow: View {
+    let target: ExerciseTarget
 
     var body: some View {
-        VStack(alignment: .leading, spacing: AtlasTheme.Spacing.sm) {
-            HStack {
-                VStack(alignment: .leading, spacing: AtlasTheme.Spacing.xxs) {
-                    Text("Recovery Mode")
+        HStack(alignment: .top, spacing: AtlasTheme.Spacing.xs) {
+            Text(target.exerciseName)
+                .font(AtlasTheme.Typography.body)
+                .lineLimit(1)
+                .frame(maxWidth: .infinity, alignment: .leading)
+
+            VStack(alignment: .trailing, spacing: 2) {
+                if let lastKg = target.lastWeightKg, let lastReps = target.lastReps {
+                    Text("Last: \(lastKg.weightString)kg × \(lastReps)")
                         .font(AtlasTheme.Typography.caption)
                         .foregroundStyle(AtlasTheme.Colors.textSecondary)
-                    Text("Next: \(nextSession)")
-                        .font(AtlasTheme.Typography.hero)
+                        .monospacedDigit()
                 }
-                Spacer(minLength: 0)
-                if streakCount > 0 {
-                    VStack(alignment: .trailing, spacing: AtlasTheme.Spacing.xxs) {
-                        Text("\(streakCount)")
-                            .font(.system(.title2, design: .rounded).weight(.bold))
+                HStack(spacing: AtlasTheme.Spacing.xxs) {
+                    Text("Today: \(target.weightKg.weightString)kg × \(target.reps)")
+                        .font(AtlasTheme.Typography.body)
+                        .monospacedDigit()
+                    if target.deltaKg > 0 {
+                        Text("+\(target.deltaKg.weightString)kg")
+                            .font(AtlasTheme.Typography.caption.weight(.semibold))
                             .foregroundStyle(AtlasTheme.Colors.accent)
-                        Text("streak")
+                            .padding(.horizontal, 5)
+                            .padding(.vertical, 2)
+                            .background(AtlasTheme.Colors.accentSoft)
+                            .clipShape(Capsule())
+                    } else if target.lastWeightKg != nil && target.deltaKg == 0 {
+                        Text("=")
                             .font(AtlasTheme.Typography.caption)
                             .foregroundStyle(AtlasTheme.Colors.textSecondary)
                     }
                 }
             }
+        }
+        .accessibilityElement(children: .combine)
+        .accessibilityValue({
+            if let lastKg = target.lastWeightKg {
+                return "Last: \(lastKg.weightString)kg. Today: \(target.weightKg.weightString)kg × \(target.reps) reps"
+            }
+            return "Today: \(target.weightKg.weightString)kg × \(target.reps) reps, first session"
+        }())
+    }
+}
 
-            if !weeklyTonnage.isEmpty {
+// MARK: - Rest Day Card
+
+private struct RestDayCard: View {
+    let nextSession: String
+    let nextSessionTiming: String
+    let wins: [SessionWin]
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: AtlasTheme.Spacing.sm) {
+            HStack(alignment: .top) {
+                VStack(alignment: .leading, spacing: AtlasTheme.Spacing.xxs) {
+                    Text("Rest Day")
+                        .font(AtlasTheme.Typography.caption)
+                        .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                    Text(nextSession)
+                        .font(AtlasTheme.Typography.hero)
+                    Text(nextSessionTiming)
+                        .font(AtlasTheme.Typography.caption)
+                        .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                }
+                Spacer(minLength: 0)
+            }
+
+            if !wins.isEmpty {
                 Divider()
-                Chart(weeklyTonnage) { day in
-                    BarMark(
-                        x: .value("Day", day.dayLabel),
-                        y: .value("Tonnage (kg)", day.tonnage)
-                    )
-                    .foregroundStyle(AtlasTheme.Colors.accent.opacity(0.7))
-                    .cornerRadius(4)
-                }
-                .frame(height: 60)
-                .chartXAxis {
-                    AxisMarks(values: .automatic) { _ in
-                        AxisValueLabel()
-                            .font(AtlasTheme.Typography.caption)
-                            .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                Text("Last session wins")
+                    .font(AtlasTheme.Typography.caption)
+                    .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                ForEach(wins.prefix(3), id: \.exerciseName) { win in
+                    HStack {
+                        Text("+\(win.deltaKg.weightString)kg")
+                            .font(AtlasTheme.Typography.body.weight(.semibold))
+                            .foregroundStyle(AtlasTheme.Colors.accent)
+                            .monospacedDigit()
+                        Text("·  \(win.exerciseName)")
+                            .font(AtlasTheme.Typography.body)
+                            .foregroundStyle(AtlasTheme.Colors.textPrimary)
+                            .lineLimit(1)
+                        Spacer(minLength: 0)
                     }
+                    .accessibilityElement(children: .combine)
+                    .accessibilityValue("+\(win.deltaKg.weightString)kg on \(win.exerciseName)")
                 }
-                .chartYAxis(.hidden)
             }
         }
         .atlasCardStyle()
@@ -286,7 +311,7 @@ private struct NoCycleCard: View {
         VStack(alignment: .leading, spacing: AtlasTheme.Spacing.xs) {
             Text("No Active Cycle")
                 .font(AtlasTheme.Typography.sectionTitle)
-            Text("Start an 8-week cycle in the Cycles tab to unlock auto-progression targets.")
+            Text("Go to Program → tap the calendar icon to start an 8-week cycle and unlock auto-progression targets.")
                 .font(AtlasTheme.Typography.caption)
                 .foregroundStyle(AtlasTheme.Colors.textSecondary)
         }
@@ -364,56 +389,95 @@ final class TodayDashboardViewModel: ObservableObject {
         guard let cycle = activeCycle else { return .noCycle }
 
         let weekNum = cycle.currentWeekNumber
+        let splitTemplates = templates.filter { $0.splitId == cycle.splitId }
 
-        // Find the template for today based on the split order
+        // Find the template for today based on completed sessions in this cycle
         let templateForToday: DayTemplate? = {
-            guard templates.contains(where: { $0.splitId == cycle.splitId }) else { return nil }
-            // Completed sessions this cycle in order
-            let cycleSessionCount = sessions.filter { $0.cycleId == cycle.id }.count
-            let templateIds = templates
-                .filter { $0.splitId == cycle.splitId }
-                .map { $0.id }
-            if templateIds.isEmpty { return nil }
+            guard !splitTemplates.isEmpty else { return nil }
+            let cycleSessionCount = sessions.filter { $0.cycleId == cycle.id && $0.isCompleted }.count
+            let templateIds = splitTemplates.map { $0.id }
             let idx = cycleSessionCount % templateIds.count
             return templates.first { $0.id == templateIds[idx] }
         }()
 
-        // Build exercise targets from engine
-        let targets: [ExerciseTarget] = {
-            guard let template = templateForToday else { return [] }
-            return template.orderedExerciseIds.compactMap { exId -> ExerciseTarget? in
-                guard let exercise = exercises.first(where: { $0.id == exId }),
-                      let rule = rules.first(where: { $0.exerciseId == exId && $0.cycleId == cycle.id }) else {
-                    return nil
-                }
-                let snapshot = rule.snapshot(weekCount: cycle.weekCount)
-                let outcomes = rule.buildOutcomes(from: sessions)
-                let allTargets = ProgressionEngine.computeTargets(rule: snapshot, outcomes: outcomes)
-                guard let weekTarget = allTargets.first(where: { $0.weekNumber == weekNum }) else { return nil }
-                let prevTarget = allTargets.first(where: { $0.weekNumber == weekNum - 1 })
-                let delta = prevTarget.map { weekTarget.weightKg - $0.weightKg } ?? 0
-                return ExerciseTarget(
-                    exerciseName: exercise.displayName,
-                    weightKg: weekTarget.weightKg,
-                    reps: weekTarget.reps,
-                    deltaKg: delta
-                )
-            }
-        }()
+        guard let template = templateForToday else {
+            return restDayContext(sessions: sessions, templates: templates, exercises: exercises)
+        }
 
-        if templateForToday != nil {
-            return .trainingDay(
-                weekNumber: weekNum,
-                templateName: templateForToday?.name ?? "Workout",
-                targets: targets
+        // Last completed session for this same template (to show "Last: Xkg × N")
+        let lastSession = sessions.first { $0.templateId == template.id && $0.isCompleted }
+
+        // Build per-exercise targets using ProgressionEngine
+        let targets: [ExerciseTarget] = template.orderedExerciseIds.compactMap { exId -> ExerciseTarget? in
+            guard let exercise = exercises.first(where: { $0.id == exId }),
+                  let rule = rules.first(where: { $0.exerciseId == exId && $0.cycleId == cycle.id }) else {
+                return nil
+            }
+            let snapshot = rule.snapshot(weekCount: cycle.weekCount)
+            let outcomes = rule.buildOutcomes(from: sessions)
+            let allTargets = ProgressionEngine.computeTargets(rule: snapshot, outcomes: outcomes)
+            guard let weekTarget = allTargets.first(where: { $0.weekNumber == weekNum }) else { return nil }
+
+            // Best set for this exercise from last same-template session
+            let lastSet = lastSession?.setEntries
+                .filter { $0.exerciseId == exId && $0.isCompleted && !$0.isWarmup }
+                .max { $0.weight < $1.weight }
+
+            let deltaKg = lastSet.map { weekTarget.weightKg - $0.weight } ?? 0
+
+            return ExerciseTarget(
+                exerciseName: exercise.displayName,
+                weightKg: weekTarget.weightKg,
+                reps: weekTarget.reps,
+                deltaKg: deltaKg,
+                lastWeightKg: lastSet?.weight,
+                lastReps: lastSet?.reps
             )
         }
 
-        // Rest day fallback
-        let streak = currentStreak(in: sessions)
-        let tonnage = weeklyTonnage(sessions: sessions)
+        return .trainingDay(weekNumber: weekNum, templateName: template.name, targets: targets)
+    }
+
+    private func restDayContext(
+        sessions: [WorkoutSession],
+        templates: [DayTemplate],
+        exercises: [Exercise]
+    ) -> HomeContext {
         let nextName = templates.first?.name ?? "Next Session"
-        return .restDay(nextSession: nextName, streakCount: streak, weeklyTonnage: tonnage)
+
+        let nextSessionTiming: String = {
+            guard let last = sessions.first(where: { $0.isCompleted })?.date else { return "Tomorrow" }
+            let daysSince = Calendar.current.dateComponents([.day], from: last, to: Date()).day ?? 0
+            return daysSince >= 1 ? "Tomorrow" : "Today later"
+        }()
+
+        // Compare last two sessions of the same template for wins
+        let wins: [SessionWin] = {
+            guard let lastSession = sessions.first(where: { $0.isCompleted }) else { return [] }
+            guard let prevSession = sessions.first(where: {
+                $0.isCompleted && $0.templateId == lastSession.templateId && $0.id != lastSession.id
+            }) else { return [] }
+
+            let prevBestByExercise: [UUID: Double] = Dictionary(
+                prevSession.setEntries
+                    .filter { $0.isCompleted && !$0.isWarmup }
+                    .map { ($0.exerciseId, $0.weight) },
+                uniquingKeysWith: max
+            )
+
+            return lastSession.setEntries
+                .filter { $0.isCompleted && !$0.isWarmup }
+                .compactMap { entry -> SessionWin? in
+                    guard let prevWeight = prevBestByExercise[entry.exerciseId] else { return nil }
+                    let delta = entry.weight - prevWeight
+                    guard delta > 0 else { return nil }
+                    let name = exercises.first(where: { $0.id == entry.exerciseId })?.displayName ?? "Exercise"
+                    return SessionWin(exerciseName: name, deltaKg: delta)
+                }
+                .sorted { $0.deltaKg > $1.deltaKg }
+        }()
+
+        return .restDay(nextSession: nextName, nextSessionTiming: nextSessionTiming, wins: wins)
     }
 
     func splitName(for template: DayTemplate, in splits: [Split]) -> String {
@@ -444,42 +508,6 @@ final class TodayDashboardViewModel: ObservableObject {
         let name = exercises.first(where: { $0.id == entry.exerciseId })?.displayName ?? "Lift"
         let shortName = name.components(separatedBy: " ").prefix(2).joined(separator: " ")
         return "\(shortName): \(entry.weight.weightString)kg × \(entry.reps)"
-    }
-
-    // MARK: - Private helpers
-
-    private func currentStreak(in sessions: [WorkoutSession]) -> Int {
-        let completed = sessions.filter(\.isCompleted).sorted { $0.date > $1.date }
-        var streak = 0
-        var lastDate: Date?
-        for session in completed {
-            if let last = lastDate {
-                let days = Calendar.current.dateComponents([.day], from: session.date, to: last).day ?? 99
-                if days > 3 { break }
-            }
-            streak += 1
-            lastDate = session.date
-        }
-        return streak
-    }
-
-    private func weeklyTonnage(sessions: [WorkoutSession]) -> [DayTonnage] {
-        let cal = Calendar.current
-        let weekStart = cal.date(from: cal.dateComponents([.yearForWeekOfYear, .weekOfYear], from: Date())) ?? Date()
-        let dayLabels = ["M", "T", "W", "T", "F", "S", "S"]
-
-        // Single pass: build day → tonnage dictionary
-        var tonnageByDay: [Date: Double] = [:]
-        for session in sessions where session.isCompleted {
-            let day = cal.startOfDay(for: session.date)
-            let t = session.setEntries.filter(\.isCompleted).reduce(0.0) { $0 + $1.weight * Double($1.reps) }
-            tonnageByDay[day, default: 0] += t
-        }
-
-        return (0..<7).map { offset in
-            let day = cal.date(byAdding: .day, value: offset, to: weekStart) ?? weekStart
-            return DayTonnage(dayLabel: dayLabels[offset], tonnage: tonnageByDay[cal.startOfDay(for: day)] ?? 0)
-        }
     }
 }
 

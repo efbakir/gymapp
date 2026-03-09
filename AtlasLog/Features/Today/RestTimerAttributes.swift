@@ -1,6 +1,6 @@
 //
 //  RestTimerAttributes.swift
-//  AtlasLog
+//  Unit
 //
 //  ActivityKit attributes for rest timer Live Activity (Lock Screen / Dynamic Island).
 //  ActivityKit is iOS-only; this type is only compiled for iOS (shared by app and widget).

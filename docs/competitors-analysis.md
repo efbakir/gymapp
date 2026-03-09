@@ -1,12 +1,12 @@
-# Atlas Log — Competitors Analysis
+# Unit — Competitors Analysis
 
-Deeper analysis: feature matrix, UX patterns for “log under stress,” and takeaways for Atlas Log.
+Deeper analysis: feature matrix, UX patterns for “log under stress,” and takeaways for Unit.
 
 ---
 
 ## 1. Feature matrix
 
-| Feature | Hevy | Strong | Fitbod | Notes/Sheets | Atlas Log (target) |
+| Feature | Hevy | Strong | Fitbod | Notes/Sheets | Unit (target) |
 |--------|------|--------|--------|--------------|--------------------|
 | Programs / templates | Yes | Basic | AI plans | Manual | **DayTemplate** (ordered exercises) |
 | Set logging (weight, reps) | Yes | Yes | Yes | Manual | **SetEntry** (weight, reps, RPE, warmup) |
@@ -19,7 +19,7 @@ Deeper analysis: feature matrix, UX patterns for “log under stress,” and tak
 | Sync | Cloud | Cloud | Cloud | Manual | Local-first (CloudKit-ready later) |
 | Overall feeling / mood | Some | Rare | Rare | No | **Session overallFeeling 1–5** |
 
-**Takeaway**: Atlas Log competes on **structure** (templates, session, set schema), **speed** (Gym Test), **focus** (no social/videos), and **rest timer visibility** (Live Activity). RPE and session feeling are differentiators for serious lifters.
+**Takeaway**: Unit competes on **structure** (templates, session, set schema), **speed** (Gym Test), **focus** (no social/videos), and **rest timer visibility** (Live Activity). RPE and session feeling are differentiators for serious lifters.
 
 ---
 
@@ -33,7 +33,7 @@ How competitors handle logging during or right after a hard set:
 - **Notes/Sheets**: No defaults; manual typing. Fails Gym Test.
 - **Common pitfalls**: Too many screens (exercise picker → set form → confirm). Optional fields (e.g. RPE) presented as required. Small tap targets. No “repeat last set” one-tap.
 
-**Takeaways for Atlas Log**:
+**Takeaways for Unit**:
 
 - **Copy**: Default next set to last weight/reps (and last RPE if used). Single screen per exercise with all sets visible. Rest timer always accessible (Live Activity so it survives app background).
 - **Avoid**: Multi-step set entry. Required RPE. Small buttons. Burying “complete set” behind another screen.
@@ -45,13 +45,13 @@ How competitors handle logging during or right after a hard set:
 
 - **Hevy**: Tabs (Workout, History, Exercises, More). Workout = active or start; History = past sessions.
 - **Strong**: Similar: Today/Workouts, History, Exercises.
-- **Atlas Log (target)**: Minimal tabs or root: **Today** (start or continue session), **Templates** (edit DayTemplates, exercises), **History** (past sessions). No “Discover” or “Social.”
+- **Unit (target)**: Minimal tabs or root: **Today** (start or continue session), **Templates** (edit DayTemplates, exercises), **History** (past sessions). No “Discover” or “Social.”
 
 ---
 
 ## 4. Data model alignment
 
-Competitors often use: Workout → Exercises → Sets, with optional Program/Routine. Atlas Log aligns as:
+Competitors often use: Workout → Exercises → Sets, with optional Program/Routine. Unit aligns as:
 
 - **DayTemplate** = program day (e.g. “Push A”) with ordered exercises.
 - **WorkoutSession** = one instance of a template on a date, with optional overall feeling.
@@ -72,4 +72,4 @@ This matches how program-focused users think (day → exercises → sets) and ke
 | Card-style blocks for exercises/sets | Cluttered dashboards |
 | Optional session “how did it feel?” (1–5) | Mandatory long forms post-workout |
 
-Atlas Log wins by being the **fastest, most focused** way to log a program-based strength session, with no social or media clutter.
+Unit wins by being the **fastest, most focused** way to log a program-based strength session, with no social or media clutter.

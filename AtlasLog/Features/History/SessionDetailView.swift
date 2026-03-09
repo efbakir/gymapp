@@ -1,6 +1,6 @@
 //
 //  SessionDetailView.swift
-//  AtlasLog
+//  Unit
 //
 //  Read-only session detail grouped by exercise.
 //

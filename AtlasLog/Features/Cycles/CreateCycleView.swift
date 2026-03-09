@@ -1,6 +1,6 @@
 //
 //  CreateCycleView.swift
-//  AtlasLog
+//  Unit
 //
 //  Sheet for creating a new 8-week training cycle with per-exercise progression rules.
 //
@@ -25,6 +25,12 @@ struct CreateCycleView: View {
     @State private var globalIncrementKg: Double = 2.5
     @State private var showAdvanced = false
     @State private var perExerciseOverrides: [UUID: ExerciseOverride] = [:]
+
+    // Goal state
+    @State private var showGoal = false
+    @State private var goalExerciseId: UUID?
+    @State private var goalWeightKg: Double = 100
+    @State private var goalReps: Int = 5
 
     struct ExerciseOverride {
         var baseWeightKg: Double
@@ -51,6 +57,23 @@ struct CreateCycleView: View {
 
     private var canCreate: Bool {
         !cycleName.trimmingCharacters(in: .whitespaces).isEmpty && selectedSplitId != nil
+    }
+
+    private var goalExercise: Exercise? {
+        goalExerciseId.flatMap { id in exercises.first(where: { $0.id == id }) }
+    }
+
+    private var goalEstimateText: String? {
+        guard let exId = goalExerciseId,
+              let override = perExerciseOverrides[exId] else { return nil }
+        let current = override.baseWeightKg
+        let increment = override.incrementKg
+        guard increment > 0, goalWeightKg > current else { return nil }
+        let delta = goalWeightKg - current
+        let cyclesNeeded = Int(ceil(delta / (increment * Double(weekCount))))
+        let isAggressive = delta > 30 && cyclesNeeded <= 2
+        let warning = isAggressive ? " — aggressive jump, consider starting lower" : ""
+        return "At +\(increment.weightString)kg/week, you'll reach \(goalWeightKg.weightString)kg in ~\(cyclesNeeded) cycle\(cyclesNeeded == 1 ? "" : "s")\(warning)"
     }
 
     var body: some View {
@@ -124,6 +147,57 @@ struct CreateCycleView: View {
                         } else {
                             ForEach(exercisesInSplit, id: \.id) { exercise in
                                 exerciseOverrideRow(exercise)
+                            }
+                        }
+                    }
+                }
+
+                // Step 6: Goal awareness (optional)
+                Section {
+                    DisclosureGroup("Goal Lift (Optional)", isExpanded: $showGoal) {
+                        if exercisesInSplit.isEmpty {
+                            Text("Select a split above to choose a goal lift.")
+                                .font(AtlasTheme.Typography.caption)
+                                .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                        } else {
+                            Picker("Exercise", selection: $goalExerciseId) {
+                                Text("None").tag(Optional<UUID>.none)
+                                ForEach(exercisesInSplit, id: \.id) { ex in
+                                    Text(ex.displayName).tag(Optional(ex.id))
+                                }
+                            }
+                            .frame(minHeight: 44)
+
+                            if goalExerciseId != nil {
+                                HStack {
+                                    Text("Target weight")
+                                    Spacer()
+                                    Stepper(
+                                        value: $goalWeightKg,
+                                        in: 0...500,
+                                        step: 2.5
+                                    ) {
+                                        Text("\(goalWeightKg.weightString)kg")
+                                            .monospacedDigit()
+                                    }
+                                }
+                                .frame(minHeight: 44)
+
+                                HStack {
+                                    Text("Target reps")
+                                    Spacer()
+                                    Stepper(value: $goalReps, in: 1...20) {
+                                        Text("\(goalReps) reps")
+                                    }
+                                }
+                                .frame(minHeight: 44)
+
+                                if let estimate = goalEstimateText {
+                                    Text(estimate)
+                                        .font(AtlasTheme.Typography.caption)
+                                        .foregroundStyle(AtlasTheme.Colors.accent)
+                                        .padding(.vertical, AtlasTheme.Spacing.xxs)
+                                }
                             }
                         }
                     }

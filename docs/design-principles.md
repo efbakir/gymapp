@@ -1,4 +1,4 @@
-# Atlas Log — Design Principles
+# Unit — Design Principles
 
 Principles that support “good design” and **always the one wins with the best UX**. These guide every screen and interaction.
 
@@ -46,7 +46,7 @@ Principles that support “good design” and **always the one wins with the bes
 
 ## 6. Dark Mode Native
 
-- **What**: Atlas Log runs dark-only surfaces. All colors are system semantic (`Color(.systemBackground)`, `Color(.systemGroupedBackground)`, `Color(uiColor: .separator)`). Orange accent `#FF4400` unchanged.
+- **What**: Unit runs dark-only surfaces. All colors are system semantic (`Color(.systemBackground)`, `Color(.systemGroupedBackground)`, `Color(uiColor: .separator)`). Orange accent `#FF4400` unchanged.
 - **Why**: The gym environment — often overhead lit or backlit — makes dark surfaces easier to read. System semantic colors respect the OS dark/light context automatically, but our UI is designed for dark.
 - **Apply**: Never hardcode white surfaces or black borders. Use `Color(.systemBackground)` for cards, `Color(.systemGroupedBackground)` for page backgrounds, `Color(uiColor: .separator)` for borders.
 

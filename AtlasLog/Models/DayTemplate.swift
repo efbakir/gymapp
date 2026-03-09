@@ -1,6 +1,6 @@
 //
 //  DayTemplate.swift
-//  AtlasLog
+//  Unit
 //
 //  SwiftData models: split and program day with ordered exercise IDs.
 //

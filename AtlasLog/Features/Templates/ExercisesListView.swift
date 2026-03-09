@@ -1,6 +1,6 @@
 //
 //  ExercisesListView.swift
-//  AtlasLog
+//  Unit
 //
 //  Exercise library with aliases and exercise-level progress review.
 //

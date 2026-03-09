@@ -1,4 +1,4 @@
-# Atlas Log — Company Values
+# Unit — Company Values
 
 Concise statement of values that guide product, marketing, and priorities.
 
@@ -10,7 +10,7 @@ Concise statement of values that guide product, marketing, and priorities.
 
 3. **First fix your life with the issue, then fix others.** We build for users who have their own program and are tired of messy notes or bloated apps. We solve a problem we or our users have lived. Empathy and dogfooding guide features.
 
-4. **Sell it.** Building isn’t enough; distribution and positioning matter. We will invest in clear messaging, landing, and outreach so the right users find Atlas Log.
+4. **Sell it.** Building isn’t enough; distribution and positioning matter. We will invest in clear messaging, landing, and outreach so the right users find Unit.
 
 5. **Marketing is important.** We don’t treat marketing as an afterthought. Messaging, channels, and growth are part of the product strategy from the start.
 

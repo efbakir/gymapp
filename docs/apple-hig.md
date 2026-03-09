@@ -1,8 +1,8 @@
-# Apple HIG Reference — Atlas Log
+# Apple HIG Reference — Unit
 
-Curated Human Interface Guidelines rules that directly govern Atlas Log decisions.
+Curated Human Interface Guidelines rules that directly govern Unit decisions.
 
-| Rule | HIG Requirement | Atlas Log Application |
+| Rule | HIG Requirement | Unit Application |
 |------|----------------|----------------------|
 | **Touch Targets** | Minimum 44×44pt for all interactive elements | All set rows `frame(minHeight: 52)`, RIR capsules `frame(minHeight: 44)`, tab bar items (system default ≥44pt) |
 | **Tab Bar** | Maximum 5 items; tabs navigate only — never trigger actions | 4 tabs (Home, Program, Cycles, History) ✓; no action tabs |

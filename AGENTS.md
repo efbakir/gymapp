@@ -1,10 +1,10 @@
-# Atlas Log — Agent Guidance
+# Unit — Agent Guidance
 
-This file orients AI agents (e.g. Claude Code, Cursor) working on the Atlas Log codebase.
+This file orients AI agents (e.g. Claude Code, Cursor) working on the Unit codebase.
 
 ## What this project is
 
-Atlas Log is an **Adaptive Periodization Engine** for iOS. The primary user container is the **8-Week Cycle**. The core UI paradigm is **Target vs. Actual** — the app computes the target weight before every set, then adjusts future weeks automatically when the user fails.
+Unit is an **Adaptive Periodization Engine** for iOS. The primary user container is the **8-Week Cycle**. The core UI paradigm is **Target vs. Actual** — the app computes the target weight before every set, then adjusts future weeks automatically when the user fails.
 
 The **Gym Test** still applies: logging a set (weight, reps, RIR) in **under 3 seconds** under physical stress.
 

@@ -1,6 +1,6 @@
 //
 //  TemplatesView.swift
-//  AtlasLog
+//  Unit
 //
 //  Program builder: splits and day templates.
 //
@@ -13,6 +13,7 @@ struct TemplatesView: View {
     @Query(sort: \Split.name) private var splits: [Split]
     @Query(sort: \DayTemplate.name) private var templates: [DayTemplate]
     @State private var showingAddSplit = false
+    @State private var showingCycles = false
 
     var body: some View {
         NavigationStack {
@@ -71,6 +72,14 @@ struct TemplatesView: View {
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
+                        showingCycles = true
+                    } label: {
+                        Image(systemName: "calendar.badge.clock")
+                    }
+                    .accessibilityLabel("Manage training cycles")
+                }
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
                         showingAddSplit = true
                     } label: {
                         Image(systemName: "plus.circle.fill")
@@ -80,6 +89,9 @@ struct TemplatesView: View {
             }
             .sheet(isPresented: $showingAddSplit) {
                 AddSplitView()
+            }
+            .sheet(isPresented: $showingCycles) {
+                CyclesView()
             }
         }
     }

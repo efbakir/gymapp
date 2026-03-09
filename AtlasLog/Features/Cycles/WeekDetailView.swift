@@ -1,6 +1,6 @@
 //
 //  WeekDetailView.swift
-//  AtlasLog
+//  Unit
 //
 //  Shows target vs. actual for every exercise in a given cycle week.
 //

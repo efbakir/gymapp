@@ -1,6 +1,6 @@
 //
 //  AddTemplateView.swift
-//  AtlasLog
+//  Unit
 //
 //  Create a new day template inside a split.
 //

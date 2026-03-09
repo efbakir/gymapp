@@ -1,6 +1,6 @@
 //
 //  RestTimerLiveActivity.swift
-//  AtlasLogWidget
+//  Unit
 //
 //  Live Activity view for rest timer (Lock Screen / Dynamic Island).
 //  ActivityKit is iOS-only; this file is compiled only for iOS.

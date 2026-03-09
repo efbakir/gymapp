@@ -1,4 +1,4 @@
-# Atlas Log — Company / Product Goals
+# Unit — Company / Product Goals
 
 Ordered goals with success criteria. Used to prioritize and say no.
 
@@ -39,7 +39,7 @@ Ordered goals with success criteria. Used to prioritize and say no.
 
 ## 5. Expand reach
 
-- **Goal**: Get Atlas Log in front of program-focused lifters who are tired of notes or bloated apps.
+- **Goal**: Get Unit in front of program-focused lifters who are tired of notes or bloated apps.
 - **Success**: Marketing and distribution (landing, positioning, channels) in place; measurable reach (downloads, signups, or waitlist).
 
 ---

@@ -1,6 +1,6 @@
 //
 //  AtlasLogWidgetBundle.swift
-//  AtlasLogWidget
+//  Unit
 //
 //  Live Activities (ActivityKit) are iOS-only. On macOS this bundle exposes a no-op widget.
 //

@@ -16,6 +16,8 @@
 		CC000000000000000000002 /* CreateCycleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC000000000000000100002 /* CreateCycleView.swift */; };
 		CC000000000000000000003 /* CycleSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC000000000000000100003 /* CycleSettingsView.swift */; };
 		CC000000000000000000004 /* ProgressionRule+Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC000000000000000100004 /* ProgressionRule+Helpers.swift */; };
+		CC000000000000000000005 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC000000000000000100005 /* SettingsView.swift */; };
+		CC000000000000000000006 /* ExerciseProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC000000000000000100006 /* ExerciseProgressView.swift */; };
 		A10000000000000000000001 /* AtlasLogApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000001 /* AtlasLogApp.swift */; };
 		A10000000000000000000002 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000002 /* ContentView.swift */; };
 		A10000000000000000000003 /* Exercise.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000003 /* Exercise.swift */; };
@@ -57,6 +59,8 @@
 		CC000000000000000100002 /* CreateCycleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateCycleView.swift; sourceTree = "<group>"; };
 		CC000000000000000100003 /* CycleSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CycleSettingsView.swift; sourceTree = "<group>"; };
 		CC000000000000000100004 /* ProgressionRule+Helpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ProgressionRule+Helpers.swift"; sourceTree = "<group>"; };
+		CC000000000000000100005 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		CC000000000000000100006 /* ExerciseProgressView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExerciseProgressView.swift; sourceTree = "<group>"; };
 		A20000000000000000000000 /* AtlasLog.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AtlasLog.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A20000000000000000000001 /* AtlasLogApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AtlasLogApp.swift; sourceTree = "<group>"; };
 		A20000000000000000000002 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -168,8 +172,17 @@
 				A40000000000000000000007 /* Templates */,
 				A40000000000000000000008 /* History */,
 				541C84E62F5B815D00D0DB57 /* Cycles 2 */,
+				A40000000000000000000009 /* Settings */,
 			);
 			path = Features;
+			sourceTree = "<group>";
+		};
+		A40000000000000000000009 /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				CC000000000000000100005 /* SettingsView.swift */,
+			);
+			path = Settings;
 			sourceTree = "<group>";
 		};
 		A40000000000000000000006 /* Today */ = {
@@ -199,6 +212,7 @@
 				A2000000000000000000000D /* HistoryView.swift */,
 				A2000000000000000000000E /* SessionDetailView.swift */,
 				541C84EF2F5B81BA00D0DB57 /* PRLibraryView.swift */,
+				CC000000000000000100006 /* ExerciseProgressView.swift */,
 			);
 			path = History;
 			sourceTree = "<group>";
@@ -326,6 +340,8 @@
 				CC000000000000000000002 /* CreateCycleView.swift in Sources */,
 				CC000000000000000000003 /* CycleSettingsView.swift in Sources */,
 				CC000000000000000000004 /* ProgressionRule+Helpers.swift in Sources */,
+				CC000000000000000000005 /* SettingsView.swift in Sources */,
+				CC000000000000000000006 /* ExerciseProgressView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -468,6 +484,7 @@
 				DEVELOPMENT_TEAM = R2BR5SX98Y;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "Unit";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -503,6 +520,7 @@
 				DEVELOPMENT_TEAM = R2BR5SX98Y;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "Unit";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -533,7 +551,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEAD_CODE_STRIPPING = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = "Atlas Log Rest";
+				INFOPLIST_KEY_CFBundleDisplayName = "Unit Rest";
 				INFOPLIST_KEY_NSExtension_NSExtensionPointIdentifier = "com.apple.widgetkit-extension";
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -560,7 +578,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEAD_CODE_STRIPPING = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = "Atlas Log Rest";
+				INFOPLIST_KEY_CFBundleDisplayName = "Unit Rest";
 				INFOPLIST_KEY_NSExtension_NSExtensionPointIdentifier = "com.apple.widgetkit-extension";
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LD_RUNPATH_SEARCH_PATHS = (

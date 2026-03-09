@@ -1,6 +1,6 @@
 //
 //  ContentView.swift
-//  AtlasLog
+//  Unit
 //
 //  Root: Tab navigation (Home, Program, Cycles, History).
 //
@@ -16,14 +16,14 @@ struct ContentView: View {
             TodayView()
                 .tabItem { Label("Home", systemImage: "house.fill") }
                 .tag(0)
-            TemplatesView()
-                .tabItem { Label("Program", systemImage: "list.bullet.rectangle") }
-                .tag(1)
-            CyclesView()
-                .tabItem { Label("Cycles", systemImage: "calendar.badge.clock") }
-                .tag(2)
             HistoryView()
                 .tabItem { Label("History", systemImage: "chart.line.uptrend.xyaxis") }
+                .tag(1)
+            TemplatesView()
+                .tabItem { Label("Program", systemImage: "list.bullet.rectangle") }
+                .tag(2)
+            SettingsView()
+                .tabItem { Label("Settings", systemImage: "gearshape.fill") }
                 .tag(3)
         }
         .tint(AtlasTheme.Colors.accent)

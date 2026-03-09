@@ -1,6 +1,6 @@
 //
 //  TemplateDetailView.swift
-//  AtlasLog
+//  Unit
 //
 //  View/edit a day template: rename, reorder exercises, and type-to-create.
 //

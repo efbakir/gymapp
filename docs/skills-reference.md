@@ -1,6 +1,6 @@
-# Atlas Log — Skills Reference
+# Unit — Skills Reference
 
-The [awesome-openclaw-skills](https://github.com/VoltAgent/awesome-openclaw-skills) list targets OpenClaw agents, not Cursor. This doc lists skills we use as **reference** for concepts, patterns, and “what we can learn.” No installation of those skills into Cursor—we document takeaways for Atlas Log.
+The [awesome-openclaw-skills](https://github.com/VoltAgent/awesome-openclaw-skills) list targets OpenClaw agents, not Cursor. This doc lists skills we use as **reference** for concepts, patterns, and “what we can learn.” No installation of those skills into Cursor—we document takeaways for Unit.
 
 ---
 

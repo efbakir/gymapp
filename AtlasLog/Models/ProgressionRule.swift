@@ -1,6 +1,6 @@
 //
 //  ProgressionRule.swift
-//  AtlasLog
+//  Unit
 //
 //  SwiftData model: progression settings per exercise inside a cycle.
 //

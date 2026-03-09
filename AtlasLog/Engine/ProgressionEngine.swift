@@ -1,6 +1,6 @@
 //
 //  ProgressionEngine.swift
-//  AtlasLog
+//  Unit
 //
 //  Pure functional progression engine. No @Model, no SwiftUI imports.
 //  All value types — concurrency-safe by construction.

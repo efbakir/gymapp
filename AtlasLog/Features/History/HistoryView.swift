@@ -1,6 +1,6 @@
 //
 //  HistoryView.swift
-//  AtlasLog
+//  Unit
 //
 //  History tab: calendar heatmap + completed session list.
 //
@@ -14,20 +14,140 @@ struct HistoryView: View {
     @Query(sort: \DayTemplate.name) private var templates: [DayTemplate]
     @Query(sort: \Exercise.displayName) private var exercises: [Exercise]
 
-    @State private var showingPRLibrary = false
+    @State private var searchText = ""
+    @State private var selectedExercise: Exercise?
+    @State private var showingAllPRs = false
 
     private var completedSessions: [WorkoutSession] {
         sessions.filter(\.isCompleted)
     }
 
+    // Exercises that appear in at least one completed session
+    private var activeExercises: [Exercise] {
+        let usedIds = Set(completedSessions.flatMap { $0.setEntries.map(\.exerciseId) })
+        return exercises.filter { usedIds.contains($0.id) }
+    }
+
+    private var filteredExercises: [Exercise] {
+        guard !searchText.isEmpty else { return activeExercises }
+        return activeExercises.filter { $0.displayName.localizedCaseInsensitiveContains(searchText) }
+    }
+
+    // Top 5 PRs by weight
+    private var topPRs: [(exercise: Exercise, weight: Double, reps: Int)] {
+        let allSets = completedSessions.flatMap { $0.setEntries }
+        var result: [(exercise: Exercise, weight: Double, reps: Int)] = []
+        for exercise in activeExercises.prefix(10) {
+            let best = allSets
+                .filter { $0.exerciseId == exercise.id && $0.isCompleted && !$0.isWarmup }
+                .max { $0.weight == $1.weight ? $0.reps < $1.reps : $0.weight < $1.weight }
+            if let best {
+                result.append((exercise, best.weight, best.reps))
+            }
+        }
+        return result.sorted { $0.weight > $1.weight }.prefix(5).map { $0 }
+    }
+
     var body: some View {
         NavigationStack {
-            List {
-                // Calendar heatmap section
+            Group {
+                if let exercise = selectedExercise {
+                    ExerciseProgressView(
+                        exerciseId: exercise.id,
+                        exerciseName: exercise.displayName,
+                        sessions: completedSessions,
+                        templates: templates
+                    )
+                } else {
+                    mainList
+                }
+            }
+            .navigationTitle("History")
+            .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .automatic), prompt: "Search exercises")
+            .onChange(of: searchText) { _, newValue in
+                if newValue.isEmpty { selectedExercise = nil }
+            }
+            .navigationDestination(for: WorkoutSession.self) { session in
+                SessionDetailView(session: session, templateName: templateName(for: session.templateId))
+            }
+            .sheet(isPresented: $showingAllPRs) {
+                PRLibraryView(sessions: completedSessions, exercises: exercises)
+            }
+        }
+    }
+
+    private var mainList: some View {
+        List {
+            if !searchText.isEmpty {
+                // Exercise filter results
+                Section("Exercises") {
+                    if filteredExercises.isEmpty {
+                        Text("No exercises found.")
+                            .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                            .frame(minHeight: 44)
+                    } else {
+                        ForEach(filteredExercises, id: \.id) { exercise in
+                            Button {
+                                selectedExercise = exercise
+                                searchText = ""
+                            } label: {
+                                HStack {
+                                    Text(exercise.displayName)
+                                        .foregroundStyle(AtlasTheme.Colors.textPrimary)
+                                    Spacer()
+                                    Image(systemName: "chart.line.uptrend.xyaxis")
+                                        .foregroundStyle(AtlasTheme.Colors.accent)
+                                }
+                                .frame(minHeight: 44)
+                            }
+                        }
+                    }
+                }
+            } else {
+                // Calendar heatmap
                 Section {
                     CalendarHeatmap(sessions: completedSessions)
                         .listRowInsets(EdgeInsets())
                         .listRowBackground(Color.clear)
+                }
+
+                // Inline top PRs
+                if !topPRs.isEmpty {
+                    Section {
+                        ForEach(topPRs, id: \.exercise.id) { pr in
+                            Button {
+                                selectedExercise = pr.exercise
+                            } label: {
+                                HStack {
+                                    VStack(alignment: .leading, spacing: 2) {
+                                        Text(pr.exercise.displayName)
+                                            .font(AtlasTheme.Typography.body)
+                                            .foregroundStyle(AtlasTheme.Colors.textPrimary)
+                                        Text("Best set")
+                                            .font(AtlasTheme.Typography.caption)
+                                            .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                                    }
+                                    Spacer()
+                                    Text("\(pr.weight.weightString)kg × \(pr.reps)")
+                                        .font(AtlasTheme.Typography.body)
+                                        .foregroundStyle(AtlasTheme.Colors.accent)
+                                        .monospacedDigit()
+                                }
+                                .frame(minHeight: 44)
+                            }
+                        }
+                        Button {
+                            showingAllPRs = true
+                        } label: {
+                            Text("See all personal records")
+                                .font(AtlasTheme.Typography.caption)
+                                .foregroundStyle(AtlasTheme.Colors.accent)
+                                .frame(maxWidth: .infinity, alignment: .center)
+                                .frame(minHeight: 44)
+                        }
+                    } header: {
+                        Text("Personal Records")
+                    }
                 }
 
                 // Session list
@@ -46,25 +166,8 @@ struct HistoryView: View {
                     }
                 }
             }
-            .listStyle(.insetGrouped)
-            .navigationTitle("History")
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button {
-                        showingPRLibrary = true
-                    } label: {
-                        Label("PRs", systemImage: "trophy.fill")
-                    }
-                    .accessibilityLabel("Personal Records Library")
-                }
-            }
-            .navigationDestination(for: WorkoutSession.self) { session in
-                SessionDetailView(session: session, templateName: templateName(for: session.templateId))
-            }
-            .sheet(isPresented: $showingPRLibrary) {
-                PRLibraryView(sessions: completedSessions, exercises: exercises)
-            }
         }
+        .listStyle(.insetGrouped)
     }
 
     private func templateName(for templateID: UUID) -> String {

@@ -1,6 +1,6 @@
 //
 //  Cycle.swift
-//  AtlasLog
+//  Unit
 //
 //  SwiftData model: 8-week training cycle container.
 //
