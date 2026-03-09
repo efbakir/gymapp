@@ -9,7 +9,7 @@ import SwiftUI
 import SwiftData
 
 @main
-struct AtlasLogApp: App {
+struct UnitApp: App {
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
             Split.self,
