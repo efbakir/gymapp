@@ -12,12 +12,6 @@
 		541C84EC2F5B819E00D0DB57 /* ProgressionEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 541C84EB2F5B819E00D0DB57 /* ProgressionEngine.swift */; };
 		541C84EE2F5B819E00D0DB57 /* CyclesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 541C84ED2F5B819E00D0DB57 /* CyclesView.swift */; };
 		541C84F02F5B81BA00D0DB57 /* PRLibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 541C84EF2F5B81BA00D0DB57 /* PRLibraryView.swift */; };
-		CC000000000000000000001 /* WeekDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC000000000000000100001 /* WeekDetailView.swift */; };
-		CC000000000000000000002 /* CreateCycleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC000000000000000100002 /* CreateCycleView.swift */; };
-		CC000000000000000000003 /* CycleSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC000000000000000100003 /* CycleSettingsView.swift */; };
-		CC000000000000000000004 /* ProgressionRule+Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC000000000000000100004 /* ProgressionRule+Helpers.swift */; };
-		CC000000000000000000005 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC000000000000000100005 /* SettingsView.swift */; };
-		CC000000000000000000006 /* ExerciseProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC000000000000000100006 /* ExerciseProgressView.swift */; };
 		A10000000000000000000001 /* UnitApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000001 /* UnitApp.swift */; };
 		A10000000000000000000002 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000002 /* ContentView.swift */; };
 		A10000000000000000000003 /* Exercise.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000003 /* Exercise.swift */; };
@@ -37,6 +31,12 @@
 		B10000000000000000000001 /* RestTimerAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000010 /* RestTimerAttributes.swift */; };
 		B10000000000000000000002 /* RestTimerLiveActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000001 /* RestTimerLiveActivity.swift */; };
 		B10000000000000000000003 /* UnitWidgetBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000002 /* UnitWidgetBundle.swift */; };
+		CC000000000000000000001 /* WeekDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC000000000000000100001 /* WeekDetailView.swift */; };
+		CC000000000000000000002 /* CreateCycleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC000000000000000100002 /* CreateCycleView.swift */; };
+		CC000000000000000000003 /* CycleSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC000000000000000100003 /* CycleSettingsView.swift */; };
+		CC000000000000000000004 /* ProgressionRule+Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC000000000000000100004 /* ProgressionRule+Helpers.swift */; };
+		CC000000000000000000005 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC000000000000000100005 /* SettingsView.swift */; };
+		CC000000000000000000006 /* ExerciseProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC000000000000000100006 /* ExerciseProgressView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -55,12 +55,6 @@
 		541C84EB2F5B819E00D0DB57 /* ProgressionEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressionEngine.swift; sourceTree = "<group>"; };
 		541C84ED2F5B819E00D0DB57 /* CyclesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CyclesView.swift; sourceTree = "<group>"; };
 		541C84EF2F5B81BA00D0DB57 /* PRLibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PRLibraryView.swift; sourceTree = "<group>"; };
-		CC000000000000000100001 /* WeekDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeekDetailView.swift; sourceTree = "<group>"; };
-		CC000000000000000100002 /* CreateCycleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateCycleView.swift; sourceTree = "<group>"; };
-		CC000000000000000100003 /* CycleSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CycleSettingsView.swift; sourceTree = "<group>"; };
-		CC000000000000000100004 /* ProgressionRule+Helpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ProgressionRule+Helpers.swift"; sourceTree = "<group>"; };
-		CC000000000000000100005 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
-		CC000000000000000100006 /* ExerciseProgressView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExerciseProgressView.swift; sourceTree = "<group>"; };
 		A20000000000000000000000 /* Unit.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Unit.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A20000000000000000000001 /* UnitApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnitApp.swift; sourceTree = "<group>"; };
 		A20000000000000000000002 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -81,6 +75,12 @@
 		B20000000000000000000000 /* AtlasLogWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = AtlasLogWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		B20000000000000000000001 /* RestTimerLiveActivity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestTimerLiveActivity.swift; sourceTree = "<group>"; };
 		B20000000000000000000002 /* UnitWidgetBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnitWidgetBundle.swift; sourceTree = "<group>"; };
+		CC000000000000000100001 /* WeekDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeekDetailView.swift; sourceTree = "<group>"; };
+		CC000000000000000100002 /* CreateCycleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateCycleView.swift; sourceTree = "<group>"; };
+		CC000000000000000100003 /* CycleSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CycleSettingsView.swift; sourceTree = "<group>"; };
+		CC000000000000000100004 /* ProgressionRule+Helpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ProgressionRule+Helpers.swift"; sourceTree = "<group>"; };
+		CC000000000000000100005 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		CC000000000000000100006 /* ExerciseProgressView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExerciseProgressView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -171,18 +171,10 @@
 				A40000000000000000000006 /* Today */,
 				A40000000000000000000007 /* Templates */,
 				A40000000000000000000008 /* History */,
-				541C84E62F5B815D00D0DB57 /* Cycles 2 */,
+				541C84E62F5B815D00D0DB57 /* Cycles */,
 				A40000000000000000000009 /* Settings */,
 			);
 			path = Features;
-			sourceTree = "<group>";
-		};
-		A40000000000000000000009 /* Settings */ = {
-			isa = PBXGroup;
-			children = (
-				CC000000000000000100005 /* SettingsView.swift */,
-			);
-			path = Settings;
 			sourceTree = "<group>";
 		};
 		A40000000000000000000006 /* Today */ = {
@@ -215,6 +207,14 @@
 				CC000000000000000100006 /* ExerciseProgressView.swift */,
 			);
 			path = History;
+			sourceTree = "<group>";
+		};
+		A40000000000000000000009 /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				CC000000000000000100005 /* SettingsView.swift */,
+			);
+			path = Settings;
 			sourceTree = "<group>";
 		};
 		B40000000000000000000001 /* UnitWidget */ = {
@@ -490,7 +490,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -526,7 +526,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

@@ -14,7 +14,15 @@
       "Bash(git commit:*)",
       "Bash(git push:*)",
       "Bash(git stash)",
-      "Bash(git stash pop)"
+      "Bash(git stash pop)",
+      "Bash(sed -n '60,70p' /Users/efbakir/gymapp/AtlasLog.xcodeproj/project.pbxproj)",
+      "Bash(sed -n '120,145p' /Users/efbakir/gymapp/AtlasLog.xcodeproj/project.pbxproj)",
+      "Bash(sed -n '228,250p' /Users/efbakir/gymapp/AtlasLog.xcodeproj/project.pbxproj)",
+      "Bash(sed -n '270,295p' /Users/efbakir/gymapp/AtlasLog.xcodeproj/project.pbxproj)",
+      "Bash(sed -n '315,325p' /Users/efbakir/gymapp/AtlasLog.xcodeproj/project.pbxproj)",
+      "Bash(sed -n '600,620p' /Users/efbakir/gymapp/AtlasLog.xcodeproj/project.pbxproj)",
+      "Bash(git reset HEAD .claude/settings.local.json)",
+      "Bash(ls /Users/efbakir/gymapp/*.xcodeproj)"
     ]
   }
 }
