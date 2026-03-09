@@ -1,6 +1,6 @@
 //
 //  ExerciseProgressView.swift
-//  AtlasLog
+//  Unit
 //
 //  Exercise-focused progress: PR stat, weight timeline chart, per-session delta list.
 //

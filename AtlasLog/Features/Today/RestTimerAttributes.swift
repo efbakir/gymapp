@@ -12,7 +12,7 @@ import Foundation
 import ActivityKit
 
 /// Attributes for the rest timer Live Activity. ContentState holds the countdown end date.
-/// Include this file in both AtlasLog and AtlasLogWidgetExtension targets so the same type is used.
+/// Include this file in both Unit and UnitWidgetExtension targets so the same type is used.
 public struct RestTimerAttributes: ActivityAttributes {
     public struct ContentState: Codable, Hashable {
         /// When the rest period ends; the Live Activity view can use Text(timerInterval:countsDown:).

@@ -1,5 +1,5 @@
 //
-//  AtlasLogApp.swift
+//  UnitApp.swift
 //  Unit
 //
 //  Adaptive Periodization Engine — iOS 18+, Swift 6, SwiftUI, SwiftData.
