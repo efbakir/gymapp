@@ -262,7 +262,7 @@ private struct WeekRowView: View {
         .clipShape(RoundedRectangle(cornerRadius: AtlasTheme.Radius.sm, style: .continuous))
         .overlay(
             RoundedRectangle(cornerRadius: AtlasTheme.Radius.sm, style: .continuous)
-                .stroke(borderColor(for: status), lineWidth: status == .current ? 2 : 1)
+                .stroke(borderColor(for: status), lineWidth: status == .current ? 2 : 1.5)
         )
     }
 
@@ -298,7 +298,7 @@ private struct WeekRowView: View {
         switch status {
         case .current: return AtlasTheme.Colors.accent
         case .failed: return AtlasTheme.Colors.failureAccent.opacity(0.4)
-        default: return AtlasTheme.Colors.border
+        default: return Color.clear
         }
     }
 }

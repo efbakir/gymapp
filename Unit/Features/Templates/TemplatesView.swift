@@ -251,7 +251,7 @@ private struct AddSplitView: View {
                         .clipShape(RoundedRectangle(cornerRadius: AtlasTheme.Radius.md, style: .continuous))
                         .overlay(
                             RoundedRectangle(cornerRadius: AtlasTheme.Radius.md, style: .continuous)
-                                .stroke(AtlasTheme.Colors.border, lineWidth: 1)
+                                .stroke(AtlasTheme.Colors.border, lineWidth: 0.5)
                         )
                 }
 

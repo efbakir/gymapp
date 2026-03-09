@@ -50,35 +50,35 @@ enum AtlasTheme {
         static let lg: CGFloat = 18
     }
 
-    enum Shadow {
-        static let card = Color(uiColor: .separator).opacity(0.3)
-    }
-
     enum Colors {
-        /// Brand accent: orange #FF4400
-        static let accent = Color(red: 1.0, green: 0.27, blue: 0.0)
-        static let accentSoft = Color(red: 1.0, green: 0.27, blue: 0.0).opacity(0.12)
+        /// Brand accent: orange #FF4400 — restrained; one primary CTA per screen only
+        static let accent = Color(red: 1.0, green: 0.267, blue: 0.0)
+        static let accentSoft = Color(red: 1.0, green: 0.267, blue: 0.0).opacity(0.12)
 
-        // Dark-mode native semantic surfaces
-        static let background = Color(.systemGroupedBackground)
-        static let card = Color(.systemBackground)
+        // Dark surfaces — softened near-black with subtle blue-grey tone (not pure black)
+        /// Page background: #111318
+        static let background = Color(red: 0.067, green: 0.075, blue: 0.094)
+        /// Elevated context (grouped sections, sheets): #1A1D25
+        static let elevatedBackground = Color(red: 0.102, green: 0.114, blue: 0.145)
+        /// Card surface — fills contrast background without shadows: #252831
+        static let card = Color(red: 0.145, green: 0.157, blue: 0.192)
 
         static let textPrimary = Color.primary
         static let textSecondary = Color.secondary
 
-        /// System separator — works on both light and dark
+        /// Separator for input field borders (sparse use only)
         static let border = Color(uiColor: .separator)
 
-        /// Ghost / target text: muted, read-only
+        /// Ghost / target text: read-only engine values
         static let ghostText = Color.secondary
 
-        /// Progress / PR accent: slightly darker orange for dense contexts
+        /// Progress / PR accent: slightly darker orange for dense chart contexts
         static let progress = Color(red: 0.84, green: 0.33, blue: 0.0)
 
-        /// Failure state: red accent
+        /// Failure state
         static let failureAccent = Color.red
 
-        /// Deload badge: orange with slight transparency
+        /// Deload badge
         static let deloadBadge = Color.orange.opacity(0.8)
     }
 
@@ -104,16 +104,12 @@ extension Double {
 // MARK: - View Extensions
 
 extension View {
+    /// Standard card: fill contrast only — no shadow, no border.
     func atlasCardStyle() -> some View {
         self
             .padding(AtlasTheme.Spacing.md)
             .background(AtlasTheme.Colors.card)
             .clipShape(RoundedRectangle(cornerRadius: AtlasTheme.Radius.lg, style: .continuous))
-            .overlay(
-                RoundedRectangle(cornerRadius: AtlasTheme.Radius.lg, style: .continuous)
-                    .stroke(AtlasTheme.Colors.border, lineWidth: 1)
-            )
-            .shadow(color: AtlasTheme.Shadow.card, radius: 14, x: 0, y: 8)
     }
 }
 

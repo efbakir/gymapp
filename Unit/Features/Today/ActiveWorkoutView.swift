@@ -442,11 +442,6 @@ private struct TargetColumn: View {
         .padding(.horizontal, AtlasTheme.Spacing.sm)
         .background(AtlasTheme.Colors.background)
         .clipShape(RoundedRectangle(cornerRadius: AtlasTheme.Radius.md, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: AtlasTheme.Radius.md, style: .continuous)
-                .stroke(AtlasTheme.Colors.border, lineWidth: 1)
-                .opacity(0.5)
-        )
         .accessibilityLabel("Target: \(weightKg.weightString)kg × \(reps) reps")
     }
 }
@@ -520,7 +515,7 @@ private struct MetricInputField: View {
                 .clipShape(RoundedRectangle(cornerRadius: AtlasTheme.Radius.md, style: .continuous))
                 .overlay(
                     RoundedRectangle(cornerRadius: AtlasTheme.Radius.md, style: .continuous)
-                        .stroke(AtlasTheme.Colors.border, lineWidth: 1)
+                        .stroke(AtlasTheme.Colors.border, lineWidth: 0.5)
                 )
         }
     }
@@ -581,12 +576,15 @@ private struct CompletedSetRow: View {
         .background(isFailed ? AtlasTheme.Colors.failureAccent.opacity(0.08) : AtlasTheme.Colors.background)
         .clipShape(RoundedRectangle(cornerRadius: AtlasTheme.Radius.md, style: .continuous))
         .overlay(
-            RoundedRectangle(cornerRadius: AtlasTheme.Radius.md, style: .continuous)
-                .stroke(
-                    isFailed ? AtlasTheme.Colors.failureAccent.opacity(0.5) :
-                    isProgressive ? AtlasTheme.Colors.progress : AtlasTheme.Colors.border,
-                    lineWidth: (isFailed || isProgressive) ? 2 : 1
-                )
+            Group {
+                if isFailed || isProgressive {
+                    RoundedRectangle(cornerRadius: AtlasTheme.Radius.md, style: .continuous)
+                        .stroke(
+                            isFailed ? AtlasTheme.Colors.failureAccent.opacity(0.5) : AtlasTheme.Colors.progress,
+                            lineWidth: 1.5
+                        )
+                }
+            }
         )
         .accessibilityElement(children: .combine)
         .accessibilityValue(accessibilityValue)
@@ -655,7 +653,7 @@ struct EndWorkoutFeelingView: View {
                         .background(session.overallFeeling == value ? AtlasTheme.Colors.accent : AtlasTheme.Colors.background)
                         .foregroundStyle(session.overallFeeling == value ? .white : AtlasTheme.Colors.textPrimary)
                         .clipShape(Circle())
-                        .overlay(Circle().stroke(AtlasTheme.Colors.border, lineWidth: 1))
+                        .overlay(Circle().stroke(AtlasTheme.Colors.border, lineWidth: 0.5))
                     }
                 }
                 Button("Skip") { finishSession() }
