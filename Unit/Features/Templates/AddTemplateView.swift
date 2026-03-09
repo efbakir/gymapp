@@ -89,6 +89,7 @@ struct AddTemplateView: View {
         if let split {
             AddTemplateView(split: split)
                 .modelContainer(container)
+                .preferredColorScheme(.dark)
         }
     }
 }

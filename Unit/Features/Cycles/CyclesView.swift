@@ -377,4 +377,5 @@ private struct ProjectedWeekSheet: View {
 #Preview {
     CyclesView()
         .modelContainer(PreviewSampleData.makePreviewContainer())
+        .preferredColorScheme(.dark)
 }

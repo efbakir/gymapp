@@ -230,4 +230,5 @@ struct AddExerciseToTemplateView: View {
             }
         }
     }
+    .preferredColorScheme(.dark)
 }

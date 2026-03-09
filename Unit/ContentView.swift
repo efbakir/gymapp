@@ -27,6 +27,7 @@ struct ContentView: View {
                 .tag(3)
         }
         .tint(AtlasTheme.Colors.accent)
+        .preferredColorScheme(.dark)
     }
 }
 
@@ -63,14 +64,15 @@ enum AtlasTheme {
         /// Card surface — fills contrast background without shadows: #252831
         static let card = Color(red: 0.145, green: 0.157, blue: 0.192)
 
-        static let textPrimary = Color.primary
-        static let textSecondary = Color.secondary
+        /// Fixed for dark-only UI — does not depend on ColorScheme resolution
+        static let textPrimary = Color(white: 0.92)
+        static let textSecondary = Color(white: 0.55)
 
         /// Separator for input field borders (sparse use only)
-        static let border = Color(uiColor: .separator)
+        static let border = Color(white: 1.0, opacity: 0.12)
 
         /// Ghost / target text: read-only engine values
-        static let ghostText = Color.secondary
+        static let ghostText = Color(white: 0.55)
 
         /// Progress / PR accent: slightly darker orange for dense chart contexts
         static let progress = Color(red: 0.84, green: 0.33, blue: 0.0)

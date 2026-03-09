@@ -882,4 +882,5 @@ final class RestTimerManager: ObservableObject {
             }
         }
     }
+    .preferredColorScheme(.dark)
 }

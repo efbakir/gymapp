@@ -71,4 +71,5 @@ private struct PRRecord: Identifiable {
 
 #Preview {
     PRLibraryView(sessions: [], exercises: [])
+        .preferredColorScheme(.dark)
 }

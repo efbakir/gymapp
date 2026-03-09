@@ -310,4 +310,5 @@ struct SessionRow: View {
 #Preview {
     HistoryView()
         .modelContainer(PreviewSampleData.makePreviewContainer())
+        .preferredColorScheme(.dark)
 }

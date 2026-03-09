@@ -298,4 +298,5 @@ struct ExerciseDetailView: View {
         ExercisesListView()
             .modelContainer(PreviewSampleData.makePreviewContainer())
     }
+    .preferredColorScheme(.dark)
 }

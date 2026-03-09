@@ -294,4 +294,5 @@ private struct AddSplitView: View {
 #Preview {
     TemplatesView()
         .modelContainer(PreviewSampleData.makePreviewContainer())
+        .preferredColorScheme(.dark)
 }

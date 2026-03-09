@@ -28,9 +28,6 @@
 		A1000000000000000000000E /* SessionDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000000000000000000000E /* SessionDetailView.swift */; };
 		A1000000000000000000000F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A2000000000000000000000F /* Assets.xcassets */; };
 		A10000000000000000000010 /* RestTimerAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000010 /* RestTimerAttributes.swift */; };
-		B10000000000000000000001 /* RestTimerAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000010 /* RestTimerAttributes.swift */; };
-		B10000000000000000000002 /* RestTimerLiveActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000001 /* RestTimerLiveActivity.swift */; };
-		B10000000000000000000003 /* UnitWidgetBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000002 /* UnitWidgetBundle.swift */; };
 		CC000000000000000000001 /* WeekDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC000000000000000100001 /* WeekDetailView.swift */; };
 		CC000000000000000000002 /* CreateCycleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC000000000000000100002 /* CreateCycleView.swift */; };
 		CC000000000000000000003 /* CycleSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC000000000000000100003 /* CycleSettingsView.swift */; };
@@ -39,22 +36,13 @@
 		CC000000000000000000006 /* ExerciseProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC000000000000000100006 /* ExerciseProgressView.swift */; };
 /* End PBXBuildFile section */
 
-/* Begin PBXContainerItemProxy section */
-		B70000000000000000000001 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = A70000000000000000000001 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = B50000000000000000000002;
-			remoteInfo = AtlasLogWidgetExtension;
-		};
-/* End PBXContainerItemProxy section */
-
 /* Begin PBXFileReference section */
 		541C84E72F5B818100D0DB57 /* Cycle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Cycle.swift; sourceTree = "<group>"; };
 		541C84E92F5B818100D0DB57 /* ProgressionRule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressionRule.swift; sourceTree = "<group>"; };
 		541C84EB2F5B819E00D0DB57 /* ProgressionEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressionEngine.swift; sourceTree = "<group>"; };
 		541C84ED2F5B819E00D0DB57 /* CyclesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CyclesView.swift; sourceTree = "<group>"; };
 		541C84EF2F5B81BA00D0DB57 /* PRLibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PRLibraryView.swift; sourceTree = "<group>"; };
+		544D8D052F5F58C100E4C17E /* Unit.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Unit.entitlements; sourceTree = "<group>"; };
 		A20000000000000000000000 /* Unit.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Unit.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A20000000000000000000001 /* UnitApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnitApp.swift; sourceTree = "<group>"; };
 		A20000000000000000000002 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -72,7 +60,6 @@
 		A2000000000000000000000E /* SessionDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionDetailView.swift; sourceTree = "<group>"; };
 		A2000000000000000000000F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		A20000000000000000000010 /* RestTimerAttributes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestTimerAttributes.swift; sourceTree = "<group>"; };
-		B20000000000000000000000 /* AtlasLogWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = AtlasLogWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		B20000000000000000000001 /* RestTimerLiveActivity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestTimerLiveActivity.swift; sourceTree = "<group>"; };
 		B20000000000000000000002 /* UnitWidgetBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnitWidgetBundle.swift; sourceTree = "<group>"; };
 		CC000000000000000100001 /* WeekDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeekDetailView.swift; sourceTree = "<group>"; };
@@ -85,13 +72,6 @@
 
 /* Begin PBXFrameworksBuildPhase section */
 		A30000000000000000000001 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		B30000000000000000000001 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -132,6 +112,7 @@
 		A40000000000000000000002 /* Unit */ = {
 			isa = PBXGroup;
 			children = (
+				544D8D052F5F58C100E4C17E /* Unit.entitlements */,
 				A20000000000000000000001 /* UnitApp.swift */,
 				A20000000000000000000002 /* ContentView.swift */,
 				A40000000000000000000004 /* Models */,
@@ -146,7 +127,6 @@
 			isa = PBXGroup;
 			children = (
 				A20000000000000000000000 /* Unit.app */,
-				B20000000000000000000000 /* AtlasLogWidgetExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -240,29 +220,11 @@
 			buildRules = (
 			);
 			dependencies = (
-				B50000000000000000000003 /* PBXTargetDependency */,
 			);
 			name = Unit;
 			productName = Unit;
 			productReference = A20000000000000000000000 /* Unit.app */;
 			productType = "com.apple.product-type.application";
-		};
-		B50000000000000000000002 /* AtlasLogWidgetExtension */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = B60000000000000000000001 /* Build configuration list for PBXNativeTarget "AtlasLogWidgetExtension" */;
-			buildPhases = (
-				B50000000000000000000001 /* Sources */,
-				B30000000000000000000001 /* Frameworks */,
-				B50000000000000000000004 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = AtlasLogWidgetExtension;
-			productName = AtlasLogWidgetExtension;
-			productReference = B20000000000000000000000 /* AtlasLogWidgetExtension.appex */;
-			productType = "com.apple.product-type.app-extension";
 		};
 /* End PBXNativeTarget section */
 
@@ -288,7 +250,6 @@
 			projectRoot = "";
 			targets = (
 				A50000000000000000000001 /* Unit */,
-				B50000000000000000000002 /* AtlasLogWidgetExtension */,
 			);
 		};
 /* End PBXProject section */
@@ -299,13 +260,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				A1000000000000000000000F /* Assets.xcassets in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		B50000000000000000000004 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -345,25 +299,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		B50000000000000000000001 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				B10000000000000000000001 /* RestTimerAttributes.swift in Sources */,
-				B10000000000000000000002 /* RestTimerLiveActivity.swift in Sources */,
-				B10000000000000000000003 /* UnitWidgetBundle.swift in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXSourcesBuildPhase section */
-
-/* Begin PBXTargetDependency section */
-		B50000000000000000000003 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = B50000000000000000000002 /* AtlasLogWidgetExtension */;
-			targetProxy = B70000000000000000000001 /* PBXContainerItemProxy */;
-		};
-/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		A80000000000000000000001 /* Debug */ = {
@@ -477,6 +413,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_ENABLE_OBJC_WEAK = YES;
+				CODE_SIGN_ENTITLEMENTS = Unit/Unit.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEAD_CODE_STRIPPING = YES;
@@ -500,9 +437,11 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_STRICT_CONCURRENCY = complete;
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -513,6 +452,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_ENABLE_OBJC_WEAK = YES;
+				CODE_SIGN_ENTITLEMENTS = Unit/Unit.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEAD_CODE_STRIPPING = YES;
@@ -536,63 +476,11 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_STRICT_CONCURRENCY = complete;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Release;
-		};
-		B80000000000000000000001 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CLANG_ENABLE_OBJC_WEAK = YES;
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEAD_CODE_STRIPPING = YES;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = "Unit Rest";
-				INFOPLIST_KEY_NSExtension_NSExtensionPointIdentifier = "com.apple.widgetkit-extension";
-				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@executable_path/../../Frameworks",
-				);
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.atlaslog.app.AtlasLogWidgetExtension;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SKIP_INSTALL = YES;
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_STRICT_CONCURRENCY = complete;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Debug;
-		};
-		B80000000000000000000002 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CLANG_ENABLE_OBJC_WEAK = YES;
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEAD_CODE_STRIPPING = YES;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = "Unit Rest";
-				INFOPLIST_KEY_NSExtension_NSExtensionPointIdentifier = "com.apple.widgetkit-extension";
-				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@executable_path/../../Frameworks",
-				);
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.atlaslog.app.AtlasLogWidgetExtension;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SKIP_INSTALL = YES;
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_STRICT_CONCURRENCY = complete;
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
@@ -614,15 +502,6 @@
 			buildConfigurations = (
 				A80000000000000000000003 /* Debug */,
 				A80000000000000000000004 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		B60000000000000000000001 /* Build configuration list for PBXNativeTarget "AtlasLogWidgetExtension" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				B80000000000000000000001 /* Debug */,
-				B80000000000000000000002 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

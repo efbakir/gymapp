@@ -524,4 +524,5 @@ private struct AtlasScaleButtonStyle: ButtonStyle {
 #Preview {
     TodayView()
         .modelContainer(PreviewSampleData.makePreviewContainer())
+        .preferredColorScheme(.dark)
 }

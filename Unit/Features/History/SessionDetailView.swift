@@ -141,4 +141,5 @@ private struct FeelingPickerView: View {
             }
         }
     }
+    .preferredColorScheme(.dark)
 }

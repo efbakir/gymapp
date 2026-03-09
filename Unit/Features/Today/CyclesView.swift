@@ -48,4 +48,5 @@ struct CyclesView: View {
 #Preview {
     CyclesView()
         .modelContainer(PreviewSampleData.makePreviewContainer())
+        .preferredColorScheme(.dark)
 }

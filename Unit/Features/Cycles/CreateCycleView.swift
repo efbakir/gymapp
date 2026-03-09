@@ -339,4 +339,5 @@ struct CreateCycleView: View {
 #Preview {
     CreateCycleView()
         .modelContainer(PreviewSampleData.makePreviewContainer())
+        .preferredColorScheme(.dark)
 }
