@@ -36,7 +36,7 @@
 		A10000000000000000000010 /* RestTimerAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000010 /* RestTimerAttributes.swift */; };
 		B10000000000000000000001 /* RestTimerAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000010 /* RestTimerAttributes.swift */; };
 		B10000000000000000000002 /* RestTimerLiveActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000001 /* RestTimerLiveActivity.swift */; };
-		B10000000000000000000003 /* AtlasLogWidgetBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000002 /* AtlasLogWidgetBundle.swift */; };
+		B10000000000000000000003 /* UnitWidgetBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000002 /* UnitWidgetBundle.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -80,7 +80,7 @@
 		A20000000000000000000010 /* RestTimerAttributes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestTimerAttributes.swift; sourceTree = "<group>"; };
 		B20000000000000000000000 /* AtlasLogWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = AtlasLogWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		B20000000000000000000001 /* RestTimerLiveActivity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestTimerLiveActivity.swift; sourceTree = "<group>"; };
-		B20000000000000000000002 /* AtlasLogWidgetBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AtlasLogWidgetBundle.swift; sourceTree = "<group>"; };
+		B20000000000000000000002 /* UnitWidgetBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnitWidgetBundle.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -123,13 +123,13 @@
 		A40000000000000000000001 = {
 			isa = PBXGroup;
 			children = (
-				A40000000000000000000002 /* AtlasLog */,
-				B40000000000000000000001 /* AtlasLogWidget */,
+				A40000000000000000000002 /* Unit */,
+				B40000000000000000000001 /* UnitWidget */,
 				A40000000000000000000003 /* Products */,
 			);
 			sourceTree = "<group>";
 		};
-		A40000000000000000000002 /* AtlasLog */ = {
+		A40000000000000000000002 /* Unit */ = {
 			isa = PBXGroup;
 			children = (
 				A20000000000000000000001 /* UnitApp.swift */,
@@ -137,9 +137,9 @@
 				A40000000000000000000004 /* Models */,
 				A40000000000000000000005 /* Features */,
 				A2000000000000000000000F /* Assets.xcassets */,
-				541C84E52F5B815D00D0DB57 /* Engine 2 */,
+				541C84E52F5B815D00D0DB57 /* Engine */,
 			);
-			path = AtlasLog;
+			path = Unit;
 			sourceTree = "<group>";
 		};
 		A40000000000000000000003 /* Products */ = {
@@ -217,13 +217,13 @@
 			path = History;
 			sourceTree = "<group>";
 		};
-		B40000000000000000000001 /* AtlasLogWidget */ = {
+		B40000000000000000000001 /* UnitWidget */ = {
 			isa = PBXGroup;
 			children = (
 				B20000000000000000000001 /* RestTimerLiveActivity.swift */,
-				B20000000000000000000002 /* AtlasLogWidgetBundle.swift */,
+				B20000000000000000000002 /* UnitWidgetBundle.swift */,
 			);
-			path = AtlasLogWidget;
+			path = UnitWidget;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -274,7 +274,7 @@
 				LastSwiftUpdateCheck = 1500;
 				LastUpgradeCheck = 2630;
 			};
-			buildConfigurationList = A60000000000000000000001 /* Build configuration list for PBXProject "AtlasLog" */;
+			buildConfigurationList = A60000000000000000000001 /* Build configuration list for PBXProject "Unit" */;
 			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -351,7 +351,7 @@
 			files = (
 				B10000000000000000000001 /* RestTimerAttributes.swift in Sources */,
 				B10000000000000000000002 /* RestTimerLiveActivity.swift in Sources */,
-				B10000000000000000000003 /* AtlasLogWidgetBundle.swift in Sources */,
+				B10000000000000000000003 /* UnitWidgetBundle.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

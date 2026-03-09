@@ -1,5 +1,5 @@
 //
-//  AtlasLogWidgetBundle.swift
+//  UnitWidgetBundle.swift
 //  Unit
 //
 //  Live Activities (ActivityKit) are iOS-only. On macOS this bundle exposes a no-op widget.
@@ -9,7 +9,7 @@ import WidgetKit
 import SwiftUI
 
 @main
-struct AtlasLogWidgetBundle: WidgetBundle {
+struct UnitWidgetBundle: WidgetBundle {
     var body: some Widget {
         #if os(iOS)
         RestTimerLiveActivityWidget()
