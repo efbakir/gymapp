@@ -21,19 +21,19 @@ struct AddTemplateView: View {
 
     var body: some View {
         NavigationStack {
-            VStack(spacing: AtlasTheme.Spacing.lg) {
-                VStack(alignment: .leading, spacing: AtlasTheme.Spacing.sm) {
+            VStack(spacing: Theme.Spacing.lg) {
+                VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
                     Text("Day name")
-                        .font(AtlasTheme.Typography.sectionTitle)
+                        .font(Theme.Typography.title)
                     TextField("e.g. Push", text: $name)
                         .textInputAutocapitalization(.words)
-                        .padding(.horizontal, AtlasTheme.Spacing.md)
+                        .padding(.horizontal, Theme.Spacing.md)
                         .frame(height: 52)
-                        .background(AtlasTheme.Colors.card)
-                        .clipShape(RoundedRectangle(cornerRadius: AtlasTheme.Radius.md, style: .continuous))
+                        .background(Theme.Colors.card)
+                        .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.md, style: .continuous))
                         .overlay(
-                            RoundedRectangle(cornerRadius: AtlasTheme.Radius.md, style: .continuous)
-                                .stroke(AtlasTheme.Colors.border, lineWidth: 0.5)
+                            RoundedRectangle(cornerRadius: Theme.Radius.md, style: .continuous)
+                                .stroke(Theme.Colors.border, lineWidth: 0.5)
                         )
                 }
 
@@ -41,20 +41,20 @@ struct AddTemplateView: View {
                     save()
                 } label: {
                     Text("Create Day")
-                        .font(AtlasTheme.Typography.sectionTitle)
+                        .font(Theme.Typography.title)
                         .foregroundStyle(.white)
                         .frame(maxWidth: .infinity)
                         .frame(height: 52)
-                        .background(canSave ? AtlasTheme.Colors.accent : Color.gray.opacity(0.35))
-                        .clipShape(RoundedRectangle(cornerRadius: AtlasTheme.Radius.md, style: .continuous))
+                        .background(canSave ? Theme.Colors.accent : Color.gray.opacity(0.35))
+                        .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.md, style: .continuous))
                 }
                 .buttonStyle(.plain)
                 .disabled(!canSave)
 
                 Spacer(minLength: 0)
             }
-            .padding(AtlasTheme.Spacing.md)
-            .background(AtlasTheme.Colors.background.ignoresSafeArea())
+            .padding(Theme.Spacing.md)
+            .background(Theme.Colors.background.ignoresSafeArea())
             .navigationTitle("New Day")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

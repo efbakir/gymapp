@@ -83,7 +83,7 @@ struct HistoryView: View {
                 Section("Exercises") {
                     if filteredExercises.isEmpty {
                         Text("No exercises found.")
-                            .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                            .foregroundStyle(Theme.Colors.textSecondary)
                             .frame(minHeight: 44)
                     } else {
                         ForEach(filteredExercises, id: \.id) { exercise in
@@ -93,10 +93,10 @@ struct HistoryView: View {
                             } label: {
                                 HStack {
                                     Text(exercise.displayName)
-                                        .foregroundStyle(AtlasTheme.Colors.textPrimary)
+                                        .foregroundStyle(Theme.Colors.textPrimary)
                                     Spacer()
                                     Image(systemName: "chart.line.uptrend.xyaxis")
-                                        .foregroundStyle(AtlasTheme.Colors.accent)
+                                        .foregroundStyle(Theme.Colors.accent)
                                 }
                                 .frame(minHeight: 44)
                             }
@@ -121,16 +121,16 @@ struct HistoryView: View {
                                 HStack {
                                     VStack(alignment: .leading, spacing: 2) {
                                         Text(pr.exercise.displayName)
-                                            .font(AtlasTheme.Typography.body)
-                                            .foregroundStyle(AtlasTheme.Colors.textPrimary)
+                                            .font(Theme.Typography.body)
+                                            .foregroundStyle(Theme.Colors.textPrimary)
                                         Text("Best set")
-                                            .font(AtlasTheme.Typography.caption)
-                                            .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                                            .font(Theme.Typography.caption)
+                                            .foregroundStyle(Theme.Colors.textSecondary)
                                     }
                                     Spacer()
                                     Text("\(pr.weight.weightString)kg × \(pr.reps)")
-                                        .font(AtlasTheme.Typography.body)
-                                        .foregroundStyle(AtlasTheme.Colors.accent)
+                                        .font(Theme.Typography.body)
+                                        .foregroundStyle(Theme.Colors.accent)
                                         .monospacedDigit()
                                 }
                                 .frame(minHeight: 44)
@@ -140,8 +140,8 @@ struct HistoryView: View {
                             showingAllPRs = true
                         } label: {
                             Text("See all personal records")
-                                .font(AtlasTheme.Typography.caption)
-                                .foregroundStyle(AtlasTheme.Colors.accent)
+                                .font(Theme.Typography.caption)
+                                .foregroundStyle(Theme.Colors.accent)
                                 .frame(maxWidth: .infinity, alignment: .center)
                                 .frame(minHeight: 44)
                         }
@@ -153,8 +153,8 @@ struct HistoryView: View {
                 // Session list
                 if completedSessions.isEmpty {
                     Text("No completed sessions yet.")
-                        .font(AtlasTheme.Typography.body)
-                        .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                        .font(Theme.Typography.body)
+                        .foregroundStyle(Theme.Colors.textSecondary)
                         .frame(minHeight: 44)
                 } else {
                     Section("Sessions") {
@@ -214,16 +214,16 @@ private struct CalendarHeatmap: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: AtlasTheme.Spacing.xs) {
+        VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
             HStack(spacing: 4) {
                 ForEach(dayHeaders, id: \.self) { h in
                     Text(h)
-                        .font(AtlasTheme.Typography.caption)
-                        .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                        .font(Theme.Typography.caption)
+                        .foregroundStyle(Theme.Colors.textSecondary)
                         .frame(maxWidth: .infinity)
                 }
             }
-            .padding(.horizontal, AtlasTheme.Spacing.md)
+            .padding(.horizontal, Theme.Spacing.md)
 
             LazyVGrid(columns: columns, spacing: 4) {
                 ForEach(calendarDays) { day in
@@ -233,8 +233,8 @@ private struct CalendarHeatmap: View {
                         .accessibilityLabel(day.accessibilityLabel)
                 }
             }
-            .padding(.horizontal, AtlasTheme.Spacing.md)
-            .padding(.vertical, AtlasTheme.Spacing.sm)
+            .padding(.horizontal, Theme.Spacing.md)
+            .padding(.vertical, Theme.Spacing.sm)
         }
     }
 }
@@ -252,7 +252,7 @@ private struct CalendarDay: Identifiable {
 
     var fillColor: Color {
         if intensity == 0 { return Color(uiColor: .tertiarySystemFill) }
-        return AtlasTheme.Colors.accent.opacity(0.2 + intensity * 0.8)
+        return Theme.Colors.accent.opacity(0.2 + intensity * 0.8)
     }
 
     var accessibilityLabel: String {
@@ -279,30 +279,30 @@ struct SessionRow: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: AtlasTheme.Spacing.xxs) {
+        VStack(alignment: .leading, spacing: Theme.Spacing.xxs) {
             Text(templateName)
-                .font(AtlasTheme.Typography.sectionTitle)
+                .font(Theme.Typography.title)
             Text(dateText)
-                .font(AtlasTheme.Typography.caption)
-                .foregroundStyle(AtlasTheme.Colors.textSecondary)
-            HStack(spacing: AtlasTheme.Spacing.xs) {
+                .font(Theme.Typography.caption)
+                .foregroundStyle(Theme.Colors.textSecondary)
+            HStack(spacing: Theme.Spacing.xs) {
                 if session.overallFeeling > 0 {
                     Text("Feeling: \(session.overallFeeling)/5")
-                        .font(AtlasTheme.Typography.caption)
-                        .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                        .font(Theme.Typography.caption)
+                        .foregroundStyle(Theme.Colors.textSecondary)
                 }
                 if session.weekNumber > 0 {
                     Text("Week \(session.weekNumber)")
-                        .font(AtlasTheme.Typography.caption)
+                        .font(Theme.Typography.caption)
                         .padding(.horizontal, 6)
                         .padding(.vertical, 2)
-                        .background(AtlasTheme.Colors.accentSoft)
+                        .background(Theme.Colors.accentSoft)
                         .clipShape(Capsule())
-                        .foregroundStyle(AtlasTheme.Colors.accent)
+                        .foregroundStyle(Theme.Colors.accent)
                 }
             }
         }
-        .padding(.vertical, AtlasTheme.Spacing.xs)
+        .padding(.vertical, Theme.Spacing.xs)
         .frame(minHeight: 44, alignment: .leading)
     }
 }
