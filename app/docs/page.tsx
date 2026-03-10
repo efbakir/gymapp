@@ -2,143 +2,99 @@
 
 import { useState } from "react"
 
-// Design tokens for the documentation, matching the iOS Theme
-const theme = {
-  colors: {
-    accent: "#FF4400",
-    accentSoft: "rgba(255, 68, 0, 0.12)",
-    background: "#111318",
-    elevated: "#1A1D25",
-    card: "#252831",
-    textPrimary: "rgba(255, 255, 255, 0.92)",
-    textSecondary: "rgba(255, 255, 255, 0.55)",
-    border: "rgba(255, 255, 255, 0.12)",
-    ghostText: "rgba(255, 255, 255, 0.55)",
-    progress: "#D65400",
-    failure: "#FF3B30",
-    deload: "rgba(255, 165, 0, 0.8)",
-  },
-  spacing: {
-    xxs: 4,
-    xs: 8,
-    sm: 12,
-    md: 16,
-    lg: 24,
-    xl: 32,
-    xxl: 48,
-    xxxl: 64,
-  },
-  radius: {
-    sm: 10,
-    md: 14,
-    lg: 18,
-  },
-}
+// Navigation sections
+const sections = [
+  { id: "colors", label: "Colors" },
+  { id: "typography", label: "Typography" },
+  { id: "spacing", label: "Spacing" },
+  { id: "radius", label: "Radius" },
+  { id: "components", label: "Components" },
+]
 
-// Component data
+// Color tokens
+const colors = [
+  { name: "accent", value: "#FF4400", description: "Primary brand color, CTAs" },
+  { name: "accent-soft", value: "rgba(255, 68, 0, 0.12)", description: "Subtle accent backgrounds" },
+  { name: "background", value: "#111318", description: "Page background" },
+  { name: "elevated", value: "#1A1D25", description: "Sheets, grouped sections" },
+  { name: "card", value: "#252831", description: "Card surfaces" },
+  { name: "text-primary", value: "rgba(255, 255, 255, 0.92)", description: "Main text" },
+  { name: "text-secondary", value: "rgba(255, 255, 255, 0.55)", description: "Supporting text" },
+  { name: "border", value: "rgba(255, 255, 255, 0.12)", description: "Dividers, input borders" },
+  { name: "ghost", value: "rgba(255, 255, 255, 0.55)", description: "Target/readonly values" },
+  { name: "progress", value: "#D65400", description: "Charts, progress indicators" },
+  { name: "failure", value: "#FF3B30", description: "Error states, RIR 0" },
+  { name: "deload", value: "rgba(255, 165, 0, 0.8)", description: "Deload week badges" },
+]
+
+// Spacing scale
+const spacingScale = [
+  { name: "xxs", value: 4 },
+  { name: "xs", value: 8 },
+  { name: "sm", value: 12 },
+  { name: "md", value: 16 },
+  { name: "lg", value: 24 },
+  { name: "xl", value: 32 },
+  { name: "xxl", value: 48 },
+  { name: "xxxl", value: 64 },
+]
+
+// Radius scale
+const radiusScale = [
+  { name: "sm", value: 10, usage: "Small elements, badges" },
+  { name: "md", value: 14, usage: "Inputs, buttons" },
+  { name: "lg", value: 18, usage: "Cards, containers" },
+]
+
+// Typography scale
+const typographyScale = [
+  { name: "hero", size: "22px", weight: 700, usage: "Page titles, large numbers" },
+  { name: "title", size: "17px", weight: 600, usage: "Section headers, card titles" },
+  { name: "body", size: "15px", weight: 400, usage: "Body text, descriptions" },
+  { name: "caption", size: "13px", weight: 400, usage: "Labels, metadata" },
+  { name: "metric", size: "20px", weight: 600, usage: "Numeric displays" },
+]
+
+// Component definitions
 const components = [
   {
-    name: "cardStyle()",
-    category: "Modifiers",
-    description: "Standard card: fill contrast only — no shadow, no border.",
-    code: `.cardStyle()
-// Equivalent:
+    name: "Card",
+    category: "Layout",
+    description: "Standard card container with fill contrast only - no shadow, no border.",
+    swiftCode: `.cardStyle()
+// Equivalent to:
 .padding(Theme.Spacing.md)
 .background(Theme.Colors.card)
-.clipShape(RoundedRectangle(cornerRadius: Theme.Radius.lg, style: .continuous))`,
+.clipShape(RoundedRectangle(
+    cornerRadius: Theme.Radius.lg,
+    style: .continuous
+))`,
     preview: "card",
   },
   {
     name: "ScaleButtonStyle",
-    category: "Interactions",
-    description: "Micro-scale tap feedback (0.97x) for cards and buttons.",
-    code: `Button(action: onStart) {
-    // content
+    category: "Interaction",
+    description: "Micro-scale tap feedback (0.97x) for interactive elements.",
+    swiftCode: `Button(action: onTap) {
+    Text("Start Session")
 }
 .buttonStyle(ScaleButtonStyle())`,
-    preview: "button",
+    preview: "scale-button",
   },
   {
-    name: "TrainingDayCard",
-    category: "Cards",
-    description: "Context card for training days with exercise targets and delta badges.",
-    code: `TrainingDayCard(
-    weekNumber: 3,
-    templateName: "Push",
-    targets: [
-        ExerciseTarget(
-            exerciseName: "Bench Press",
-            weightKg: 100,
-            reps: 5,
-            deltaKg: 2.5,
-            lastWeightKg: 97.5,
-            lastReps: 5
-        )
-    ]
-) {
-    startWorkout(template)
-}`,
-    preview: "training-card",
-  },
-  {
-    name: "RestDayCard",
-    category: "Cards",
-    description: "Rest day context with next session info and recent wins.",
-    code: `RestDayCard(
-    nextSession: "Pull",
-    nextSessionTiming: "Tomorrow",
-    wins: [
-        SessionWin(exerciseName: "Bench Press", deltaKg: 2.5)
-    ]
-)`,
-    preview: "rest-card",
-  },
-  {
-    name: "DayCardView",
-    category: "Cards",
-    description: "Quick-start card for selecting a workout template.",
-    code: `DayCardView(
-    title: "Push",
-    splitName: "PPL",
-    lastPerformed: "2 days ago",
-    topLift: "Bench 100kg × 5"
-) {
-    startWorkout(template)
-}`,
-    preview: "day-card",
-  },
-  {
-    name: "ExerciseLoggingCard",
-    category: "Workout",
-    description: "Full exercise logging with target column, inputs, RIR stepper.",
-    code: `ExerciseLoggingCard(
-    exercise: exercise,
-    progressionRule: rule,
-    activeCycle: cycle,
-    weekNumber: session.weekNumber,
-    currentEntries: currentEntries(for: exercise.id),
-    lastActual: (weight: 97.5, reps: 5),
-    prefill: viewModel.prefillSet(...),
-    referenceProvider: { setIndex in ... },
-    onComplete: { weight, reps, rir, isWarmup in ... },
-    onRIRZero: { exerciseName, completion in ... }
-)`,
-    preview: "logging-card",
-  },
-  {
-    name: "RIRStepper",
-    category: "Inputs",
-    description: "Horizontal capsule buttons for RIR selection (0–5).",
-    code: `RIRStepper(selected: $rir)
+    name: "RIR Stepper",
+    category: "Input",
+    description: "Horizontal capsule buttons for RIR selection (0-5). Zero shows red highlight.",
+    swiftCode: `RIRStepper(selected: $rir)
 // Values: [-1, 0, 1, 2, 3, 4, 5]
-// -1 = unset, 0 = failure (red highlight)`,
+// -1 = unset, 0 = failure (red)`,
     preview: "rir-stepper",
   },
   {
-    name: "MetricInputField",
-    category: "Inputs",
-    description: "Centered numeric input with label and keyboard type.",
-    code: `MetricInputField(
+    name: "Metric Input",
+    category: "Input",
+    description: "Centered numeric input with label for weight/reps entry.",
+    swiftCode: `MetricInputField(
     title: "WEIGHT (kg)",
     text: $weightText,
     keyboard: .decimalPad
@@ -146,10 +102,20 @@ const components = [
     preview: "metric-input",
   },
   {
-    name: "CompletedSetRow",
-    category: "Workout",
+    name: "Target Column",
+    category: "Display",
+    description: "Ghost/read-only target display from progression engine.",
+    swiftCode: `TargetColumn(
+    weightKg: 100,
+    reps: 5
+)`,
+    preview: "target-column",
+  },
+  {
+    name: "Completed Set Row",
+    category: "Display",
     description: "Logged set display with success/failure indicators.",
-    code: `CompletedSetRow(
+    swiftCode: `CompletedSetRow(
     index: entry.setIndex + 1,
     entry: entry,
     reference: referenceProvider(entry.setIndex)
@@ -157,120 +123,51 @@ const components = [
     preview: "completed-row",
   },
   {
-    name: "RestTimerPanel",
+    name: "Delta Badge",
+    category: "Feedback",
+    description: "Shows weight progression delta with accent background.",
+    swiftCode: `DeltaBadge(deltaKg: 2.5)
+// Displays: "+2.5kg" with accent-soft bg`,
+    preview: "delta-badge",
+  },
+  {
+    name: "Rest Timer",
     category: "Workout",
-    description: "Rest timer with preset buttons and Live Activity support.",
-    code: `RestTimerPanel(manager: restTimer)
+    description: "Rest timer with preset buttons and countdown display.",
+    swiftCode: `RestTimerPanel(manager: restTimer)
 // Presets: 1:30, 2:00
 // Integrates with iOS Live Activities`,
     preview: "rest-timer",
-  },
-  {
-    name: "TargetColumn",
-    category: "Workout",
-    description: "Ghost/read-only target display from progression engine.",
-    code: `TargetColumn(weightKg: 100, reps: 5)`,
-    preview: "target-column",
   },
 ]
 
 const categories = [...new Set(components.map((c) => c.category))]
 
-// Preview components
+// Preview Components
 function CardPreview() {
   return (
-    <div
-      style={{
-        padding: theme.spacing.md,
-        background: theme.colors.card,
-        borderRadius: theme.radius.lg,
-      }}
-    >
-      <div style={{ color: theme.colors.textPrimary, fontWeight: 600 }}>Card Content</div>
-      <div style={{ color: theme.colors.textSecondary, fontSize: 14, marginTop: 4 }}>Secondary text</div>
+    <div className="rounded-[18px] bg-[#252831] p-4">
+      <p className="text-[rgba(255,255,255,0.92)] font-semibold">Card Title</p>
+      <p className="text-[rgba(255,255,255,0.55)] text-sm mt-1">Supporting description text</p>
     </div>
   )
 }
 
-function ButtonPreview() {
+function ScaleButtonPreview() {
   const [pressed, setPressed] = useState(false)
   return (
     <button
       onMouseDown={() => setPressed(true)}
       onMouseUp={() => setPressed(false)}
       onMouseLeave={() => setPressed(false)}
-      style={{
-        transform: pressed ? "scale(0.97)" : "scale(1)",
-        transition: "transform 0.15s ease-in-out",
-        padding: `${theme.spacing.sm}px ${theme.spacing.md}px`,
-        background: theme.colors.accent,
-        color: "white",
-        borderRadius: 22,
-        border: "none",
-        fontWeight: 600,
-        cursor: "pointer",
-      }}
+      className="flex items-center gap-2 px-4 py-2.5 bg-[#FF4400] text-white rounded-full font-semibold text-sm transition-transform duration-150"
+      style={{ transform: pressed ? "scale(0.97)" : "scale(1)" }}
     >
+      <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
+        <path d="M8 5v14l11-7z" />
+      </svg>
       Start Session
     </button>
-  )
-}
-
-function TrainingCardPreview() {
-  return (
-    <div
-      style={{
-        padding: theme.spacing.md,
-        background: theme.colors.card,
-        borderRadius: theme.radius.lg,
-      }}
-    >
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-        <div>
-          <div style={{ color: theme.colors.textSecondary, fontSize: 12 }}>Compared to last Push</div>
-          <div style={{ color: theme.colors.textPrimary, fontSize: 20, fontWeight: 700 }}>Push</div>
-        </div>
-        <button
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 6,
-            padding: `${theme.spacing.xs}px ${theme.spacing.md}px`,
-            background: theme.colors.accent,
-            color: "white",
-            borderRadius: 22,
-            border: "none",
-            fontWeight: 600,
-            fontSize: 14,
-          }}
-        >
-          <span>▶</span> Start Session
-        </button>
-      </div>
-      <div style={{ borderTop: `1px solid ${theme.colors.border}`, marginTop: 12, paddingTop: 12 }}>
-        <div style={{ display: "flex", justifyContent: "space-between" }}>
-          <span style={{ color: theme.colors.textPrimary, fontSize: 14 }}>Bench Press</span>
-          <div style={{ textAlign: "right" }}>
-            <div style={{ color: theme.colors.textSecondary, fontSize: 12 }}>Last: 97.5kg × 5</div>
-            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-              <span style={{ color: theme.colors.textPrimary, fontSize: 14 }}>Today: 100kg × 5</span>
-              <span
-                style={{
-                  background: theme.colors.accentSoft,
-                  color: theme.colors.accent,
-                  padding: "2px 6px",
-                  borderRadius: 10,
-                  fontSize: 12,
-                  fontWeight: 600,
-                }}
-              >
-                +2.5kg
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
   )
 }
 
@@ -278,28 +175,30 @@ function RIRStepperPreview() {
   const [selected, setSelected] = useState(2)
   const values = ["-", "0", "1", "2", "3", "4", "5"]
   return (
-    <div>
-      <div style={{ color: theme.colors.textSecondary, fontSize: 12, marginBottom: 6 }}>RIR (Reps in Reserve)</div>
-      <div style={{ display: "flex", gap: 4 }}>
-        {values.map((v, i) => (
-          <button
-            key={i}
-            onClick={() => setSelected(i - 1)}
-            style={{
-              flex: 1,
-              padding: "10px 0",
-              background: selected === i - 1 ? (i === 1 ? theme.colors.failure : theme.colors.accent) : theme.colors.background,
-              color:
-                selected === i - 1 ? "white" : i === 1 ? theme.colors.failure : theme.colors.textPrimary,
-              borderRadius: 20,
-              border: "none",
-              fontWeight: selected === i - 1 ? 700 : 400,
-              cursor: "pointer",
-            }}
-          >
-            {v}
-          </button>
-        ))}
+    <div className="w-full max-w-xs">
+      <p className="text-[rgba(255,255,255,0.55)] text-xs mb-2">RIR (Reps in Reserve)</p>
+      <div className="flex gap-1">
+        {values.map((v, i) => {
+          const isSelected = selected === i - 1
+          const isZero = i === 1
+          return (
+            <button
+              key={i}
+              onClick={() => setSelected(i - 1)}
+              className={`flex-1 py-2.5 rounded-full text-sm font-medium transition-colors ${
+                isSelected
+                  ? isZero
+                    ? "bg-[#FF3B30] text-white"
+                    : "bg-[#FF4400] text-white font-bold"
+                  : isZero
+                    ? "bg-[#111318] text-[#FF3B30]"
+                    : "bg-[#111318] text-[rgba(255,255,255,0.92)]"
+              }`}
+            >
+              {v}
+            </button>
+          )
+        })}
       </div>
     </div>
   )
@@ -307,99 +206,65 @@ function RIRStepperPreview() {
 
 function MetricInputPreview() {
   return (
-    <div style={{ flex: 1 }}>
-      <div style={{ color: theme.colors.textSecondary, fontSize: 12, marginBottom: 4 }}>WEIGHT (kg)</div>
-      <div
-        style={{
-          background: theme.colors.background,
-          border: `0.5px solid ${theme.colors.border}`,
-          borderRadius: theme.radius.md,
-          padding: `${theme.spacing.sm}px`,
-          textAlign: "center",
-        }}
-      >
-        <span style={{ color: theme.colors.textPrimary, fontSize: 18, fontWeight: 600 }}>100</span>
+    <div className="flex gap-3 w-full max-w-xs">
+      <div className="flex-1">
+        <p className="text-[rgba(255,255,255,0.55)] text-xs mb-1.5 uppercase tracking-wide">Weight (kg)</p>
+        <div className="bg-[#111318] border border-[rgba(255,255,255,0.12)] rounded-[14px] py-3 text-center">
+          <span className="text-[rgba(255,255,255,0.92)] text-lg font-semibold">100</span>
+        </div>
       </div>
-    </div>
-  )
-}
-
-function CompletedRowPreview() {
-  return (
-    <div
-      style={{
-        display: "flex",
-        alignItems: "center",
-        padding: `${theme.spacing.sm}px`,
-        background: theme.colors.background,
-        borderRadius: theme.radius.md,
-        gap: 12,
-      }}
-    >
-      <span style={{ color: theme.colors.textSecondary, fontSize: 12, width: 44 }}>Set 1</span>
-      <span style={{ color: theme.colors.textPrimary, fontSize: 14 }}>100 kg</span>
-      <span style={{ color: theme.colors.textPrimary, fontSize: 14 }}>× 5</span>
-      <span style={{ flex: 1 }} />
-      <span style={{ color: theme.colors.textSecondary, fontSize: 12 }}>RIR 2</span>
-      <span style={{ color: theme.colors.accent }}>✓</span>
+      <div className="flex-1">
+        <p className="text-[rgba(255,255,255,0.55)] text-xs mb-1.5 uppercase tracking-wide">Reps</p>
+        <div className="bg-[#111318] border border-[rgba(255,255,255,0.12)] rounded-[14px] py-3 text-center">
+          <span className="text-[rgba(255,255,255,0.92)] text-lg font-semibold">5</span>
+        </div>
+      </div>
     </div>
   )
 }
 
 function TargetColumnPreview() {
   return (
-    <div
-      style={{
-        background: theme.colors.background,
-        borderRadius: theme.radius.md,
-        padding: theme.spacing.sm,
-        textAlign: "left",
-      }}
-    >
-      <div style={{ color: theme.colors.ghostText, fontSize: 12, marginBottom: 4 }}>TARGET</div>
-      <div style={{ color: theme.colors.ghostText, fontSize: 18, fontWeight: 600 }}>100kg</div>
-      <div style={{ color: theme.colors.ghostText, fontSize: 12 }}>× 5</div>
+    <div className="bg-[#111318] rounded-[14px] p-3 text-left">
+      <p className="text-[rgba(255,255,255,0.55)] text-xs mb-1">TARGET</p>
+      <p className="text-[rgba(255,255,255,0.55)] text-xl font-semibold">100kg</p>
+      <p className="text-[rgba(255,255,255,0.55)] text-sm">x 5</p>
     </div>
+  )
+}
+
+function CompletedRowPreview() {
+  return (
+    <div className="flex items-center gap-3 p-3 bg-[#111318] rounded-[14px] w-full max-w-sm">
+      <span className="text-[rgba(255,255,255,0.55)] text-xs w-10">Set 1</span>
+      <span className="text-[rgba(255,255,255,0.92)] text-sm">100 kg</span>
+      <span className="text-[rgba(255,255,255,0.92)] text-sm">x 5</span>
+      <span className="flex-1" />
+      <span className="text-[rgba(255,255,255,0.55)] text-xs">RIR 2</span>
+      <svg className="w-4 h-4 text-[#FF4400]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+      </svg>
+    </div>
+  )
+}
+
+function DeltaBadgePreview() {
+  return (
+    <span className="inline-flex items-center px-2 py-0.5 bg-[rgba(255,68,0,0.12)] text-[#FF4400] rounded-full text-xs font-semibold">
+      +2.5kg
+    </span>
   )
 }
 
 function RestTimerPreview() {
   return (
-    <div
-      style={{
-        padding: theme.spacing.md,
-        background: theme.colors.card,
-        borderRadius: theme.radius.lg,
-      }}
-    >
-      <div style={{ color: theme.colors.textPrimary, fontWeight: 600, marginBottom: 8 }}>Rest Timer</div>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <span style={{ color: theme.colors.textPrimary, fontSize: 32, fontWeight: 700 }}>1:30</span>
-        <div style={{ display: "flex", gap: 8 }}>
-          <button
-            style={{
-              padding: "8px 12px",
-              background: "transparent",
-              color: theme.colors.accent,
-              border: "none",
-              fontSize: 14,
-              cursor: "pointer",
-            }}
-          >
-            1:30
-          </button>
-          <button
-            style={{
-              padding: "8px 12px",
-              background: "transparent",
-              color: theme.colors.accent,
-              border: "none",
-              fontSize: 14,
-              cursor: "pointer",
-            }}
-          >
-            2:00
-          </button>
+    <div className="rounded-[18px] bg-[#252831] p-4 w-full max-w-xs">
+      <p className="text-[rgba(255,255,255,0.92)] font-semibold mb-3">Rest Timer</p>
+      <div className="flex items-center justify-between">
+        <span className="text-[rgba(255,255,255,0.92)] text-4xl font-bold tabular-nums">1:30</span>
+        <div className="flex gap-2">
+          <button className="px-3 py-1.5 text-[#FF4400] text-sm font-medium">1:30</button>
+          <button className="px-3 py-1.5 text-[#FF4400] text-sm font-medium">2:00</button>
         </div>
       </div>
     </div>
@@ -410,18 +275,18 @@ function getPreview(type: string) {
   switch (type) {
     case "card":
       return <CardPreview />
-    case "button":
-      return <ButtonPreview />
-    case "training-card":
-      return <TrainingCardPreview />
+    case "scale-button":
+      return <ScaleButtonPreview />
     case "rir-stepper":
       return <RIRStepperPreview />
     case "metric-input":
       return <MetricInputPreview />
-    case "completed-row":
-      return <CompletedRowPreview />
     case "target-column":
       return <TargetColumnPreview />
+    case "completed-row":
+      return <CompletedRowPreview />
+    case "delta-badge":
+      return <DeltaBadgePreview />
     case "rest-timer":
       return <RestTimerPreview />
     default:
@@ -429,130 +294,274 @@ function getPreview(type: string) {
   }
 }
 
-export default function ComponentDocsPage() {
+function CodeBlock({ code }: { code: string }) {
+  const [copied, setCopied] = useState(false)
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(code)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
+
+  return (
+    <div className="relative group">
+      <pre className="bg-[#111318] rounded-[10px] p-3 text-xs overflow-x-auto">
+        <code className="text-[rgba(255,255,255,0.75)]">{code}</code>
+      </pre>
+      <button
+        onClick={handleCopy}
+        className="absolute top-2 right-2 p-1.5 rounded-md bg-[#252831] opacity-0 group-hover:opacity-100 transition-opacity"
+      >
+        {copied ? (
+          <svg className="w-4 h-4 text-[#FF4400]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+          </svg>
+        ) : (
+          <svg className="w-4 h-4 text-[rgba(255,255,255,0.55)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+            />
+          </svg>
+        )}
+      </button>
+    </div>
+  )
+}
+
+export default function DesignSystemPage() {
   const [activeCategory, setActiveCategory] = useState<string | null>(null)
+  const [activeSection, setActiveSection] = useState("colors")
 
   const filteredComponents = activeCategory
     ? components.filter((c) => c.category === activeCategory)
     : components
 
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        background: theme.colors.background,
-        color: theme.colors.textPrimary,
-        fontFamily: "system-ui, -apple-system, sans-serif",
-      }}
-    >
+    <div className="min-h-screen bg-[#111318]">
       {/* Header */}
-      <header
-        style={{
-          padding: `${theme.spacing.lg}px ${theme.spacing.md}px`,
-          borderBottom: `1px solid ${theme.colors.border}`,
-          position: "sticky",
-          top: 0,
-          background: theme.colors.background,
-          zIndex: 100,
-        }}
-      >
-        <div style={{ maxWidth: 1200, margin: "0 auto" }}>
-          <h1 style={{ fontSize: 24, fontWeight: 700, margin: 0 }}>Unit Design System</h1>
-          <p style={{ color: theme.colors.textSecondary, marginTop: 4, fontSize: 14 }}>
-            iOS Component Library Documentation
-          </p>
+      <header className="sticky top-0 z-50 bg-[#111318]/95 backdrop-blur-sm border-b border-[rgba(255,255,255,0.08)]">
+        <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
+          <div>
+            <h1 className="text-xl font-bold text-[rgba(255,255,255,0.92)]">Unit Design System</h1>
+            <p className="text-sm text-[rgba(255,255,255,0.55)]">iOS Component Library</p>
+          </div>
+          <nav className="hidden md:flex items-center gap-1">
+            {sections.map((section) => (
+              <a
+                key={section.id}
+                href={`#${section.id}`}
+                onClick={() => setActiveSection(section.id)}
+                className={`px-3 py-1.5 rounded-full text-sm transition-colors ${
+                  activeSection === section.id
+                    ? "bg-[rgba(255,68,0,0.12)] text-[#FF4400]"
+                    : "text-[rgba(255,255,255,0.55)] hover:text-[rgba(255,255,255,0.92)]"
+                }`}
+              >
+                {section.label}
+              </a>
+            ))}
+          </nav>
         </div>
       </header>
 
-      <div style={{ maxWidth: 1200, margin: "0 auto", padding: theme.spacing.md }}>
-        {/* Color Palette */}
-        <section style={{ marginBottom: theme.spacing.xxl }}>
-          <h2 style={{ fontSize: 18, fontWeight: 600, marginBottom: theme.spacing.md }}>Color Palette</h2>
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fill, minmax(140px, 1fr))",
-              gap: theme.spacing.sm,
-            }}
-          >
-            {Object.entries(theme.colors).map(([name, value]) => (
-              <div
-                key={name}
-                style={{
-                  background: theme.colors.card,
-                  borderRadius: theme.radius.md,
-                  overflow: "hidden",
-                }}
-              >
-                <div style={{ height: 48, background: value }} />
-                <div style={{ padding: theme.spacing.sm }}>
-                  <div style={{ fontSize: 13, fontWeight: 500 }}>{name}</div>
-                  <div style={{ fontSize: 11, color: theme.colors.textSecondary }}>{value}</div>
+      <main className="max-w-6xl mx-auto px-4 py-8">
+        {/* Hero */}
+        <section className="mb-16">
+          <div className="rounded-[18px] bg-gradient-to-br from-[#1A1D25] to-[#252831] p-8 md:p-12">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-12 h-12 rounded-[14px] bg-[#FF4400] flex items-center justify-center">
+                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"
+                  />
+                </svg>
+              </div>
+              <div>
+                <h2 className="text-2xl font-bold text-[rgba(255,255,255,0.92)]">Design Tokens & Components</h2>
+                <p className="text-[rgba(255,255,255,0.55)]">Dark-only theme inspired by Revolut</p>
+              </div>
+            </div>
+            <p className="text-[rgba(255,255,255,0.75)] max-w-2xl leading-relaxed">
+              Unit uses a restrained dark palette with orange (#FF4400) as the primary accent. 
+              The design philosophy emphasizes fill contrast without shadows, continuous corner radius, 
+              and subtle micro-interactions for feedback.
+            </p>
+          </div>
+        </section>
+
+        {/* Colors */}
+        <section id="colors" className="mb-16 scroll-mt-20">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-8 h-8 rounded-lg bg-[#FF4400] flex items-center justify-center">
+              <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 22C6.49 22 2 17.51 2 12S6.49 2 12 2s10 4.04 10 9c0 3.31-2.69 6-6 6h-1.77c-.28 0-.5.22-.5.5 0 .12.05.23.13.33.41.47.64 1.06.64 1.67A2.5 2.5 0 0112 22zm0-18c-4.41 0-8 3.59-8 8s3.59 8 8 8c.28 0 .5-.22.5-.5a.54.54 0 00-.14-.35c-.41-.46-.63-1.05-.63-1.65a2.5 2.5 0 012.5-2.5H16c2.21 0 4-1.79 4-4 0-3.86-3.59-7-8-7z" />
+                <circle cx="6.5" cy="11.5" r="1.5" />
+                <circle cx="9.5" cy="7.5" r="1.5" />
+                <circle cx="14.5" cy="7.5" r="1.5" />
+                <circle cx="17.5" cy="11.5" r="1.5" />
+              </svg>
+            </div>
+            <h3 className="text-lg font-semibold text-[rgba(255,255,255,0.92)]">Color Palette</h3>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+            {colors.map((color) => (
+              <div key={color.name} className="rounded-[14px] bg-[#252831] overflow-hidden">
+                <div className="h-16" style={{ background: color.value }} />
+                <div className="p-3">
+                  <p className="text-sm font-medium text-[rgba(255,255,255,0.92)]">{color.name}</p>
+                  <p className="text-xs text-[rgba(255,255,255,0.55)] mt-0.5">{color.description}</p>
+                  <p className="text-xs text-[rgba(255,255,255,0.35)] mt-1 font-mono">{color.value}</p>
                 </div>
               </div>
             ))}
           </div>
         </section>
 
-        {/* Spacing Scale */}
-        <section style={{ marginBottom: theme.spacing.xxl }}>
-          <h2 style={{ fontSize: 18, fontWeight: 600, marginBottom: theme.spacing.md }}>Spacing Scale</h2>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: theme.spacing.md }}>
-            {Object.entries(theme.spacing).map(([name, value]) => (
-              <div key={name} style={{ textAlign: "center" }}>
-                <div
-                  style={{
-                    width: value,
-                    height: value,
-                    background: theme.colors.accent,
-                    borderRadius: 4,
-                    marginBottom: 4,
-                  }}
-                />
-                <div style={{ fontSize: 12 }}>{name}</div>
-                <div style={{ fontSize: 11, color: theme.colors.textSecondary }}>{value}px</div>
+        {/* Typography */}
+        <section id="typography" className="mb-16 scroll-mt-20">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-8 h-8 rounded-lg bg-[#FF4400] flex items-center justify-center">
+              <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M5 4v3h5.5v12h3V7H19V4z" />
+              </svg>
+            </div>
+            <h3 className="text-lg font-semibold text-[rgba(255,255,255,0.92)]">Typography</h3>
+          </div>
+          <div className="rounded-[18px] bg-[#252831] overflow-hidden">
+            {typographyScale.map((type, i) => (
+              <div
+                key={type.name}
+                className={`flex flex-col md:flex-row md:items-center gap-2 md:gap-6 p-4 ${
+                  i !== typographyScale.length - 1 ? "border-b border-[rgba(255,255,255,0.08)]" : ""
+                }`}
+              >
+                <div className="w-24 shrink-0">
+                  <span className="text-xs font-mono text-[rgba(255,255,255,0.55)]">{type.name}</span>
+                </div>
+                <div className="flex-1">
+                  <p
+                    className="text-[rgba(255,255,255,0.92)]"
+                    style={{ fontSize: type.size, fontWeight: type.weight }}
+                  >
+                    The quick brown fox
+                  </p>
+                </div>
+                <div className="flex items-center gap-4 text-xs text-[rgba(255,255,255,0.55)]">
+                  <span>{type.size}</span>
+                  <span>Weight {type.weight}</span>
+                </div>
+                <p className="text-xs text-[rgba(255,255,255,0.35)] md:w-40">{type.usage}</p>
               </div>
             ))}
           </div>
         </section>
 
-        {/* Radius Scale */}
-        <section style={{ marginBottom: theme.spacing.xxl }}>
-          <h2 style={{ fontSize: 18, fontWeight: 600, marginBottom: theme.spacing.md }}>Border Radius</h2>
-          <div style={{ display: "flex", gap: theme.spacing.lg }}>
-            {Object.entries(theme.radius).map(([name, value]) => (
-              <div key={name} style={{ textAlign: "center" }}>
-                <div
-                  style={{
-                    width: 64,
-                    height: 64,
-                    background: theme.colors.card,
-                    borderRadius: value,
-                    marginBottom: 8,
-                  }}
+        {/* Spacing */}
+        <section id="spacing" className="mb-16 scroll-mt-20">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-8 h-8 rounded-lg bg-[#FF4400] flex items-center justify-center">
+              <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"
                 />
-                <div style={{ fontSize: 12 }}>{name}</div>
-                <div style={{ fontSize: 11, color: theme.colors.textSecondary }}>{value}px</div>
+              </svg>
+            </div>
+            <h3 className="text-lg font-semibold text-[rgba(255,255,255,0.92)]">Spacing Scale</h3>
+          </div>
+          <div className="rounded-[18px] bg-[#252831] p-6">
+            <div className="flex flex-wrap items-end gap-6">
+              {spacingScale.map((space) => (
+                <div key={space.name} className="flex flex-col items-center">
+                  <div
+                    className="bg-[#FF4400] rounded"
+                    style={{ width: space.value, height: space.value }}
+                  />
+                  <p className="text-xs font-mono text-[rgba(255,255,255,0.55)] mt-2">{space.name}</p>
+                  <p className="text-xs text-[rgba(255,255,255,0.35)]">{space.value}px</p>
+                </div>
+              ))}
+            </div>
+            <div className="mt-6 pt-4 border-t border-[rgba(255,255,255,0.08)]">
+              <CodeBlock
+                code={`enum Spacing {
+    static let xxs: CGFloat = 4
+    static let xs: CGFloat = 8
+    static let sm: CGFloat = 12
+    static let md: CGFloat = 16
+    static let lg: CGFloat = 24
+    static let xl: CGFloat = 32
+    static let xxl: CGFloat = 48
+    static let xxxl: CGFloat = 64
+}`}
+              />
+            </div>
+          </div>
+        </section>
+
+        {/* Radius */}
+        <section id="radius" className="mb-16 scroll-mt-20">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-8 h-8 rounded-lg bg-[#FF4400] flex items-center justify-center">
+              <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 5a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM14 5a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM4 15a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1v-4zM14 15a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"
+                />
+              </svg>
+            </div>
+            <h3 className="text-lg font-semibold text-[rgba(255,255,255,0.92)]">Border Radius</h3>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {radiusScale.map((radius) => (
+              <div key={radius.name} className="rounded-[18px] bg-[#252831] p-6">
+                <div
+                  className="w-24 h-24 bg-[#1A1D25] mb-4"
+                  style={{ borderRadius: radius.value }}
+                />
+                <p className="text-sm font-semibold text-[rgba(255,255,255,0.92)]">{radius.name}</p>
+                <p className="text-xs text-[rgba(255,255,255,0.55)] mt-1">{radius.value}px</p>
+                <p className="text-xs text-[rgba(255,255,255,0.35)] mt-2">{radius.usage}</p>
               </div>
             ))}
           </div>
         </section>
 
-        {/* Category Filter */}
-        <section style={{ marginBottom: theme.spacing.lg }}>
-          <h2 style={{ fontSize: 18, fontWeight: 600, marginBottom: theme.spacing.md }}>Components</h2>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: theme.spacing.xs, marginBottom: theme.spacing.md }}>
+        {/* Components */}
+        <section id="components" className="scroll-mt-20">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-8 h-8 rounded-lg bg-[#FF4400] flex items-center justify-center">
+              <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+                />
+              </svg>
+            </div>
+            <h3 className="text-lg font-semibold text-[rgba(255,255,255,0.92)]">Components</h3>
+          </div>
+
+          {/* Category Filter */}
+          <div className="flex flex-wrap gap-2 mb-6">
             <button
               onClick={() => setActiveCategory(null)}
-              style={{
-                padding: `${theme.spacing.xs}px ${theme.spacing.sm}px`,
-                background: !activeCategory ? theme.colors.accent : theme.colors.card,
-                color: !activeCategory ? "white" : theme.colors.textPrimary,
-                borderRadius: 16,
-                border: "none",
-                fontSize: 13,
-                cursor: "pointer",
-              }}
+              className={`px-3 py-1.5 rounded-full text-sm transition-colors ${
+                !activeCategory
+                  ? "bg-[#FF4400] text-white"
+                  : "bg-[#252831] text-[rgba(255,255,255,0.75)] hover:text-white"
+              }`}
             >
               All
             </button>
@@ -560,104 +569,49 @@ export default function ComponentDocsPage() {
               <button
                 key={cat}
                 onClick={() => setActiveCategory(cat)}
-                style={{
-                  padding: `${theme.spacing.xs}px ${theme.spacing.sm}px`,
-                  background: activeCategory === cat ? theme.colors.accent : theme.colors.card,
-                  color: activeCategory === cat ? "white" : theme.colors.textPrimary,
-                  borderRadius: 16,
-                  border: "none",
-                  fontSize: 13,
-                  cursor: "pointer",
-                }}
+                className={`px-3 py-1.5 rounded-full text-sm transition-colors ${
+                  activeCategory === cat
+                    ? "bg-[#FF4400] text-white"
+                    : "bg-[#252831] text-[rgba(255,255,255,0.75)] hover:text-white"
+                }`}
               >
                 {cat}
               </button>
             ))}
           </div>
+
+          {/* Component Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            {filteredComponents.map((comp) => (
+              <div key={comp.name} className="rounded-[18px] bg-[#252831] overflow-hidden">
+                {/* Preview */}
+                <div className="bg-[#1A1D25] p-6 min-h-[140px] flex items-center justify-center">
+                  {getPreview(comp.preview)}
+                </div>
+                {/* Info */}
+                <div className="p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <h4 className="font-semibold text-[rgba(255,255,255,0.92)]">{comp.name}</h4>
+                    <span className="px-2 py-0.5 bg-[rgba(255,68,0,0.12)] text-[#FF4400] rounded-full text-xs">
+                      {comp.category}
+                    </span>
+                  </div>
+                  <p className="text-sm text-[rgba(255,255,255,0.55)] mb-4">{comp.description}</p>
+                  <CodeBlock code={comp.swiftCode} />
+                </div>
+              </div>
+            ))}
+          </div>
         </section>
 
-        {/* Component Grid */}
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fill, minmax(360px, 1fr))",
-            gap: theme.spacing.md,
-          }}
-        >
-          {filteredComponents.map((comp) => (
-            <div
-              key={comp.name}
-              style={{
-                background: theme.colors.card,
-                borderRadius: theme.radius.lg,
-                overflow: "hidden",
-              }}
-            >
-              {/* Preview */}
-              <div
-                style={{
-                  padding: theme.spacing.md,
-                  background: theme.colors.elevated,
-                  minHeight: 120,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                {getPreview(comp.preview)}
-              </div>
-
-              {/* Info */}
-              <div style={{ padding: theme.spacing.md }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
-                  <span style={{ fontSize: 16, fontWeight: 600 }}>{comp.name}</span>
-                  <span
-                    style={{
-                      fontSize: 11,
-                      padding: "2px 8px",
-                      background: theme.colors.accentSoft,
-                      color: theme.colors.accent,
-                      borderRadius: 10,
-                    }}
-                  >
-                    {comp.category}
-                  </span>
-                </div>
-                <p style={{ color: theme.colors.textSecondary, fontSize: 13, marginBottom: 12 }}>
-                  {comp.description}
-                </p>
-                <pre
-                  style={{
-                    background: theme.colors.background,
-                    padding: theme.spacing.sm,
-                    borderRadius: theme.radius.sm,
-                    fontSize: 11,
-                    overflow: "auto",
-                    color: theme.colors.textSecondary,
-                    margin: 0,
-                  }}
-                >
-                  {comp.code}
-                </pre>
-              </div>
-            </div>
-          ))}
-        </div>
-
         {/* Footer */}
-        <footer
-          style={{
-            marginTop: theme.spacing.xxl,
-            paddingTop: theme.spacing.lg,
-            borderTop: `1px solid ${theme.colors.border}`,
-            textAlign: "center",
-            color: theme.colors.textSecondary,
-            fontSize: 13,
-          }}
-        >
-          Unit iOS App - Design System v1.0
+        <footer className="mt-16 pt-8 border-t border-[rgba(255,255,255,0.08)]">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-[rgba(255,255,255,0.55)]">
+            <p>Unit Design System - iOS SwiftUI Component Library</p>
+            <p>Theme: Dark only | Accent: #FF4400</p>
+          </div>
         </footer>
-      </div>
+      </main>
     </div>
   )
 }
