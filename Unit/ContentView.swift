@@ -88,6 +88,10 @@ enum AtlasTheme {
         static let body = Font.system(.body, design: .rounded)
         static let caption = Font.system(.caption, design: .rounded)
         static let metric = Font.system(.title3, design: .rounded).weight(.semibold)
+        /// Large monospaced numerics — workout input fields and weight/reps display
+        static let numericDisplay = Font.system(size: 36, weight: .bold, design: .rounded).monospacedDigit()
+        /// Overline label above data — render ALL CAPS at call site, use with `.tracking(1.0)`
+        static let overline = Font.system(size: 10, weight: .semibold, design: .rounded)
     }
 }
 

@@ -42,7 +42,7 @@ struct TodayView: View {
     @Query private var cycles: [Cycle]
     @Query private var rules: [ProgressionRule]
 
-    @StateObject private var viewModel = TodayDashboardViewModel()
+    @State private var viewModel = TodayDashboardViewModel()
 
     private var activeSession: WorkoutSession? {
         sessions.first(where: { !$0.isCompleted })
@@ -215,20 +215,26 @@ private struct TrainingDayCard: View {
             }
 
             if !targets.isEmpty {
-                Divider()
-                ForEach(targets.prefix(2), id: \.exerciseName) { target in
-                    ExerciseTargetRow(target: target)
-                }
-                if targets.count > 2 {
-                    Button {
-                        showFullSession = true
-                    } label: {
-                        Text("See full session (\(targets.count) exercises)")
-                            .font(AtlasTheme.Typography.caption)
-                            .foregroundStyle(AtlasTheme.Colors.accent)
-                            .frame(minHeight: 36)
+                VStack(alignment: .leading, spacing: AtlasTheme.Spacing.xs) {
+                    Text("TODAY'S TARGETS")
+                        .font(AtlasTheme.Typography.overline)
+                        .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                        .tracking(1.0)
+                        .padding(.top, AtlasTheme.Spacing.xxs)
+                    ForEach(targets.prefix(2), id: \.exerciseName) { target in
+                        ExerciseTargetRow(target: target)
                     }
-                    .buttonStyle(.plain)
+                    if targets.count > 2 {
+                        Button {
+                            showFullSession = true
+                        } label: {
+                            Text("See full session (\(targets.count) exercises)")
+                                .font(AtlasTheme.Typography.caption)
+                                .foregroundStyle(AtlasTheme.Colors.accent)
+                                .frame(minHeight: 36)
+                        }
+                        .buttonStyle(.plain)
+                    }
                 }
             }
         }
@@ -406,7 +412,8 @@ private struct DayCardView: View {
 // MARK: - ViewModel
 
 @MainActor
-final class TodayDashboardViewModel: ObservableObject {
+@Observable
+final class TodayDashboardViewModel {
 
     func currentCycleContext(
         activeCycle: Cycle?,

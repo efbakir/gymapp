@@ -156,7 +156,7 @@ struct CyclesView: View {
                 ProgressRing(
                     progress: Double(cycle.currentWeekNumber) / Double(cycle.weekCount)
                 )
-                .frame(width: 44, height: 44)
+                .frame(width: 56, height: 56)
             }
             .atlasCardStyle()
 
@@ -313,14 +313,14 @@ private struct ProgressRing: View {
     var body: some View {
         ZStack {
             Circle()
-                .stroke(AtlasTheme.Colors.border, lineWidth: 4)
+                .stroke(AtlasTheme.Colors.border, lineWidth: 5)
             Circle()
                 .trim(from: 0, to: min(progress, 1))
-                .stroke(AtlasTheme.Colors.accent, style: StrokeStyle(lineWidth: 4, lineCap: .round))
+                .stroke(AtlasTheme.Colors.accent, style: StrokeStyle(lineWidth: 5, lineCap: .round))
                 .rotationEffect(.degrees(-90))
             Text("\(Int(progress * 100))%")
-                .font(.system(size: 10, weight: .bold, design: .rounded))
-                .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                .font(.system(size: 11, weight: .bold, design: .rounded))
+                .foregroundStyle(AtlasTheme.Colors.textPrimary)
         }
     }
 }

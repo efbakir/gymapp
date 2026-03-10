@@ -21,8 +21,8 @@ struct ActiveWorkoutView: View {
     @Query private var progressionRules: [ProgressionRule]
     @Query private var cycles: [Cycle]
 
-    @StateObject private var viewModel = ActiveWorkoutViewModel()
-    @StateObject private var restTimer = RestTimerManager()
+    @State private var viewModel = ActiveWorkoutViewModel()
+    @State private var restTimer = RestTimerManager()
 
     @State private var currentExerciseIndex: Int = 0
     @State private var showLineup = false
@@ -30,7 +30,7 @@ struct ActiveWorkoutView: View {
     @State private var toastMessage: String?
     @State private var showFailureModal = false
     @State private var pendingFailureExerciseName = ""
-    @StateObject private var failureCallbackHolder = FailureCallbackHolder()
+    @State private var failureCallbackHolder = FailureCallbackHolder()
 
     private var template: DayTemplate? {
         templates.first(where: { $0.id == session.templateId })
@@ -165,9 +165,12 @@ struct ActiveWorkoutView: View {
     private var restTimerStrip: some View {
         HStack(spacing: AtlasTheme.Spacing.sm) {
             Text(restTimer.isRunning ? restTimer.label : "Rest")
-                .font(.system(size: 17, weight: .semibold, design: .rounded))
+                .font(restTimer.isRunning
+                    ? .system(size: 22, weight: .bold, design: .rounded)
+                    : .system(size: 17, weight: .semibold, design: .rounded))
                 .monospacedDigit()
-                .foregroundStyle(restTimer.isRunning ? AtlasTheme.Colors.textPrimary : AtlasTheme.Colors.textSecondary)
+                .foregroundStyle(restTimer.isRunning ? AtlasTheme.Colors.accent : AtlasTheme.Colors.textSecondary)
+                .animation(.easeInOut(duration: 0.15), value: restTimer.isRunning)
             Spacer()
             if restTimer.isRunning {
                 Button("Stop") { restTimer.stop() }
@@ -186,6 +189,18 @@ struct ActiveWorkoutView: View {
         .padding(.horizontal, AtlasTheme.Spacing.md)
         .padding(.vertical, AtlasTheme.Spacing.xs)
         .background(AtlasTheme.Colors.elevatedBackground)
+        .overlay(alignment: .bottom) {
+            if restTimer.isRunning && restTimer.totalDuration > 0 {
+                GeometryReader { geo in
+                    let progress = Double(restTimer.secondsRemaining) / Double(restTimer.totalDuration)
+                    Rectangle()
+                        .fill(AtlasTheme.Colors.accent.opacity(0.45))
+                        .frame(width: geo.size.width * max(0, min(progress, 1)), height: 2)
+                        .animation(.linear(duration: 1), value: restTimer.secondsRemaining)
+                }
+                .frame(height: 2)
+            }
+        }
     }
 
     // MARK: - Bottom Bar
@@ -410,7 +425,7 @@ private struct ExerciseLoggingCard: View {
             // Exercise header + deload badge
             HStack(alignment: .firstTextBaseline) {
                 Text(exercise.displayName)
-                    .font(AtlasTheme.Typography.sectionTitle)
+                    .font(AtlasTheme.Typography.hero)
                 Spacer(minLength: 0)
                 if weekNumber > 0 {
                     Text("Week \(weekNumber)")
@@ -452,22 +467,29 @@ private struct ExerciseLoggingCard: View {
 
             // Input section
             VStack(spacing: AtlasTheme.Spacing.sm) {
-                // Target strip — read-only reference, above inputs
+                // Target strip — primary reference for this set
                 if let target = weekTarget {
-                    HStack {
-                        Text("Target")
-                            .font(AtlasTheme.Typography.caption)
-                            .foregroundStyle(AtlasTheme.Colors.textSecondary)
-                        Spacer()
-                        Text("\(target.weightKg.weightString)kg × \(target.reps)")
-                            .font(AtlasTheme.Typography.metric)
-                            .foregroundStyle(AtlasTheme.Colors.textSecondary)
-                            .monospacedDigit()
+                    HStack(spacing: AtlasTheme.Spacing.xs) {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("TARGET")
+                                .font(AtlasTheme.Typography.overline)
+                                .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                                .tracking(1.0)
+                            Text("\(target.weightKg.weightString)kg × \(target.reps)")
+                                .font(AtlasTheme.Typography.metric)
+                                .foregroundStyle(AtlasTheme.Colors.textPrimary)
+                                .monospacedDigit()
+                        }
+                        Spacer(minLength: 0)
                     }
                     .padding(.horizontal, AtlasTheme.Spacing.sm)
-                    .padding(.vertical, AtlasTheme.Spacing.xxs)
+                    .padding(.vertical, AtlasTheme.Spacing.xs)
                     .background(AtlasTheme.Colors.background)
                     .clipShape(RoundedRectangle(cornerRadius: AtlasTheme.Radius.md, style: .continuous))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: AtlasTheme.Radius.md, style: .continuous)
+                            .stroke(AtlasTheme.Colors.accent.opacity(0.35), lineWidth: 1)
+                    )
                     .accessibilityLabel("Target: \(target.weightKg.weightString)kg × \(target.reps) reps")
                 }
 
@@ -484,10 +506,10 @@ private struct ExerciseLoggingCard: View {
                             handleDone()
                         } label: {
                             Image(systemName: "checkmark")
-                                .font(.system(size: 18, weight: .semibold))
+                                .font(.system(size: 20, weight: .bold))
                                 .foregroundStyle(.white)
                                 .frame(maxWidth: .infinity)
-                                .frame(height: 52)
+                                .frame(height: 64)
                                 .background(canComplete ? AtlasTheme.Colors.accent : AtlasTheme.Colors.disabled)
                                 .clipShape(RoundedRectangle(cornerRadius: AtlasTheme.Radius.md, style: .continuous))
                         }
@@ -600,11 +622,11 @@ private struct MetricInputField: View {
                 .foregroundStyle(AtlasTheme.Colors.textSecondary)
             TextField("0", text: $text)
                 .keyboardType(keyboard)
-                .font(AtlasTheme.Typography.metric)
+                .font(AtlasTheme.Typography.numericDisplay)
                 .multilineTextAlignment(.center)
-                .padding(.horizontal, AtlasTheme.Spacing.sm)
+                .padding(.horizontal, AtlasTheme.Spacing.xs)
                 .frame(maxWidth: .infinity)
-                .frame(height: 52)
+                .frame(height: 64)
                 .background(AtlasTheme.Colors.background)
                 .clipShape(RoundedRectangle(cornerRadius: AtlasTheme.Radius.md, style: .continuous))
                 .overlay(
@@ -666,19 +688,19 @@ private struct CompletedSetRow: View {
         }
         .padding(.horizontal, AtlasTheme.Spacing.sm)
         .frame(minHeight: 52)
-        .background(isFailed ? AtlasTheme.Colors.failureAccent.opacity(0.08) : AtlasTheme.Colors.background)
+        .background(isFailed ? AtlasTheme.Colors.failureAccent.opacity(0.07) : AtlasTheme.Colors.background)
         .clipShape(RoundedRectangle(cornerRadius: AtlasTheme.Radius.md, style: .continuous))
-        .overlay(
-            Group {
-                if isFailed || isProgressive {
-                    RoundedRectangle(cornerRadius: AtlasTheme.Radius.md, style: .continuous)
-                        .stroke(
-                            isFailed ? AtlasTheme.Colors.failureAccent.opacity(0.5) : AtlasTheme.Colors.progress,
-                            lineWidth: 1.5
-                        )
-                }
+        .overlay(alignment: .leading) {
+            if isFailed || isProgressive {
+                Rectangle()
+                    .fill(isFailed ? AtlasTheme.Colors.failureAccent : AtlasTheme.Colors.progress)
+                    .frame(width: 3)
+                    .clipShape(.rect(
+                        topLeadingRadius: AtlasTheme.Radius.md,
+                        bottomLeadingRadius: AtlasTheme.Radius.md
+                    ))
             }
-        )
+        }
         .accessibilityElement(children: .combine)
         .accessibilityValue(accessibilityValue)
     }
@@ -795,7 +817,8 @@ private struct FailureConfirmationSheet: View {
 // MARK: - FailureCallbackHolder
 
 @MainActor
-final class FailureCallbackHolder: ObservableObject {
+@Observable
+final class FailureCallbackHolder {
     var completion: ((Bool) -> Void)?
 }
 
@@ -810,7 +833,8 @@ struct SetPrefill {
 // MARK: - ActiveWorkoutViewModel
 
 @MainActor
-final class ActiveWorkoutViewModel: ObservableObject {
+@Observable
+final class ActiveWorkoutViewModel {
 
     func prefillSet(
         for exerciseID: UUID,
@@ -875,9 +899,11 @@ final class ActiveWorkoutViewModel: ObservableObject {
 // MARK: - RestTimerManager
 
 @MainActor
-final class RestTimerManager: ObservableObject {
-    @Published var secondsRemaining: Int = 0
-    @Published var isRunning: Bool = false
+@Observable
+final class RestTimerManager {
+    var secondsRemaining: Int = 0
+    var isRunning: Bool = false
+    private(set) var totalDuration: Int = 0
 
     private var task: Task<Void, Never>?
     private var activity: Activity<RestTimerAttributes>?
@@ -890,6 +916,7 @@ final class RestTimerManager: ObservableObject {
 
     func start(totalSeconds: Int) {
         stop()
+        totalDuration = totalSeconds
         secondsRemaining = totalSeconds
         isRunning = true
 
@@ -915,6 +942,7 @@ final class RestTimerManager: ObservableObject {
         task = nil
         isRunning = false
         secondsRemaining = 0
+        totalDuration = 0
         endCurrentActivity(dismissalPolicy: .immediate)
     }
 
