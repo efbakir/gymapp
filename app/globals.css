@@ -1,0 +1,60 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: 220 20% 7%;
+  --foreground: 0 0% 92%;
+
+  --card: 220 14% 17%;
+  --card-foreground: 0 0% 92%;
+
+  --popover: 220 16% 12%;
+  --popover-foreground: 0 0% 92%;
+
+  --primary: 18 100% 50%;
+  --primary-foreground: 0 0% 100%;
+
+  --secondary: 220 14% 17%;
+  --secondary-foreground: 0 0% 92%;
+
+  --muted: 220 14% 17%;
+  --muted-foreground: 0 0% 55%;
+
+  --accent: 18 100% 50%;
+  --accent-foreground: 0 0% 100%;
+
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 100%;
+
+  --border: 0 0% 100% / 0.12;
+  --input: 0 0% 100% / 0.12;
+  --ring: 18 100% 50%;
+
+  --radius: 0.875rem;
+
+  /* Custom Unit tokens */
+  --unit-background: #111318;
+  --unit-elevated: #1a1d25;
+  --unit-card: #252831;
+  --unit-accent: #ff4400;
+  --unit-accent-soft: rgba(255, 68, 0, 0.12);
+  --unit-text-primary: rgba(255, 255, 255, 0.92);
+  --unit-text-secondary: rgba(255, 255, 255, 0.55);
+  --unit-border: rgba(255, 255, 255, 0.12);
+  --unit-ghost: rgba(255, 255, 255, 0.55);
+  --unit-progress: #d65400;
+  --unit-failure: #ff3b30;
+  --unit-deload: rgba(255, 165, 0, 0.8);
+}
+
+body {
+  background: var(--unit-background);
+  color: var(--unit-text-primary);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+}
