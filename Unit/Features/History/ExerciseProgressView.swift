@@ -94,7 +94,6 @@ struct ExerciseProgressView: View {
                     .font(AtlasTheme.Typography.metric)
                     .monospacedDigit()
             }
-            Divider().frame(height: 36)
             VStack(alignment: .leading, spacing: AtlasTheme.Spacing.xxs) {
                 Text("Est. 1RM")
                     .font(AtlasTheme.Typography.caption)

@@ -34,6 +34,19 @@
 		CC000000000000000000004 /* ProgressionRule+Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC000000000000000100004 /* ProgressionRule+Helpers.swift */; };
 		CC000000000000000000005 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC000000000000000100005 /* SettingsView.swift */; };
 		CC000000000000000000006 /* ExerciseProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC000000000000000100006 /* ExerciseProgressView.swift */; };
+		OB100000000000000000001 /* OnboardingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = OB000000000000000000001 /* OnboardingViewModel.swift */; };
+		OB100000000000000000002 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = OB000000000000000000002 /* OnboardingView.swift */; };
+		OB100000000000000000003 /* OnboardingShell.swift in Sources */ = {isa = PBXBuildFile; fileRef = OB000000000000000000003 /* OnboardingShell.swift */; };
+		OB100000000000000000004 /* OnboardingSplashView.swift in Sources */ = {isa = PBXBuildFile; fileRef = OB000000000000000000004 /* OnboardingSplashView.swift */; };
+		OB100000000000000000005 /* OnboardingPathView.swift in Sources */ = {isa = PBXBuildFile; fileRef = OB000000000000000000005 /* OnboardingPathView.swift */; };
+		OB100000000000000000006 /* OnboardingUnitsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = OB000000000000000000006 /* OnboardingUnitsView.swift */; };
+		OB100000000000000000007 /* OnboardingSplitBuilderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = OB000000000000000000007 /* OnboardingSplitBuilderView.swift */; };
+		OB100000000000000000008 /* OnboardingExercisesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = OB000000000000000000008 /* OnboardingExercisesView.swift */; };
+		OB100000000000000000009 /* OnboardingBaselinesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = OB000000000000000000009 /* OnboardingBaselinesView.swift */; };
+		OB10000000000000000000A /* OnboardingProgressionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = OB00000000000000000000A /* OnboardingProgressionView.swift */; };
+		OB10000000000000000000B /* OnboardingCycleStartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = OB00000000000000000000B /* OnboardingCycleStartView.swift */; };
+		OB10000000000000000000C /* OnboardingSignInView.swift in Sources */ = {isa = PBXBuildFile; fileRef = OB00000000000000000000C /* OnboardingSignInView.swift */; };
+		SB100000000000000000001 /* SubscribeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SB000000000000000000001 /* SubscribeView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -68,6 +81,19 @@
 		CC000000000000000100004 /* ProgressionRule+Helpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ProgressionRule+Helpers.swift"; sourceTree = "<group>"; };
 		CC000000000000000100005 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		CC000000000000000100006 /* ExerciseProgressView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExerciseProgressView.swift; sourceTree = "<group>"; };
+		OB000000000000000000001 /* OnboardingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingViewModel.swift; sourceTree = "<group>"; };
+		OB000000000000000000002 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
+		OB000000000000000000003 /* OnboardingShell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingShell.swift; sourceTree = "<group>"; };
+		OB000000000000000000004 /* OnboardingSplashView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingSplashView.swift; sourceTree = "<group>"; };
+		OB000000000000000000005 /* OnboardingPathView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingPathView.swift; sourceTree = "<group>"; };
+		OB000000000000000000006 /* OnboardingUnitsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingUnitsView.swift; sourceTree = "<group>"; };
+		OB000000000000000000007 /* OnboardingSplitBuilderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingSplitBuilderView.swift; sourceTree = "<group>"; };
+		OB000000000000000000008 /* OnboardingExercisesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingExercisesView.swift; sourceTree = "<group>"; };
+		OB000000000000000000009 /* OnboardingBaselinesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingBaselinesView.swift; sourceTree = "<group>"; };
+		OB00000000000000000000A /* OnboardingProgressionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingProgressionView.swift; sourceTree = "<group>"; };
+		OB00000000000000000000B /* OnboardingCycleStartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingCycleStartView.swift; sourceTree = "<group>"; };
+		OB00000000000000000000C /* OnboardingSignInView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingSignInView.swift; sourceTree = "<group>"; };
+		SB000000000000000000001 /* SubscribeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscribeView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -153,6 +179,8 @@
 				A40000000000000000000008 /* History */,
 				541C84E62F5B815D00D0DB57 /* Cycles */,
 				A40000000000000000000009 /* Settings */,
+				SB200000000000000000001 /* Subscription */,
+				OB200000000000000000001 /* Onboarding */,
 			);
 			path = Features;
 			sourceTree = "<group>";
@@ -204,6 +232,33 @@
 				B20000000000000000000002 /* UnitWidgetBundle.swift */,
 			);
 			path = UnitWidget;
+			sourceTree = "<group>";
+		};
+		OB200000000000000000001 /* Onboarding */ = {
+			isa = PBXGroup;
+			children = (
+				OB000000000000000000001 /* OnboardingViewModel.swift */,
+				OB000000000000000000002 /* OnboardingView.swift */,
+				OB000000000000000000003 /* OnboardingShell.swift */,
+				OB000000000000000000004 /* OnboardingSplashView.swift */,
+				OB000000000000000000005 /* OnboardingPathView.swift */,
+				OB000000000000000000006 /* OnboardingUnitsView.swift */,
+				OB000000000000000000007 /* OnboardingSplitBuilderView.swift */,
+				OB000000000000000000008 /* OnboardingExercisesView.swift */,
+				OB000000000000000000009 /* OnboardingBaselinesView.swift */,
+				OB00000000000000000000A /* OnboardingProgressionView.swift */,
+				OB00000000000000000000B /* OnboardingCycleStartView.swift */,
+				OB00000000000000000000C /* OnboardingSignInView.swift */,
+			);
+			path = Onboarding;
+			sourceTree = "<group>";
+		};
+		SB200000000000000000001 /* Subscription */ = {
+			isa = PBXGroup;
+			children = (
+				SB000000000000000000001 /* SubscribeView.swift */,
+			);
+			path = Subscription;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -296,6 +351,19 @@
 				CC000000000000000000004 /* ProgressionRule+Helpers.swift in Sources */,
 				CC000000000000000000005 /* SettingsView.swift in Sources */,
 				CC000000000000000000006 /* ExerciseProgressView.swift in Sources */,
+				OB100000000000000000001 /* OnboardingViewModel.swift in Sources */,
+				OB100000000000000000002 /* OnboardingView.swift in Sources */,
+				OB100000000000000000003 /* OnboardingShell.swift in Sources */,
+				OB100000000000000000004 /* OnboardingSplashView.swift in Sources */,
+				OB100000000000000000005 /* OnboardingPathView.swift in Sources */,
+				OB100000000000000000006 /* OnboardingUnitsView.swift in Sources */,
+				OB100000000000000000007 /* OnboardingSplitBuilderView.swift in Sources */,
+				OB100000000000000000008 /* OnboardingExercisesView.swift in Sources */,
+				OB100000000000000000009 /* OnboardingBaselinesView.swift in Sources */,
+				OB10000000000000000000A /* OnboardingProgressionView.swift in Sources */,
+				OB10000000000000000000B /* OnboardingCycleStartView.swift in Sources */,
+				OB10000000000000000000C /* OnboardingSignInView.swift in Sources */,
+				SB100000000000000000001 /* SubscribeView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -331,6 +399,7 @@
 				COPY_PHASE_STRIP = NO;
 				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = R2BR5SX98Y;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
@@ -387,6 +456,7 @@
 				COPY_PHASE_STRIP = NO;
 				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = R2BR5SX98Y;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
@@ -418,7 +488,6 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "";
-				DEVELOPMENT_TEAM = R2BR5SX98Y;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = "Unit - Progressive Overload Tracker";
@@ -457,7 +526,6 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "";
-				DEVELOPMENT_TEAM = R2BR5SX98Y;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = "Unit - Progressive Overload Tracker";

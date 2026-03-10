@@ -47,7 +47,7 @@ struct PRLibraryView: View {
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, AtlasTheme.Spacing.xl)
                     }
-                    .listRowBackground(AtlasTheme.Colors.elevatedBackground)
+                    .listRowBackground(AtlasTheme.Colors.card)
                 } else {
                     ForEach(records) { record in
                         HStack {
@@ -65,7 +65,7 @@ struct PRLibraryView: View {
                         }
                         .frame(minHeight: 44)
                     }
-                    .listRowBackground(AtlasTheme.Colors.elevatedBackground)
+                    .listRowBackground(AtlasTheme.Colors.card)
                 }
             }
             .scrollContentBackground(.hidden)

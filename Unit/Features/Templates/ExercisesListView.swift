@@ -51,7 +51,7 @@ struct ExercisesListView: View {
                 }
             }
             .onDelete(perform: deleteExercises)
-            .listRowBackground(AtlasTheme.Colors.elevatedBackground)
+            .listRowBackground(AtlasTheme.Colors.card)
         }
         .scrollContentBackground(.hidden)
         .background(AtlasTheme.Colors.background.ignoresSafeArea())
@@ -110,7 +110,7 @@ struct AddExerciseView: View {
                     Toggle("Bodyweight", isOn: $isBodyweight)
                         .frame(minHeight: 44)
                 }
-                .listRowBackground(AtlasTheme.Colors.elevatedBackground)
+                .listRowBackground(AtlasTheme.Colors.card)
             }
             .scrollContentBackground(.hidden)
             .background(AtlasTheme.Colors.background.ignoresSafeArea())

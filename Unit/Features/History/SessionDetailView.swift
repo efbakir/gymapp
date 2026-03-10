@@ -37,7 +37,7 @@ struct SessionDetailView: View {
                     .font(AtlasTheme.Typography.caption)
                     .foregroundStyle(AtlasTheme.Colors.textSecondary)
             }
-            .listRowBackground(AtlasTheme.Colors.elevatedBackground)
+            .listRowBackground(AtlasTheme.Colors.card)
 
             ForEach(setsByExercise, id: \.exercise.id) { section in
                 Section(section.exercise.displayName) {
@@ -58,7 +58,7 @@ struct SessionDetailView: View {
                         .frame(minHeight: 44)
                     }
                 }
-                .listRowBackground(AtlasTheme.Colors.elevatedBackground)
+                .listRowBackground(AtlasTheme.Colors.card)
             }
 
             Section("How did it feel?") {
@@ -79,7 +79,7 @@ struct SessionDetailView: View {
                     .frame(minHeight: 44)
                 }
             }
-            .listRowBackground(AtlasTheme.Colors.elevatedBackground)
+            .listRowBackground(AtlasTheme.Colors.card)
         }
         .scrollContentBackground(.hidden)
         .background(AtlasTheme.Colors.background.ignoresSafeArea())

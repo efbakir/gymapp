@@ -9,6 +9,7 @@ import SwiftUI
 
 struct SettingsView: View {
     @AppStorage("unitSystem") private var unitSystem: String = "kg"
+    @AppStorage("forceLightMode") private var forceLightMode = false
 
     private var appVersion: String {
         Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "—"
@@ -21,6 +22,13 @@ struct SettingsView: View {
     var body: some View {
         NavigationStack {
             Form {
+                Section("Appearance") {
+                    Toggle("Light Mode", isOn: $forceLightMode)
+                        .frame(minHeight: 44)
+                        .tint(AtlasTheme.Colors.accent)
+                }
+                .listRowBackground(AtlasTheme.Colors.elevatedBackground)
+
                 Section("Units") {
                     Picker("Weight Unit", selection: $unitSystem) {
                         Text("kg").tag("kg")
@@ -51,5 +59,4 @@ struct SettingsView: View {
 
 #Preview {
     SettingsView()
-        .preferredColorScheme(.dark)
 }

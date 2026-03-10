@@ -55,10 +55,14 @@ struct CyclesView: View {
             }
             .sheet(isPresented: $showingCreateCycle) {
                 CreateCycleView()
+                    .presentationDragIndicator(.visible)
+                    .presentationBackground(AtlasTheme.Colors.sheet)
             }
             .sheet(isPresented: $showingSettings) {
                 if let cycle = selectedCycle ?? activeCycle {
                     CycleSettingsView(cycle: cycle)
+                        .presentationDragIndicator(.visible)
+                        .presentationBackground(AtlasTheme.Colors.sheet)
                 }
             }
         }
@@ -238,6 +242,8 @@ private struct WeekRowView: View {
                 .sheet(isPresented: $showingProjected) {
                     ProjectedWeekSheet(cycle: cycle, weekNumber: weekNumber, rules: rules, exercises: exercises)
                         .presentationDetents([.medium])
+                        .presentationDragIndicator(.visible)
+                        .presentationBackground(AtlasTheme.Colors.sheet)
                 }
             }
         }

@@ -11,8 +11,8 @@ import SwiftData
 // MARK: - HomeContext
 
 enum HomeContext {
-    case trainingDay(weekNumber: Int, templateName: String, targets: [ExerciseTarget], lastSessionDate: Date?)
-    case restDay(nextSession: String, nextSessionTiming: String, wins: [SessionWin])
+    case trainingDay(weekNumber: Int, templateName: String, targets: [ExerciseTarget], lastSessionDate: Date?, cycleName: String)
+    case restDay(nextSession: String, nextSessionTiming: String)
     case noCycle
 }
 
@@ -25,17 +25,11 @@ struct ExerciseTarget {
     let lastReps: Int?        // reps from last same-template session
 }
 
-struct SessionWin {
-    let exerciseName: String
-    let deltaKg: Double
-}
-
 // MARK: - TodayView
 
 struct TodayView: View {
     @Environment(\.modelContext) private var modelContext
 
-    @Query(sort: \Split.name) private var splits: [Split]
     @Query(sort: \DayTemplate.name) private var templates: [DayTemplate]
     @Query(sort: \Exercise.displayName) private var exercises: [Exercise]
     @Query(sort: \WorkoutSession.date, order: .reverse) private var sessions: [WorkoutSession]
@@ -43,6 +37,8 @@ struct TodayView: View {
     @Query private var rules: [ProgressionRule]
 
     @State private var viewModel = TodayDashboardViewModel()
+    @State private var showSubscribe = false
+    @State private var showHistory = false
 
     private var activeSession: WorkoutSession? {
         sessions.first(where: { !$0.isCompleted })
@@ -50,22 +46,6 @@ struct TodayView: View {
 
     private var activeCycle: Cycle? {
         cycles.first(where: { $0.isActive && !$0.isCompleted })
-    }
-
-    private var orderedTemplates: [DayTemplate] {
-        var ordered: [DayTemplate] = []
-        let templateByID = Dictionary(uniqueKeysWithValues: templates.map { ($0.id, $0) })
-        for split in splits {
-            for templateID in split.orderedTemplateIds {
-                if let template = templateByID[templateID], !ordered.contains(where: { $0.id == template.id }) {
-                    ordered.append(template)
-                }
-            }
-        }
-        let remaining = templates
-            .filter { template in !ordered.contains(where: { $0.id == template.id }) }
-            .sorted { $0.name < $1.name }
-        return ordered + remaining
     }
 
     var body: some View {
@@ -77,53 +57,61 @@ struct TodayView: View {
                     dashboardContent
                 }
             }
-            .navigationTitle("")
+            .navigationTitle("Home")
+            .navigationBarTitleDisplayMode(.large)
+            .toolbar {
+                if activeSession == nil {
+                    ToolbarItem(placement: .topBarLeading) {
+                        Button {
+                            showSubscribe = true
+                        } label: {
+                            HStack(spacing: 4) {
+                                Image(systemName: "star.fill")
+                                    .font(.system(size: 11, weight: .bold))
+                                Text("Subscribe")
+                                    .font(.system(size: 12, weight: .semibold, design: .rounded))
+                                    .lineLimit(1)
+                                    .fixedSize(horizontal: true, vertical: false)
+                            }
+                            .foregroundStyle(AtlasTheme.Colors.accent)
+                            .frame(minWidth: 90, minHeight: 44, alignment: .leading)
+                        }
+                        .buttonStyle(.plain)
+                    }
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button {
+                            showHistory = true
+                        } label: {
+                            Image(systemName: "clock.arrow.circlepath")
+                                .foregroundStyle(AtlasTheme.Colors.secondaryButton)
+                        }
+                        .accessibilityLabel("Open history")
+                    }
+                }
+            }
+            .sheet(isPresented: $showSubscribe) {
+                SubscribeView()
+                    .presentationDragIndicator(.visible)
+                    .presentationBackground(AtlasTheme.Colors.sheet)
+            }
+            .sheet(isPresented: $showHistory) {
+                HistoryView()
+                    .presentationDetents([.large])
+                    .presentationDragIndicator(.visible)
+                    .presentationBackground(AtlasTheme.Colors.sheet)
+            }
+            .toolbar(activeSession == nil ? .visible : .hidden, for: .tabBar)
         }
     }
 
     private var dashboardContent: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: AtlasTheme.Spacing.md) {
-                // Context card
                 contextCard
-
-                if !orderedTemplates.isEmpty {
-                    VStack(alignment: .leading, spacing: AtlasTheme.Spacing.xxs) {
-                        Text("Quick Start")
-                            .font(AtlasTheme.Typography.sectionTitle)
-                            .padding(.top, AtlasTheme.Spacing.xs)
-                        Text("Tap a day to begin instantly.")
-                            .font(AtlasTheme.Typography.caption)
-                            .foregroundStyle(AtlasTheme.Colors.textSecondary)
-                    }
-
-                    ForEach(orderedTemplates, id: \.id) { template in
-                        let session = viewModel.lastCompletedSession(for: template.id, in: sessions)
-                        DayCardView(
-                            title: template.name,
-                            splitName: viewModel.splitName(for: template, in: splits),
-                            lastPerformed: viewModel.lastPerformedLabel(date: session?.date)
-                        ) {
-                            startWorkout(template)
-                        }
-                    }
-                } else {
-                    VStack(spacing: AtlasTheme.Spacing.sm) {
-                        Image(systemName: "list.bullet.rectangle")
-                            .font(.system(size: 32, weight: .light))
-                            .foregroundStyle(AtlasTheme.Colors.textSecondary)
-                        Text("No day templates yet. Build your split in Program.")
-                            .font(AtlasTheme.Typography.body)
-                            .foregroundStyle(AtlasTheme.Colors.textSecondary)
-                            .multilineTextAlignment(.center)
-                    }
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, AtlasTheme.Spacing.xl)
-                }
             }
             .padding(AtlasTheme.Spacing.md)
         }
-        .background(AtlasTheme.Colors.background)
+        .background(AtlasTheme.Colors.background.ignoresSafeArea())
     }
 
     // MARK: - Context Card
@@ -138,12 +126,12 @@ struct TodayView: View {
             exercises: exercises
         )
         switch ctx {
-        case .trainingDay(let week, let name, let targets, let lastDate):
-            TrainingDayCard(weekNumber: week, templateName: name, targets: targets, lastSessionDate: lastDate) {
+        case .trainingDay(let week, let name, let targets, let lastDate, let cycleName):
+            TrainingDayCard(weekNumber: week, templateName: name, cycleName: cycleName, targets: targets, lastSessionDate: lastDate) {
                 startWorkout(named: name)
             }
-        case .restDay(let next, let timing, let wins):
-            RestDayCard(nextSession: next, nextSessionTiming: timing, wins: wins)
+        case .restDay(let next, let timing):
+            RestDayCard(nextSession: next, nextSessionTiming: timing)
         case .noCycle:
             NoCycleCard()
         }
@@ -178,89 +166,70 @@ struct TodayView: View {
 private struct TrainingDayCard: View {
     let weekNumber: Int
     let templateName: String
+    let cycleName: String
     let targets: [ExerciseTarget]
     let lastSessionDate: Date?
     let onStart: () -> Void
 
-    @State private var showFullSession = false
-
     private var subtitleLabel: String {
-        guard let date = lastSessionDate else { return templateName }
+        guard let date = lastSessionDate else { return "First session" }
         let fmt = DateFormatter()
         fmt.dateFormat = "MMM d"
-        return "Last \(templateName) · \(fmt.string(from: date))"
+        return "Last · \(fmt.string(from: date))"
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: AtlasTheme.Spacing.sm) {
-            HStack {
-                VStack(alignment: .leading, spacing: AtlasTheme.Spacing.xxs) {
-                    Text(subtitleLabel)
-                        .font(AtlasTheme.Typography.caption)
-                        .foregroundStyle(AtlasTheme.Colors.textSecondary)
-                    Text(templateName)
-                        .font(AtlasTheme.Typography.hero)
-                }
-                Spacer(minLength: 0)
-                Button(action: onStart) {
-                    Text("Start Session")
-                        .font(AtlasTheme.Typography.sectionTitle)
-                        .foregroundStyle(.white)
-                        .padding(.horizontal, AtlasTheme.Spacing.md)
-                        .frame(height: 44)
-                        .background(AtlasTheme.Colors.accent)
-                        .clipShape(Capsule())
-                }
-                .buttonStyle(.plain)
+        VStack(alignment: .leading, spacing: AtlasTheme.Spacing.md) {
+
+            // Cycle badge
+            HStack(spacing: AtlasTheme.Spacing.xs) {
+                Text("WEEK \(weekNumber) OF 8")
+                    .font(AtlasTheme.Typography.overline)
+                    .tracking(1.0)
+                    .foregroundStyle(AtlasTheme.Colors.accent)
+                Text("·")
+                    .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                    .font(AtlasTheme.Typography.overline)
+                Text(cycleName.uppercased())
+                    .font(AtlasTheme.Typography.overline)
+                    .tracking(1.0)
+                    .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                    .lineLimit(1)
             }
 
+            // Title row
+            VStack(alignment: .leading, spacing: AtlasTheme.Spacing.xxs) {
+                Text(templateName)
+                    .font(AtlasTheme.Typography.hero)
+                    .foregroundStyle(AtlasTheme.Colors.textPrimary)
+                Text(subtitleLabel)
+                    .font(AtlasTheme.Typography.caption)
+                    .foregroundStyle(AtlasTheme.Colors.textSecondary)
+            }
+
+            // Targets
             if !targets.isEmpty {
                 VStack(alignment: .leading, spacing: AtlasTheme.Spacing.xs) {
                     Text("TODAY'S TARGETS")
                         .font(AtlasTheme.Typography.overline)
                         .foregroundStyle(AtlasTheme.Colors.textSecondary)
                         .tracking(1.0)
-                        .padding(.top, AtlasTheme.Spacing.xxs)
-                    ForEach(targets.prefix(2), id: \.exerciseName) { target in
-                        ExerciseTargetRow(target: target)
-                    }
-                    if targets.count > 2 {
-                        Button {
-                            showFullSession = true
-                        } label: {
-                            Text("See full session (\(targets.count) exercises)")
-                                .font(AtlasTheme.Typography.caption)
-                                .foregroundStyle(AtlasTheme.Colors.accent)
-                                .frame(minHeight: 36)
-                        }
-                        .buttonStyle(.plain)
-                    }
-                }
-            }
-        }
-        .atlasCardStyle()
-        .sheet(isPresented: $showFullSession) {
-            NavigationStack {
-                List {
                     ForEach(targets, id: \.exerciseName) { target in
                         ExerciseTargetRow(target: target)
-                            .listRowBackground(AtlasTheme.Colors.elevatedBackground)
-                    }
-                }
-                .listStyle(.insetGrouped)
-                .scrollContentBackground(.hidden)
-                .background(AtlasTheme.Colors.background.ignoresSafeArea())
-                .navigationTitle(templateName)
-                .navigationBarTitleDisplayMode(.inline)
-                .toolbar {
-                    ToolbarItem(placement: .topBarTrailing) {
-                        Button("Done") { showFullSession = false }
                     }
                 }
             }
-            .presentationDetents([.medium, .large])
-            .presentationBackground(AtlasTheme.Colors.background)
+
+            // Start button — full width at bottom of card
+            Button(action: onStart) {
+                Text("Start Session")
+                    .atlasCTAStyle()
+            }
+            .buttonStyle(.plain)
         }
+        .padding(AtlasTheme.Spacing.md)
+        .background(AtlasTheme.Colors.card)
+        .clipShape(RoundedRectangle(cornerRadius: AtlasTheme.Radius.lg, style: .continuous))
     }
 }
 
@@ -268,46 +237,42 @@ private struct ExerciseTargetRow: View {
     let target: ExerciseTarget
 
     var body: some View {
-        HStack(alignment: .top, spacing: AtlasTheme.Spacing.xs) {
+        HStack(alignment: .center, spacing: AtlasTheme.Spacing.xs) {
+            // Exercise name
             Text(target.exerciseName)
                 .font(AtlasTheme.Typography.body)
+                .foregroundStyle(AtlasTheme.Colors.textPrimary)
                 .lineLimit(1)
                 .frame(maxWidth: .infinity, alignment: .leading)
 
+            // Right column: last row + today row
             VStack(alignment: .trailing, spacing: 2) {
+                // Last + delta on one line
                 if let lastKg = target.lastWeightKg, let lastReps = target.lastReps {
-                    Text("Last: \(lastKg.weightString)kg × \(lastReps)")
-                        .font(AtlasTheme.Typography.caption)
-                        .foregroundStyle(AtlasTheme.Colors.textSecondary)
-                        .monospacedDigit()
-                }
-                HStack(spacing: AtlasTheme.Spacing.xxs) {
-                    Text("Today: \(target.weightKg.weightString)kg × \(target.reps)")
-                        .font(AtlasTheme.Typography.body)
-                        .monospacedDigit()
-                    if target.deltaKg > 0 {
-                        Text("+\(target.deltaKg.weightString)kg")
-                            .font(AtlasTheme.Typography.caption.weight(.semibold))
-                            .foregroundStyle(AtlasTheme.Colors.accent)
-                            .padding(.horizontal, 5)
-                            .padding(.vertical, 2)
-                            .background(AtlasTheme.Colors.accentSoft)
-                            .clipShape(Capsule())
-                    } else if target.lastWeightKg != nil && target.deltaKg == 0 {
-                        Text("=")
+                    HStack(spacing: AtlasTheme.Spacing.xxs) {
+                        Text("Last \(lastKg.weightString) × \(lastReps)")
                             .font(AtlasTheme.Typography.caption)
                             .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                            .monospacedDigit()
+                        if target.deltaKg > 0 {
+                            Text("+\(target.deltaKg.weightString)kg")
+                                .font(.system(size: 10, weight: .semibold, design: .rounded))
+                                .foregroundStyle(AtlasTheme.Colors.accent)
+                                .padding(.horizontal, 5)
+                                .padding(.vertical, 2)
+                                .background(AtlasTheme.Colors.accentSoft)
+                                .clipShape(Capsule())
+                        }
                     }
                 }
+                // Today target
+                Text("\(target.weightKg.weightString)kg × \(target.reps)")
+                    .font(AtlasTheme.Typography.body.weight(.semibold))
+                    .foregroundStyle(AtlasTheme.Colors.textPrimary)
+                    .monospacedDigit()
             }
         }
         .accessibilityElement(children: .combine)
-        .accessibilityValue({
-            if let lastKg = target.lastWeightKg {
-                return "Last: \(lastKg.weightString)kg. Today: \(target.weightKg.weightString)kg × \(target.reps) reps"
-            }
-            return "Today: \(target.weightKg.weightString)kg × \(target.reps) reps, first session"
-        }())
     }
 }
 
@@ -316,45 +281,19 @@ private struct ExerciseTargetRow: View {
 private struct RestDayCard: View {
     let nextSession: String
     let nextSessionTiming: String
-    let wins: [SessionWin]
 
     var body: some View {
         VStack(alignment: .leading, spacing: AtlasTheme.Spacing.sm) {
-            HStack(alignment: .top) {
-                VStack(alignment: .leading, spacing: AtlasTheme.Spacing.xxs) {
-                    Text("Rest Day")
-                        .font(AtlasTheme.Typography.caption)
-                        .foregroundStyle(AtlasTheme.Colors.textSecondary)
-                    Text(nextSession)
-                        .font(AtlasTheme.Typography.hero)
-                    Text(nextSessionTiming)
-                        .font(AtlasTheme.Typography.caption)
-                        .foregroundStyle(AtlasTheme.Colors.textSecondary)
-                }
-                Spacer(minLength: 0)
-            }
-
-            if !wins.isEmpty {
-                Divider()
-                Text("Last session wins")
-                    .font(AtlasTheme.Typography.caption)
-                    .foregroundStyle(AtlasTheme.Colors.textSecondary)
-                ForEach(wins.prefix(3), id: \.exerciseName) { win in
-                    HStack {
-                        Text("+\(win.deltaKg.weightString)kg")
-                            .font(AtlasTheme.Typography.body.weight(.semibold))
-                            .foregroundStyle(AtlasTheme.Colors.accent)
-                            .monospacedDigit()
-                        Text("·  \(win.exerciseName)")
-                            .font(AtlasTheme.Typography.body)
-                            .foregroundStyle(AtlasTheme.Colors.textPrimary)
-                            .lineLimit(1)
-                        Spacer(minLength: 0)
-                    }
-                    .accessibilityElement(children: .combine)
-                    .accessibilityValue("+\(win.deltaKg.weightString)kg on \(win.exerciseName)")
-                }
-            }
+            Text("REST DAY")
+                .font(AtlasTheme.Typography.overline)
+                .tracking(1.0)
+                .foregroundStyle(AtlasTheme.Colors.textSecondary)
+            Text(nextSession)
+                .font(AtlasTheme.Typography.hero)
+                .foregroundStyle(AtlasTheme.Colors.textPrimary)
+            Text(nextSessionTiming)
+                .font(AtlasTheme.Typography.caption)
+                .foregroundStyle(AtlasTheme.Colors.textSecondary)
         }
         .atlasCardStyle()
     }
@@ -364,48 +303,30 @@ private struct RestDayCard: View {
 
 private struct NoCycleCard: View {
     var body: some View {
-        VStack(alignment: .leading, spacing: AtlasTheme.Spacing.xs) {
-            Text("No Active Cycle")
-                .font(AtlasTheme.Typography.sectionTitle)
-            Text("Go to Program → tap Cycles to start an 8-week cycle and unlock auto-progression targets.")
+        VStack(alignment: .leading, spacing: AtlasTheme.Spacing.sm) {
+            Text("NO ACTIVE CYCLE")
+                .font(AtlasTheme.Typography.overline)
+                .tracking(1.0)
+                .foregroundStyle(AtlasTheme.Colors.textSecondary)
+            Text("Set up your program")
+                .font(AtlasTheme.Typography.hero)
+                .foregroundStyle(AtlasTheme.Colors.textPrimary)
+            Text("Create a split, add exercises, and start an 8-week cycle to unlock auto-progression targets.")
                 .font(AtlasTheme.Typography.caption)
                 .foregroundStyle(AtlasTheme.Colors.textSecondary)
-        }
-        .atlasCardStyle()
-    }
-}
-
-// MARK: - Day Card
-
-private struct DayCardView: View {
-    let title: String
-    let splitName: String
-    let lastPerformed: String
-    let onStart: () -> Void
-
-    var body: some View {
-        Button(action: onStart) {
-            HStack(alignment: .center) {
-                VStack(alignment: .leading, spacing: AtlasTheme.Spacing.xxs) {
-                    Text(title)
-                        .font(AtlasTheme.Typography.sectionTitle)
-                        .foregroundStyle(AtlasTheme.Colors.textPrimary)
-                    Text(splitName)
-                        .font(AtlasTheme.Typography.caption)
-                        .foregroundStyle(AtlasTheme.Colors.textSecondary)
-                }
-                Spacer(minLength: 0)
-                Text(lastPerformed)
-                    .font(AtlasTheme.Typography.caption)
-                    .foregroundStyle(AtlasTheme.Colors.textSecondary)
-                    .multilineTextAlignment(.trailing)
+                .lineSpacing(3)
+                .padding(.bottom, AtlasTheme.Spacing.xs)
+            NavigationLink {
+                TemplatesView()
+            } label: {
+                Text("Go to Program")
+                    .atlasCTAStyle()
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .contentShape(RoundedRectangle(cornerRadius: AtlasTheme.Radius.lg, style: .continuous))
-            .atlasCardStyle()
+            .buttonStyle(.plain)
         }
-        .buttonStyle(AtlasScaleButtonStyle())
-        .accessibilityHint("Starts workout with one tap")
+        .padding(AtlasTheme.Spacing.md)
+        .background(AtlasTheme.Colors.card)
+        .clipShape(RoundedRectangle(cornerRadius: AtlasTheme.Radius.lg, style: .continuous))
     }
 }
 
@@ -427,7 +348,6 @@ final class TodayDashboardViewModel {
         let weekNum = cycle.currentWeekNumber
         let splitTemplates = templates.filter { $0.splitId == cycle.splitId }
 
-        // Find the template for today based on completed sessions in this cycle
         let templateForToday: DayTemplate? = {
             guard !splitTemplates.isEmpty else { return nil }
             let cycleSessionCount = sessions.filter { $0.cycleId == cycle.id && $0.isCompleted }.count
@@ -437,13 +357,11 @@ final class TodayDashboardViewModel {
         }()
 
         guard let template = templateForToday else {
-            return restDayContext(sessions: sessions, templates: templates, exercises: exercises)
+            return restDayContext(sessions: sessions, templates: templates)
         }
 
-        // Last completed session for this same template (to show "Last: Xkg × N")
         let lastSession = sessions.first { $0.templateId == template.id && $0.isCompleted }
 
-        // Build per-exercise targets using ProgressionEngine
         let targets: [ExerciseTarget] = template.orderedExerciseIds.compactMap { exId -> ExerciseTarget? in
             guard let exercise = exercises.first(where: { $0.id == exId }),
                   let rule = rules.first(where: { $0.exerciseId == exId && $0.cycleId == cycle.id }) else {
@@ -454,7 +372,6 @@ final class TodayDashboardViewModel {
             let allTargets = ProgressionEngine.computeTargets(rule: snapshot, outcomes: outcomes)
             guard let weekTarget = allTargets.first(where: { $0.weekNumber == weekNum }) else { return nil }
 
-            // Best set for this exercise from last same-template session
             let lastSet = lastSession?.setEntries
                 .filter { $0.exerciseId == exId && $0.isCompleted && !$0.isWarmup }
                 .max { $0.weight < $1.weight }
@@ -471,13 +388,18 @@ final class TodayDashboardViewModel {
             )
         }
 
-        return .trainingDay(weekNumber: weekNum, templateName: template.name, targets: targets, lastSessionDate: lastSession?.date)
+        return .trainingDay(
+            weekNumber: weekNum,
+            templateName: template.name,
+            targets: targets,
+            lastSessionDate: lastSession?.date,
+            cycleName: cycle.name
+        )
     }
 
     private func restDayContext(
         sessions: [WorkoutSession],
-        templates: [DayTemplate],
-        exercises: [Exercise]
+        templates: [DayTemplate]
     ) -> HomeContext {
         let nextName = templates.first?.name ?? "Next Session"
 
@@ -487,73 +409,7 @@ final class TodayDashboardViewModel {
             return daysSince >= 1 ? "Tomorrow" : "Today later"
         }()
 
-        // Compare last two sessions of the same template for wins
-        let wins: [SessionWin] = {
-            guard let lastSession = sessions.first(where: { $0.isCompleted }) else { return [] }
-            guard let prevSession = sessions.first(where: {
-                $0.isCompleted && $0.templateId == lastSession.templateId && $0.id != lastSession.id
-            }) else { return [] }
-
-            let prevBestByExercise: [UUID: Double] = Dictionary(
-                prevSession.setEntries
-                    .filter { $0.isCompleted && !$0.isWarmup }
-                    .map { ($0.exerciseId, $0.weight) },
-                uniquingKeysWith: max
-            )
-
-            return lastSession.setEntries
-                .filter { $0.isCompleted && !$0.isWarmup }
-                .compactMap { entry -> SessionWin? in
-                    guard let prevWeight = prevBestByExercise[entry.exerciseId] else { return nil }
-                    let delta = entry.weight - prevWeight
-                    guard delta > 0 else { return nil }
-                    let name = exercises.first(where: { $0.id == entry.exerciseId })?.displayName ?? "Exercise"
-                    return SessionWin(exerciseName: name, deltaKg: delta)
-                }
-                .sorted { $0.deltaKg > $1.deltaKg }
-        }()
-
-        return .restDay(nextSession: nextName, nextSessionTiming: nextSessionTiming, wins: wins)
-    }
-
-    func splitName(for template: DayTemplate, in splits: [Split]) -> String {
-        guard let splitID = template.splitId,
-              let split = splits.first(where: { $0.id == splitID }) else { return "Custom Split" }
-        return split.name
-    }
-
-    func lastCompletedSession(for templateID: UUID, in sessions: [WorkoutSession]) -> WorkoutSession? {
-        sessions.first { $0.templateId == templateID && $0.isCompleted }
-    }
-
-    func lastPerformedLabel(date: Date?) -> String {
-        guard let date else { return "Never" }
-        let formatter = RelativeDateTimeFormatter()
-        formatter.unitsStyle = .short
-        return formatter.localizedString(for: date, relativeTo: Date())
-    }
-
-    func topLiftSummary(from session: WorkoutSession?, exercises: [Exercise]) -> String {
-        guard let session else { return "No data" }
-        let candidate = session.setEntries
-            .filter { $0.isCompleted }
-            .max { lhs, rhs in
-                lhs.weight == rhs.weight ? lhs.reps < rhs.reps : lhs.weight < rhs.weight
-            }
-        guard let entry = candidate else { return "No data" }
-        let name = exercises.first(where: { $0.id == entry.exerciseId })?.displayName ?? "Lift"
-        let shortName = name.components(separatedBy: " ").prefix(2).joined(separator: " ")
-        return "\(shortName): \(entry.weight.weightString)kg × \(entry.reps)"
-    }
-}
-
-// MARK: - Button Style
-
-private struct AtlasScaleButtonStyle: ButtonStyle {
-    func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .scaleEffect(configuration.isPressed ? 0.985 : 1.0)
-            .animation(.easeOut(duration: 0.12), value: configuration.isPressed)
+        return .restDay(nextSession: nextName, nextSessionTiming: nextSessionTiming)
     }
 }
 

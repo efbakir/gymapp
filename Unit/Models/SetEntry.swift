@@ -28,6 +28,7 @@ final class SetEntry {
     var isWarmup: Bool
     var isCompleted: Bool
     var setIndex: Int
+    var note: String
 
     var session: WorkoutSession?
 
@@ -44,7 +45,8 @@ final class SetEntry {
         metTarget: Bool = false,
         isWarmup: Bool = false,
         isCompleted: Bool = false,
-        setIndex: Int = 0
+        setIndex: Int = 0,
+        note: String = ""
     ) {
         self.id = id
         self.sessionId = sessionId
@@ -59,5 +61,6 @@ final class SetEntry {
         self.isWarmup = isWarmup
         self.isCompleted = isCompleted
         self.setIndex = setIndex
+        self.note = note
     }
 }
