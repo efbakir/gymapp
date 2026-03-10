@@ -20,23 +20,23 @@ struct TemplatesView: View {
             List {
                 if splits.isEmpty {
                     Section {
-                        VStack(alignment: .leading, spacing: AtlasTheme.Spacing.sm) {
+                        VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
                             Text("Build your first split")
-                                .font(AtlasTheme.Typography.sectionTitle)
+                                .font(Theme.Typography.title)
                             Text("Create a split, add day templates, then reorder exercises with drag-and-drop.")
-                                .font(AtlasTheme.Typography.caption)
-                                .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                                .font(Theme.Typography.caption)
+                                .foregroundStyle(Theme.Colors.textSecondary)
                             Button {
                                 showingAddSplit = true
                             } label: {
                                 Label("Create Split", systemImage: "plus.circle.fill")
-                                    .font(AtlasTheme.Typography.sectionTitle)
-                                    .foregroundStyle(AtlasTheme.Colors.accent)
+                                    .font(Theme.Typography.title)
+                                    .foregroundStyle(Theme.Colors.accent)
                                     .frame(minHeight: 44)
                             }
                             .buttonStyle(.plain)
                         }
-                        .padding(.vertical, AtlasTheme.Spacing.xs)
+                        .padding(.vertical, Theme.Spacing.xs)
                     }
                 }
 
@@ -120,15 +120,15 @@ private struct SplitRow: View {
     let dayCount: Int
 
     var body: some View {
-        VStack(alignment: .leading, spacing: AtlasTheme.Spacing.xxs) {
+        VStack(alignment: .leading, spacing: Theme.Spacing.xxs) {
             Text(split.name)
-                .font(AtlasTheme.Typography.sectionTitle)
-                .foregroundStyle(AtlasTheme.Colors.textPrimary)
+                .font(Theme.Typography.title)
+                .foregroundStyle(Theme.Colors.textPrimary)
             Text("\(dayCount) day\(dayCount == 1 ? "" : "s")")
-                .font(AtlasTheme.Typography.caption)
-                .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                .font(Theme.Typography.caption)
+                .foregroundStyle(Theme.Colors.textSecondary)
         }
-        .padding(.vertical, AtlasTheme.Spacing.xs)
+        .padding(.vertical, Theme.Spacing.xs)
         .frame(minHeight: 44)
     }
 }
@@ -160,7 +160,7 @@ struct SplitDetailView: View {
                 ForEach(orderedTemplates, id: \.id) { template in
                     NavigationLink(value: template) {
                         Text(template.name)
-                            .font(AtlasTheme.Typography.body)
+                            .font(Theme.Typography.body)
                             .frame(minHeight: 44, alignment: .leading)
                     }
                 }
@@ -171,8 +171,8 @@ struct SplitDetailView: View {
                     showingAddDay = true
                 } label: {
                     Label("Add Day", systemImage: "plus.circle.fill")
-                        .font(AtlasTheme.Typography.sectionTitle)
-                        .foregroundStyle(AtlasTheme.Colors.accent)
+                        .font(Theme.Typography.title)
+                        .foregroundStyle(Theme.Colors.accent)
                         .frame(minHeight: 44)
                 }
             } header: {
@@ -239,19 +239,19 @@ private struct AddSplitView: View {
 
     var body: some View {
         NavigationStack {
-            VStack(spacing: AtlasTheme.Spacing.lg) {
-                VStack(alignment: .leading, spacing: AtlasTheme.Spacing.sm) {
+            VStack(spacing: Theme.Spacing.lg) {
+                VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
                     Text("Split name")
-                        .font(AtlasTheme.Typography.sectionTitle)
+                        .font(Theme.Typography.title)
                     TextField("e.g. Push / Pull / Legs", text: $name)
                         .textInputAutocapitalization(.words)
-                        .padding(.horizontal, AtlasTheme.Spacing.md)
+                        .padding(.horizontal, Theme.Spacing.md)
                         .frame(height: 52)
-                        .background(AtlasTheme.Colors.card)
-                        .clipShape(RoundedRectangle(cornerRadius: AtlasTheme.Radius.md, style: .continuous))
+                        .background(Theme.Colors.card)
+                        .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.md, style: .continuous))
                         .overlay(
-                            RoundedRectangle(cornerRadius: AtlasTheme.Radius.md, style: .continuous)
-                                .stroke(AtlasTheme.Colors.border, lineWidth: 0.5)
+                            RoundedRectangle(cornerRadius: Theme.Radius.md, style: .continuous)
+                                .stroke(Theme.Colors.border, lineWidth: 0.5)
                         )
                 }
 
@@ -259,20 +259,20 @@ private struct AddSplitView: View {
                     save()
                 } label: {
                     Text("Create Split")
-                        .font(AtlasTheme.Typography.sectionTitle)
+                        .font(Theme.Typography.title)
                         .foregroundStyle(.white)
                         .frame(maxWidth: .infinity)
                         .frame(height: 52)
-                        .background(canSave ? AtlasTheme.Colors.accent : Color.gray.opacity(0.35))
-                        .clipShape(RoundedRectangle(cornerRadius: AtlasTheme.Radius.md, style: .continuous))
+                        .background(canSave ? Theme.Colors.accent : Color.gray.opacity(0.35))
+                        .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.md, style: .continuous))
                 }
                 .buttonStyle(.plain)
                 .disabled(!canSave)
 
                 Spacer(minLength: 0)
             }
-            .padding(AtlasTheme.Spacing.md)
-            .background(AtlasTheme.Colors.background.ignoresSafeArea())
+            .padding(Theme.Spacing.md)
+            .background(Theme.Colors.background.ignoresSafeArea())
             .navigationTitle("New Split")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

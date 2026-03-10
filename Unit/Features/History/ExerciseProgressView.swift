@@ -50,7 +50,7 @@ struct ExerciseProgressView: View {
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: AtlasTheme.Spacing.lg) {
+            VStack(alignment: .leading, spacing: Theme.Spacing.lg) {
                 if let pr = allTimePR, let e1rm = epley1RM {
                     prCard(pr: pr, e1rm: e1rm)
                 }
@@ -63,15 +63,15 @@ struct ExerciseProgressView: View {
                     sessionListCard
                 } else {
                     Text("No data yet for \(exerciseName).")
-                        .font(AtlasTheme.Typography.body)
-                        .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                        .font(Theme.Typography.body)
+                        .foregroundStyle(Theme.Colors.textSecondary)
                         .frame(maxWidth: .infinity, alignment: .center)
-                        .padding(.top, AtlasTheme.Spacing.xl)
+                        .padding(.top, Theme.Spacing.xl)
                 }
             }
-            .padding(AtlasTheme.Spacing.md)
+            .padding(Theme.Spacing.md)
         }
-        .background(AtlasTheme.Colors.background)
+        .background(Theme.Colors.background)
         .navigationTitle(exerciseName)
         .navigationBarTitleDisplayMode(.inline)
     }
@@ -79,36 +79,36 @@ struct ExerciseProgressView: View {
     // MARK: - PR Card
 
     private func prCard(pr: SessionPoint, e1rm: Double) -> some View {
-        HStack(spacing: AtlasTheme.Spacing.xl) {
-            VStack(alignment: .leading, spacing: AtlasTheme.Spacing.xxs) {
+        HStack(spacing: Theme.Spacing.xl) {
+            VStack(alignment: .leading, spacing: Theme.Spacing.xxs) {
                 Text("Best Set")
-                    .font(AtlasTheme.Typography.caption)
-                    .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                    .font(Theme.Typography.caption)
+                    .foregroundStyle(Theme.Colors.textSecondary)
                 Text("\(pr.weight.weightString)kg × \(pr.reps)")
-                    .font(AtlasTheme.Typography.metric)
+                    .font(Theme.Typography.metric)
                     .monospacedDigit()
             }
             Divider().frame(height: 36)
-            VStack(alignment: .leading, spacing: AtlasTheme.Spacing.xxs) {
+            VStack(alignment: .leading, spacing: Theme.Spacing.xxs) {
                 Text("Est. 1RM")
-                    .font(AtlasTheme.Typography.caption)
-                    .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                    .font(Theme.Typography.caption)
+                    .foregroundStyle(Theme.Colors.textSecondary)
                 Text("\(e1rm.weightString)kg")
-                    .font(AtlasTheme.Typography.metric)
-                    .foregroundStyle(AtlasTheme.Colors.accent)
+                    .font(Theme.Typography.metric)
+                    .foregroundStyle(Theme.Colors.accent)
                     .monospacedDigit()
             }
             Spacer(minLength: 0)
         }
-        .atlasCardStyle()
+        .cardStyle()
     }
 
     // MARK: - Chart
 
     private var chartCard: some View {
-        VStack(alignment: .leading, spacing: AtlasTheme.Spacing.sm) {
+        VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
             Text("Weight Over Time")
-                .font(AtlasTheme.Typography.sectionTitle)
+                .font(Theme.Typography.title)
 
             Chart(sessionPoints) { point in
                 LineMark(
@@ -116,47 +116,47 @@ struct ExerciseProgressView: View {
                     y: .value("Weight (kg)", point.weight)
                 )
                 .interpolationMethod(.monotone)
-                .foregroundStyle(AtlasTheme.Colors.accent)
+                .foregroundStyle(Theme.Colors.accent)
                 .lineStyle(StrokeStyle(lineWidth: 2))
 
                 PointMark(
                     x: .value("Date", point.date),
                     y: .value("Weight (kg)", point.weight)
                 )
-                .foregroundStyle(AtlasTheme.Colors.accent)
+                .foregroundStyle(Theme.Colors.accent)
                 .symbolSize(30)
             }
             .chartXAxis {
                 AxisMarks(values: .stride(by: .month)) { _ in
                     AxisValueLabel(format: .dateTime.month(.abbreviated))
-                        .font(AtlasTheme.Typography.caption)
-                        .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                        .font(Theme.Typography.caption)
+                        .foregroundStyle(Theme.Colors.textSecondary)
                 }
             }
             .chartYAxis {
                 AxisMarks { _ in
                     AxisValueLabel()
-                        .font(AtlasTheme.Typography.caption)
-                        .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                        .font(Theme.Typography.caption)
+                        .foregroundStyle(Theme.Colors.textSecondary)
                     AxisGridLine()
-                        .foregroundStyle(AtlasTheme.Colors.border.opacity(0.4))
+                        .foregroundStyle(Theme.Colors.border.opacity(0.4))
                 }
             }
             .frame(height: 160)
             .animation(reduceMotion ? nil : .easeInOut(duration: 0.4), value: exerciseName)
         }
-        .atlasCardStyle()
+        .cardStyle()
     }
 
     // MARK: - Session list
 
     private var sessionListCard: some View {
-        VStack(alignment: .leading, spacing: AtlasTheme.Spacing.sm) {
+        VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
             Text("Sessions")
-                .font(AtlasTheme.Typography.sectionTitle)
+                .font(Theme.Typography.title)
 
             let reversed = sessionPoints.reversed() as [SessionPoint]
-            VStack(spacing: AtlasTheme.Spacing.xs) {
+            VStack(spacing: Theme.Spacing.xs) {
                 ForEach(Array(reversed.enumerated()), id: \.element.id) { idx, point in
                     // Find the previous session for the same template
                     let prevPoint: SessionPoint? = reversed.dropFirst(idx + 1).first { $0.templateId == point.templateId }
@@ -167,7 +167,7 @@ struct ExerciseProgressView: View {
                 }
             }
         }
-        .atlasCardStyle()
+        .cardStyle()
     }
 
     private func sessionRow(point: SessionPoint, prev: SessionPoint?) -> some View {
@@ -179,32 +179,32 @@ struct ExerciseProgressView: View {
         return HStack {
             VStack(alignment: .leading, spacing: 2) {
                 Text(templateName)
-                    .font(AtlasTheme.Typography.body)
+                    .font(Theme.Typography.body)
                     .lineLimit(1)
                 Text(fmt.string(from: point.date))
-                    .font(AtlasTheme.Typography.caption)
-                    .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                    .font(Theme.Typography.caption)
+                    .foregroundStyle(Theme.Colors.textSecondary)
             }
             Spacer(minLength: 0)
             VStack(alignment: .trailing, spacing: 2) {
                 Text("\(point.weight.weightString)kg × \(point.reps)")
-                    .font(AtlasTheme.Typography.body)
+                    .font(Theme.Typography.body)
                     .monospacedDigit()
                 if let d = delta {
                     if d > 0 {
                         Text("+\(d.weightString)kg vs. last \(templateName)")
-                            .font(AtlasTheme.Typography.caption)
-                            .foregroundStyle(AtlasTheme.Colors.accent)
+                            .font(Theme.Typography.caption)
+                            .foregroundStyle(Theme.Colors.accent)
                             .monospacedDigit()
                     } else if d < 0 {
                         Text("\(d.weightString)kg vs. last \(templateName)")
-                            .font(AtlasTheme.Typography.caption)
-                            .foregroundStyle(AtlasTheme.Colors.failureAccent)
+                            .font(Theme.Typography.caption)
+                            .foregroundStyle(Theme.Colors.failure)
                             .monospacedDigit()
                     } else {
                         Text("= last \(templateName)")
-                            .font(AtlasTheme.Typography.caption)
-                            .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                            .font(Theme.Typography.caption)
+                            .foregroundStyle(Theme.Colors.textSecondary)
                     }
                 }
             }

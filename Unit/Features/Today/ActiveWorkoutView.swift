@@ -49,7 +49,7 @@ struct ActiveWorkoutView: View {
     var body: some View {
         ZStack(alignment: .bottom) {
             ScrollView {
-                VStack(alignment: .leading, spacing: AtlasTheme.Spacing.md) {
+                VStack(alignment: .leading, spacing: Theme.Spacing.md) {
                     headerCard
 
                     ForEach(orderedExercises, id: \.id) { exercise in
@@ -107,21 +107,21 @@ struct ActiveWorkoutView: View {
                     } label: {
                         HStack {
                             Text("End Workout")
-                                .font(AtlasTheme.Typography.sectionTitle)
+                                .font(Theme.Typography.title)
                             Spacer(minLength: 0)
                             Image(systemName: "checkmark.circle.fill")
                         }
-                        .foregroundStyle(AtlasTheme.Colors.accent)
+                        .foregroundStyle(Theme.Colors.accent)
                         .frame(maxWidth: .infinity)
                         .frame(height: 52)
-                        .atlasCardStyle()
+                        .cardStyle()
                     }
                     .buttonStyle(.plain)
                 }
-                .padding(AtlasTheme.Spacing.md)
+                .padding(Theme.Spacing.md)
                 .padding(.bottom, toastMessage != nil ? 80 : 0)
             }
-            .background(AtlasTheme.Colors.background)
+            .background(Theme.Colors.background)
 
             // Toast overlay
             if let msg = toastMessage {
@@ -158,26 +158,26 @@ struct ActiveWorkoutView: View {
     // MARK: - Header
 
     private var headerCard: some View {
-        VStack(alignment: .leading, spacing: AtlasTheme.Spacing.xs) {
+        VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
             HStack {
                 Text(template?.name ?? "Workout")
-                    .font(AtlasTheme.Typography.hero)
+                    .font(Theme.Typography.hero)
                 Spacer(minLength: 0)
                 if session.weekNumber > 0 {
                     Text("Week \(session.weekNumber)")
-                        .font(AtlasTheme.Typography.caption)
-                        .foregroundStyle(AtlasTheme.Colors.textSecondary)
-                        .padding(.horizontal, AtlasTheme.Spacing.xs)
-                        .padding(.vertical, AtlasTheme.Spacing.xxs)
-                        .background(AtlasTheme.Colors.accentSoft)
+                        .font(Theme.Typography.caption)
+                        .foregroundStyle(Theme.Colors.textSecondary)
+                        .padding(.horizontal, Theme.Spacing.xs)
+                        .padding(.vertical, Theme.Spacing.xxs)
+                        .background(Theme.Colors.accentSoft)
                         .clipShape(Capsule())
                 }
             }
             Text("Dumbbell logging uses total weight by default.")
-                .font(AtlasTheme.Typography.caption)
-                .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                .font(Theme.Typography.caption)
+                .foregroundStyle(Theme.Colors.textSecondary)
         }
-        .atlasCardStyle()
+        .cardStyle()
     }
 
     // MARK: - Helpers
@@ -255,14 +255,14 @@ struct ActiveWorkoutView: View {
     @ViewBuilder
     private func toastView(_ message: String) -> some View {
         Text(message)
-            .font(AtlasTheme.Typography.caption)
+            .font(Theme.Typography.caption)
             .foregroundStyle(.white)
-            .padding(.horizontal, AtlasTheme.Spacing.md)
-            .padding(.vertical, AtlasTheme.Spacing.sm)
+            .padding(.horizontal, Theme.Spacing.md)
+            .padding(.vertical, Theme.Spacing.sm)
             .background(Color.black.opacity(0.85))
             .clipShape(Capsule())
-            .padding(.horizontal, AtlasTheme.Spacing.md)
-            .padding(.bottom, AtlasTheme.Spacing.lg)
+            .padding(.horizontal, Theme.Spacing.md)
+            .padding(.bottom, Theme.Spacing.lg)
             .accessibilityAddTraits(.isStaticText)
     }
 }
@@ -299,16 +299,16 @@ private struct ExerciseLoggingCard: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: AtlasTheme.Spacing.sm) {
+        VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
             // Exercise header + deload badge
             HStack(alignment: .firstTextBaseline) {
                 Text(exercise.displayName)
-                    .font(AtlasTheme.Typography.sectionTitle)
+                    .font(Theme.Typography.title)
                 Spacer(minLength: 0)
                 if progressionRule?.isDeloaded == true {
                     Label("Deload", systemImage: "arrow.down.circle.fill")
-                        .font(AtlasTheme.Typography.caption)
-                        .foregroundStyle(AtlasTheme.Colors.deloadBadge)
+                        .font(Theme.Typography.caption)
+                        .foregroundStyle(Theme.Colors.deload)
                         .accessibilityLabel("Deload week")
                 }
             }
@@ -317,26 +317,26 @@ private struct ExerciseLoggingCard: View {
             if let last = lastActual, let target = weekTarget {
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Last: \(last.weight.weightString)kg × \(last.reps)")
-                        .font(AtlasTheme.Typography.caption)
-                        .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                        .font(Theme.Typography.caption)
+                        .foregroundStyle(Theme.Colors.textSecondary)
                         .monospacedDigit()
                     Text("Planned: \(target.weightKg.weightString)kg × \(target.reps)")
-                        .font(AtlasTheme.Typography.caption)
-                        .foregroundStyle(AtlasTheme.Colors.ghostText)
+                        .font(Theme.Typography.caption)
+                        .foregroundStyle(Theme.Colors.ghostText)
                         .monospacedDigit()
                 }
                 .accessibilityElement(children: .combine)
                 .accessibilityLabel("Last: \(last.weight.weightString)kg × \(last.reps). Planned: \(target.weightKg.weightString)kg × \(target.reps)")
             } else if let target = weekTarget {
                 Text("First session · Planned: \(target.weightKg.weightString)kg × \(target.reps)")
-                    .font(AtlasTheme.Typography.caption)
-                    .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                    .font(Theme.Typography.caption)
+                    .foregroundStyle(Theme.Colors.textSecondary)
                     .monospacedDigit()
             }
 
             // Completed set rows
             if !currentEntries.isEmpty {
-                VStack(spacing: AtlasTheme.Spacing.xs) {
+                VStack(spacing: Theme.Spacing.xs) {
                     ForEach(currentEntries, id: \.id) { entry in
                         CompletedSetRow(
                             index: entry.setIndex + 1,
@@ -348,8 +348,8 @@ private struct ExerciseLoggingCard: View {
             }
 
             // 3-column input: TARGET | WEIGHT | REPS
-            VStack(spacing: AtlasTheme.Spacing.sm) {
-                HStack(spacing: AtlasTheme.Spacing.xs) {
+            VStack(spacing: Theme.Spacing.sm) {
+                HStack(spacing: Theme.Spacing.xs) {
                     if let target = weekTarget {
                         TargetColumn(weightKg: target.weightKg, reps: target.reps)
                     }
@@ -361,7 +361,7 @@ private struct ExerciseLoggingCard: View {
                 RIRStepper(selected: $rir)
 
                 // Warmup toggle + Done button
-                HStack(spacing: AtlasTheme.Spacing.xs) {
+                HStack(spacing: Theme.Spacing.xs) {
                     Toggle("Warmup", isOn: $isWarmup)
                         .toggleStyle(.switch)
                         .frame(minHeight: 44)
@@ -372,19 +372,19 @@ private struct ExerciseLoggingCard: View {
                         handleDone()
                     } label: {
                         Text("Done")
-                            .font(AtlasTheme.Typography.sectionTitle)
+                            .font(Theme.Typography.title)
                             .foregroundStyle(.white)
                             .frame(minWidth: 80, minHeight: 44)
-                            .padding(.horizontal, AtlasTheme.Spacing.sm)
-                            .background(canComplete ? AtlasTheme.Colors.accent : Color.gray.opacity(0.35))
-                            .clipShape(RoundedRectangle(cornerRadius: AtlasTheme.Radius.md, style: .continuous))
+                            .padding(.horizontal, Theme.Spacing.sm)
+                            .background(canComplete ? Theme.Colors.accent : Color.gray.opacity(0.35))
+                            .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.md, style: .continuous))
                     }
                     .buttonStyle(.plain)
                     .disabled(!canComplete)
                 }
             }
         }
-        .atlasCardStyle()
+        .cardStyle()
         .onAppear { seedFromPrefillIfNeeded() }
     }
 
@@ -423,25 +423,25 @@ private struct TargetColumn: View {
     let reps: Int
 
     var body: some View {
-        VStack(alignment: .leading, spacing: AtlasTheme.Spacing.xxs) {
+        VStack(alignment: .leading, spacing: Theme.Spacing.xxs) {
             Text("TARGET")
-                .font(AtlasTheme.Typography.caption)
-                .foregroundStyle(AtlasTheme.Colors.ghostText)
+                .font(Theme.Typography.caption)
+                .foregroundStyle(Theme.Colors.ghostText)
             VStack(alignment: .leading, spacing: 2) {
                 Text(weightKg.weightString + "kg")
-                    .font(AtlasTheme.Typography.metric)
-                    .foregroundStyle(AtlasTheme.Colors.ghostText)
+                    .font(Theme.Typography.metric)
+                    .foregroundStyle(Theme.Colors.ghostText)
                     .monospacedDigit()
                 Text("× \(reps)")
-                    .font(AtlasTheme.Typography.caption)
-                    .foregroundStyle(AtlasTheme.Colors.ghostText)
+                    .font(Theme.Typography.caption)
+                    .foregroundStyle(Theme.Colors.ghostText)
             }
         }
         .frame(maxWidth: .infinity)
         .frame(minHeight: 52)
-        .padding(.horizontal, AtlasTheme.Spacing.sm)
-        .background(AtlasTheme.Colors.background)
-        .clipShape(RoundedRectangle(cornerRadius: AtlasTheme.Radius.md, style: .continuous))
+        .padding(.horizontal, Theme.Spacing.sm)
+        .background(Theme.Colors.background)
+        .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.md, style: .continuous))
         .accessibilityLabel("Target: \(weightKg.weightString)kg × \(reps) reps")
     }
 }
@@ -455,17 +455,17 @@ private struct RIRStepper: View {
     private let labels = ["—", "0", "1", "2", "3", "4", "5"]
 
     var body: some View {
-        VStack(alignment: .leading, spacing: AtlasTheme.Spacing.xxs) {
+        VStack(alignment: .leading, spacing: Theme.Spacing.xxs) {
             Text("RIR (Reps in Reserve)")
-                .font(AtlasTheme.Typography.caption)
-                .foregroundStyle(AtlasTheme.Colors.textSecondary)
-            HStack(spacing: AtlasTheme.Spacing.xxs) {
+                .font(Theme.Typography.caption)
+                .foregroundStyle(Theme.Colors.textSecondary)
+            HStack(spacing: Theme.Spacing.xxs) {
                 ForEach(Array(zip(values, labels)), id: \.0) { value, label in
                     Button {
                         selected = value
                     } label: {
                         Text(label)
-                            .font(AtlasTheme.Typography.body.weight(selected == value ? .bold : .regular))
+                            .font(Theme.Typography.body.weight(selected == value ? .bold : .regular))
                             .frame(maxWidth: .infinity)
                             .frame(minHeight: 44)
                             .background(capsuleBackground(for: value))
@@ -481,14 +481,14 @@ private struct RIRStepper: View {
 
     private func capsuleBackground(for value: Int) -> Color {
         if selected == value {
-            return value == 0 ? Color.red : AtlasTheme.Colors.accent
+            return value == 0 ? Color.red : Theme.Colors.accent
         }
-        return AtlasTheme.Colors.background
+        return Theme.Colors.background
     }
 
     private func capsuleForeground(for value: Int) -> Color {
         if selected == value { return .white }
-        return value == 0 ? AtlasTheme.Colors.failureAccent : AtlasTheme.Colors.textPrimary
+        return value == 0 ? Theme.Colors.failure : Theme.Colors.textPrimary
     }
 }
 
@@ -500,22 +500,22 @@ private struct MetricInputField: View {
     let keyboard: UIKeyboardType
 
     var body: some View {
-        VStack(alignment: .leading, spacing: AtlasTheme.Spacing.xxs) {
+        VStack(alignment: .leading, spacing: Theme.Spacing.xxs) {
             Text(title)
-                .font(AtlasTheme.Typography.caption)
-                .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                .font(Theme.Typography.caption)
+                .foregroundStyle(Theme.Colors.textSecondary)
             TextField("0", text: $text)
                 .keyboardType(keyboard)
-                .font(AtlasTheme.Typography.metric)
+                .font(Theme.Typography.metric)
                 .multilineTextAlignment(.center)
-                .padding(.horizontal, AtlasTheme.Spacing.sm)
+                .padding(.horizontal, Theme.Spacing.sm)
                 .frame(maxWidth: .infinity)
                 .frame(height: 52)
-                .background(AtlasTheme.Colors.background)
-                .clipShape(RoundedRectangle(cornerRadius: AtlasTheme.Radius.md, style: .continuous))
+                .background(Theme.Colors.background)
+                .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.md, style: .continuous))
                 .overlay(
-                    RoundedRectangle(cornerRadius: AtlasTheme.Radius.md, style: .continuous)
-                        .stroke(AtlasTheme.Colors.border, lineWidth: 0.5)
+                    RoundedRectangle(cornerRadius: Theme.Radius.md, style: .continuous)
+                        .stroke(Theme.Colors.border, lineWidth: 0.5)
                 )
         }
     }
@@ -540,17 +540,17 @@ private struct CompletedSetRow: View {
     }
 
     var body: some View {
-        HStack(spacing: AtlasTheme.Spacing.sm) {
+        HStack(spacing: Theme.Spacing.sm) {
             Text("Set \(index)")
-                .font(AtlasTheme.Typography.caption)
-                .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                .font(Theme.Typography.caption)
+                .foregroundStyle(Theme.Colors.textSecondary)
                 .frame(width: 44, alignment: .leading)
 
             Text("\(entry.weight.weightString) kg")
-                .font(AtlasTheme.Typography.body)
+                .font(Theme.Typography.body)
                 .monospacedDigit()
             Text("× \(entry.reps)")
-                .font(AtlasTheme.Typography.body)
+                .font(Theme.Typography.body)
                 .monospacedDigit()
 
             Spacer(minLength: 0)
@@ -558,29 +558,29 @@ private struct CompletedSetRow: View {
             if isFailed {
                 // HIG: never color alone — add icon + label
                 Label("Missed", systemImage: "xmark.circle.fill")
-                    .font(AtlasTheme.Typography.caption)
-                    .foregroundStyle(AtlasTheme.Colors.failureAccent)
+                    .font(Theme.Typography.caption)
+                    .foregroundStyle(Theme.Colors.failure)
                     .accessibilityLabel("Set missed target")
             } else if entry.rir >= 0 {
                 Text("RIR \(entry.rir)")
-                    .font(AtlasTheme.Typography.caption)
-                    .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                    .font(Theme.Typography.caption)
+                    .foregroundStyle(Theme.Colors.textSecondary)
             }
 
             Image(systemName: isFailed ? "xmark.circle.fill" : "checkmark.circle.fill")
-                .foregroundStyle(isFailed ? AtlasTheme.Colors.failureAccent : AtlasTheme.Colors.accent)
+                .foregroundStyle(isFailed ? Theme.Colors.failure : Theme.Colors.accent)
                 .accessibilityHidden(true)
         }
-        .padding(.horizontal, AtlasTheme.Spacing.sm)
+        .padding(.horizontal, Theme.Spacing.sm)
         .frame(minHeight: 52)
-        .background(isFailed ? AtlasTheme.Colors.failureAccent.opacity(0.08) : AtlasTheme.Colors.background)
-        .clipShape(RoundedRectangle(cornerRadius: AtlasTheme.Radius.md, style: .continuous))
+        .background(isFailed ? Theme.Colors.failure.opacity(0.08) : Theme.Colors.background)
+        .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.md, style: .continuous))
         .overlay(
             Group {
                 if isFailed || isProgressive {
-                    RoundedRectangle(cornerRadius: AtlasTheme.Radius.md, style: .continuous)
+                    RoundedRectangle(cornerRadius: Theme.Radius.md, style: .continuous)
                         .stroke(
-                            isFailed ? AtlasTheme.Colors.failureAccent.opacity(0.5) : AtlasTheme.Colors.progress,
+                            isFailed ? Theme.Colors.failure.opacity(0.5) : Theme.Colors.progress,
                             lineWidth: 1.5
                         )
                 }
@@ -602,9 +602,9 @@ private struct RestTimerPanel: View {
     @ObservedObject var manager: RestTimerManager
 
     var body: some View {
-        VStack(alignment: .leading, spacing: AtlasTheme.Spacing.sm) {
+        VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
             Text("Rest Timer")
-                .font(AtlasTheme.Typography.sectionTitle)
+                .font(Theme.Typography.title)
             HStack {
                 Text(manager.label)
                     .font(.system(size: 32, weight: .bold, design: .rounded))
@@ -612,20 +612,20 @@ private struct RestTimerPanel: View {
                 Spacer(minLength: 0)
                 if manager.isRunning {
                     Button("Stop") { manager.stop() }
-                        .font(AtlasTheme.Typography.body)
+                        .font(Theme.Typography.body)
                         .foregroundStyle(.red)
                         .frame(minWidth: 64, minHeight: 44)
                 } else {
-                    HStack(spacing: AtlasTheme.Spacing.xs) {
+                    HStack(spacing: Theme.Spacing.xs) {
                         Button("1:30") { manager.start(totalSeconds: 90) }
                         Button("2:00") { manager.start(totalSeconds: 120) }
                     }
-                    .font(AtlasTheme.Typography.body)
-                    .foregroundStyle(AtlasTheme.Colors.accent)
+                    .font(Theme.Typography.body)
+                    .foregroundStyle(Theme.Colors.accent)
                 }
             }
         }
-        .atlasCardStyle()
+        .cardStyle()
     }
 }
 
@@ -639,31 +639,31 @@ struct EndWorkoutFeelingView: View {
 
     var body: some View {
         NavigationStack {
-            VStack(spacing: AtlasTheme.Spacing.lg) {
+            VStack(spacing: Theme.Spacing.lg) {
                 Text("How did this workout feel?")
-                    .font(AtlasTheme.Typography.sectionTitle)
-                HStack(spacing: AtlasTheme.Spacing.md) {
+                    .font(Theme.Typography.title)
+                HStack(spacing: Theme.Spacing.md) {
                     ForEach(1...5, id: \.self) { value in
                         Button("\(value)") {
                             session.overallFeeling = value
                             finishSession()
                         }
-                        .font(AtlasTheme.Typography.sectionTitle)
+                        .font(Theme.Typography.title)
                         .frame(width: 44, height: 44)
-                        .background(session.overallFeeling == value ? AtlasTheme.Colors.accent : AtlasTheme.Colors.background)
-                        .foregroundStyle(session.overallFeeling == value ? .white : AtlasTheme.Colors.textPrimary)
+                        .background(session.overallFeeling == value ? Theme.Colors.accent : Theme.Colors.background)
+                        .foregroundStyle(session.overallFeeling == value ? .white : Theme.Colors.textPrimary)
                         .clipShape(Circle())
-                        .overlay(Circle().stroke(AtlasTheme.Colors.border, lineWidth: 0.5))
+                        .overlay(Circle().stroke(Theme.Colors.border, lineWidth: 0.5))
                     }
                 }
                 Button("Skip") { finishSession() }
-                    .font(AtlasTheme.Typography.body)
-                    .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                    .font(Theme.Typography.body)
+                    .foregroundStyle(Theme.Colors.textSecondary)
                     .frame(minHeight: 44)
                 Spacer(minLength: 0)
             }
-            .padding(AtlasTheme.Spacing.md)
-            .background(AtlasTheme.Colors.background.ignoresSafeArea())
+            .padding(Theme.Spacing.md)
+            .background(Theme.Colors.background.ignoresSafeArea())
             .navigationBarTitleDisplayMode(.inline)
         }
     }
@@ -687,28 +687,28 @@ private struct FailureConfirmationSheet: View {
 
     var body: some View {
         NavigationStack {
-            VStack(spacing: AtlasTheme.Spacing.lg) {
+            VStack(spacing: Theme.Spacing.lg) {
                 Image(systemName: "exclamationmark.triangle.fill")
                     .font(.system(size: 40))
-                    .foregroundStyle(AtlasTheme.Colors.failureAccent)
+                    .foregroundStyle(Theme.Colors.failure)
                     .accessibilityHidden(true)
 
                 Text("You hit failure on \(exerciseName).")
-                    .font(AtlasTheme.Typography.sectionTitle)
+                    .font(Theme.Typography.title)
                     .multilineTextAlignment(.center)
 
-                VStack(spacing: AtlasTheme.Spacing.xs) {
+                VStack(spacing: Theme.Spacing.xs) {
                     Button {
                         onConfirm()
                         dismiss()
                     } label: {
                         Text("Log as Failure")
-                            .font(AtlasTheme.Typography.sectionTitle)
+                            .font(Theme.Typography.title)
                             .foregroundStyle(.white)
                             .frame(maxWidth: .infinity)
                             .frame(height: 52)
-                            .background(AtlasTheme.Colors.failureAccent)
-                            .clipShape(RoundedRectangle(cornerRadius: AtlasTheme.Radius.md, style: .continuous))
+                            .background(Theme.Colors.failure)
+                            .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.md, style: .continuous))
                     }
                     .buttonStyle(.plain)
 
@@ -717,16 +717,16 @@ private struct FailureConfirmationSheet: View {
                         dismiss()
                     } label: {
                         Text("Skip")
-                            .font(AtlasTheme.Typography.body)
-                            .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                            .font(Theme.Typography.body)
+                            .foregroundStyle(Theme.Colors.textSecondary)
                             .frame(maxWidth: .infinity)
                             .frame(height: 44)
                     }
                     .buttonStyle(.plain)
                 }
             }
-            .padding(AtlasTheme.Spacing.md)
-            .background(AtlasTheme.Colors.background.ignoresSafeArea())
+            .padding(Theme.Spacing.md)
+            .background(Theme.Colors.background.ignoresSafeArea())
             .navigationBarTitleDisplayMode(.inline)
         }
     }

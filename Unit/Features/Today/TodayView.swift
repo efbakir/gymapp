@@ -83,18 +83,18 @@ struct TodayView: View {
 
     private var dashboardContent: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: AtlasTheme.Spacing.md) {
+            VStack(alignment: .leading, spacing: Theme.Spacing.md) {
                 // Context card
                 contextCard
 
                 if !orderedTemplates.isEmpty {
-                    VStack(alignment: .leading, spacing: AtlasTheme.Spacing.xxs) {
+                    VStack(alignment: .leading, spacing: Theme.Spacing.xxs) {
                         Text("Quick Start")
-                            .font(AtlasTheme.Typography.sectionTitle)
-                            .padding(.top, AtlasTheme.Spacing.xs)
+                            .font(Theme.Typography.title)
+                            .padding(.top, Theme.Spacing.xs)
                         Text("Tap a day to begin instantly.")
-                            .font(AtlasTheme.Typography.caption)
-                            .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                            .font(Theme.Typography.caption)
+                            .foregroundStyle(Theme.Colors.textSecondary)
                     }
 
                     ForEach(orderedTemplates, id: \.id) { template in
@@ -110,16 +110,16 @@ struct TodayView: View {
                     }
                 } else {
                     Text("No day templates yet. Build your split in Program.")
-                        .font(AtlasTheme.Typography.body)
-                        .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                        .font(Theme.Typography.body)
+                        .foregroundStyle(Theme.Colors.textSecondary)
                         .frame(maxWidth: .infinity, alignment: .center)
                         .multilineTextAlignment(.center)
-                        .padding(.top, AtlasTheme.Spacing.xl)
+                        .padding(.top, Theme.Spacing.xl)
                 }
             }
-            .padding(AtlasTheme.Spacing.md)
+            .padding(Theme.Spacing.md)
         }
-        .background(AtlasTheme.Colors.background)
+        .background(Theme.Colors.background)
     }
 
     // MARK: - Context Card
@@ -175,23 +175,23 @@ private struct TrainingDayCard: View {
     let onStart: () -> Void
 
     var body: some View {
-        VStack(alignment: .leading, spacing: AtlasTheme.Spacing.sm) {
+        VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
             HStack {
-                VStack(alignment: .leading, spacing: AtlasTheme.Spacing.xxs) {
+                VStack(alignment: .leading, spacing: Theme.Spacing.xxs) {
                     Text("Compared to last \(templateName)")
-                        .font(AtlasTheme.Typography.caption)
-                        .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                        .font(Theme.Typography.caption)
+                        .foregroundStyle(Theme.Colors.textSecondary)
                     Text(templateName)
-                        .font(AtlasTheme.Typography.hero)
+                        .font(Theme.Typography.hero)
                 }
                 Spacer(minLength: 0)
                 Button(action: onStart) {
                     Label("Start Session", systemImage: "play.circle.fill")
-                        .font(AtlasTheme.Typography.sectionTitle)
+                        .font(Theme.Typography.title)
                         .foregroundStyle(.white)
-                        .padding(.horizontal, AtlasTheme.Spacing.md)
+                        .padding(.horizontal, Theme.Spacing.md)
                         .frame(height: 44)
-                        .background(AtlasTheme.Colors.accent)
+                        .background(Theme.Colors.accent)
                         .clipShape(Capsule())
                 }
                 .buttonStyle(.plain)
@@ -204,7 +204,7 @@ private struct TrainingDayCard: View {
                 }
             }
         }
-        .atlasCardStyle()
+        .cardStyle()
     }
 }
 
@@ -212,35 +212,35 @@ private struct ExerciseTargetRow: View {
     let target: ExerciseTarget
 
     var body: some View {
-        HStack(alignment: .top, spacing: AtlasTheme.Spacing.xs) {
+        HStack(alignment: .top, spacing: Theme.Spacing.xs) {
             Text(target.exerciseName)
-                .font(AtlasTheme.Typography.body)
+                .font(Theme.Typography.body)
                 .lineLimit(1)
                 .frame(maxWidth: .infinity, alignment: .leading)
 
             VStack(alignment: .trailing, spacing: 2) {
                 if let lastKg = target.lastWeightKg, let lastReps = target.lastReps {
                     Text("Last: \(lastKg.weightString)kg × \(lastReps)")
-                        .font(AtlasTheme.Typography.caption)
-                        .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                        .font(Theme.Typography.caption)
+                        .foregroundStyle(Theme.Colors.textSecondary)
                         .monospacedDigit()
                 }
-                HStack(spacing: AtlasTheme.Spacing.xxs) {
+                HStack(spacing: Theme.Spacing.xxs) {
                     Text("Today: \(target.weightKg.weightString)kg × \(target.reps)")
-                        .font(AtlasTheme.Typography.body)
+                        .font(Theme.Typography.body)
                         .monospacedDigit()
                     if target.deltaKg > 0 {
                         Text("+\(target.deltaKg.weightString)kg")
-                            .font(AtlasTheme.Typography.caption.weight(.semibold))
-                            .foregroundStyle(AtlasTheme.Colors.accent)
+                            .font(Theme.Typography.caption.weight(.semibold))
+                            .foregroundStyle(Theme.Colors.accent)
                             .padding(.horizontal, 5)
                             .padding(.vertical, 2)
-                            .background(AtlasTheme.Colors.accentSoft)
+                            .background(Theme.Colors.accentSoft)
                             .clipShape(Capsule())
                     } else if target.lastWeightKg != nil && target.deltaKg == 0 {
                         Text("=")
-                            .font(AtlasTheme.Typography.caption)
-                            .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                            .font(Theme.Typography.caption)
+                            .foregroundStyle(Theme.Colors.textSecondary)
                     }
                 }
             }
@@ -263,17 +263,17 @@ private struct RestDayCard: View {
     let wins: [SessionWin]
 
     var body: some View {
-        VStack(alignment: .leading, spacing: AtlasTheme.Spacing.sm) {
+        VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
             HStack(alignment: .top) {
-                VStack(alignment: .leading, spacing: AtlasTheme.Spacing.xxs) {
+                VStack(alignment: .leading, spacing: Theme.Spacing.xxs) {
                     Text("Rest Day")
-                        .font(AtlasTheme.Typography.caption)
-                        .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                        .font(Theme.Typography.caption)
+                        .foregroundStyle(Theme.Colors.textSecondary)
                     Text(nextSession)
-                        .font(AtlasTheme.Typography.hero)
+                        .font(Theme.Typography.hero)
                     Text(nextSessionTiming)
-                        .font(AtlasTheme.Typography.caption)
-                        .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                        .font(Theme.Typography.caption)
+                        .foregroundStyle(Theme.Colors.textSecondary)
                 }
                 Spacer(minLength: 0)
             }
@@ -281,17 +281,17 @@ private struct RestDayCard: View {
             if !wins.isEmpty {
                 Divider()
                 Text("Last session wins")
-                    .font(AtlasTheme.Typography.caption)
-                    .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                    .font(Theme.Typography.caption)
+                    .foregroundStyle(Theme.Colors.textSecondary)
                 ForEach(wins.prefix(3), id: \.exerciseName) { win in
                     HStack {
                         Text("+\(win.deltaKg.weightString)kg")
-                            .font(AtlasTheme.Typography.body.weight(.semibold))
-                            .foregroundStyle(AtlasTheme.Colors.accent)
+                            .font(Theme.Typography.body.weight(.semibold))
+                            .foregroundStyle(Theme.Colors.accent)
                             .monospacedDigit()
                         Text("·  \(win.exerciseName)")
-                            .font(AtlasTheme.Typography.body)
-                            .foregroundStyle(AtlasTheme.Colors.textPrimary)
+                            .font(Theme.Typography.body)
+                            .foregroundStyle(Theme.Colors.textPrimary)
                             .lineLimit(1)
                         Spacer(minLength: 0)
                     }
@@ -300,7 +300,7 @@ private struct RestDayCard: View {
                 }
             }
         }
-        .atlasCardStyle()
+        .cardStyle()
     }
 }
 
@@ -308,14 +308,14 @@ private struct RestDayCard: View {
 
 private struct NoCycleCard: View {
     var body: some View {
-        VStack(alignment: .leading, spacing: AtlasTheme.Spacing.xs) {
+        VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
             Text("No Active Cycle")
-                .font(AtlasTheme.Typography.sectionTitle)
+                .font(Theme.Typography.title)
             Text("Go to Program → tap the calendar icon to start an 8-week cycle and unlock auto-progression targets.")
-                .font(AtlasTheme.Typography.caption)
-                .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                .font(Theme.Typography.caption)
+                .foregroundStyle(Theme.Colors.textSecondary)
         }
-        .atlasCardStyle()
+        .cardStyle()
     }
 }
 
@@ -330,46 +330,46 @@ private struct DayCardView: View {
 
     var body: some View {
         Button(action: onStart) {
-            VStack(alignment: .leading, spacing: AtlasTheme.Spacing.sm) {
+            VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
                 HStack(alignment: .top) {
-                    VStack(alignment: .leading, spacing: AtlasTheme.Spacing.xxs) {
+                    VStack(alignment: .leading, spacing: Theme.Spacing.xxs) {
                         Text(title)
-                            .font(AtlasTheme.Typography.sectionTitle)
-                            .foregroundStyle(AtlasTheme.Colors.textPrimary)
+                            .font(Theme.Typography.title)
+                            .foregroundStyle(Theme.Colors.textPrimary)
                         Text(splitName)
-                            .font(AtlasTheme.Typography.caption)
-                            .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                            .font(Theme.Typography.caption)
+                            .foregroundStyle(Theme.Colors.textSecondary)
                     }
                     Spacer(minLength: 0)
                     Image(systemName: "play.circle.fill")
                         .font(.system(size: 26, weight: .semibold))
-                        .foregroundStyle(AtlasTheme.Colors.accent)
+                        .foregroundStyle(Theme.Colors.accent)
                 }
                 Divider()
                 HStack {
-                    VStack(alignment: .leading, spacing: AtlasTheme.Spacing.xxs) {
+                    VStack(alignment: .leading, spacing: Theme.Spacing.xxs) {
                         Text("Last performed")
-                            .font(AtlasTheme.Typography.caption)
-                            .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                            .font(Theme.Typography.caption)
+                            .foregroundStyle(Theme.Colors.textSecondary)
                         Text(lastPerformed)
-                            .font(AtlasTheme.Typography.body)
+                            .font(Theme.Typography.body)
                     }
                     Spacer(minLength: 0)
-                    VStack(alignment: .trailing, spacing: AtlasTheme.Spacing.xxs) {
+                    VStack(alignment: .trailing, spacing: Theme.Spacing.xxs) {
                         Text("Top lift")
-                            .font(AtlasTheme.Typography.caption)
-                            .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                            .font(Theme.Typography.caption)
+                            .foregroundStyle(Theme.Colors.textSecondary)
                         Text(topLift)
-                            .font(AtlasTheme.Typography.body)
+                            .font(Theme.Typography.body)
                             .multilineTextAlignment(.trailing)
                     }
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
-            .contentShape(RoundedRectangle(cornerRadius: AtlasTheme.Radius.lg, style: .continuous))
-            .atlasCardStyle()
+            .contentShape(RoundedRectangle(cornerRadius: Theme.Radius.lg, style: .continuous))
+            .cardStyle()
         }
-        .buttonStyle(AtlasScaleButtonStyle())
+        .buttonStyle(ScaleButtonStyle())
         .accessibilityHint("Starts workout with one tap")
     }
 }
@@ -513,7 +513,7 @@ final class TodayDashboardViewModel: ObservableObject {
 
 // MARK: - Button Style
 
-private struct AtlasScaleButtonStyle: ButtonStyle {
+private struct ScaleButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .scaleEffect(configuration.isPressed ? 0.985 : 1.0)

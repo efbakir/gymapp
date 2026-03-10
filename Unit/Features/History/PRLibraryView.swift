@@ -35,22 +35,22 @@ struct PRLibraryView: View {
             List {
                 if records.isEmpty {
                     Text("No PRs yet. Complete workouts to build your library.")
-                        .font(AtlasTheme.Typography.body)
-                        .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                        .font(Theme.Typography.body)
+                        .foregroundStyle(Theme.Colors.textSecondary)
                         .frame(minHeight: 44)
                 } else {
                     ForEach(records) { record in
                         HStack {
-                            VStack(alignment: .leading, spacing: AtlasTheme.Spacing.xxs) {
+                            VStack(alignment: .leading, spacing: Theme.Spacing.xxs) {
                                 Text(record.exerciseName)
-                                    .font(AtlasTheme.Typography.body)
+                                    .font(Theme.Typography.body)
                                 Text("Best set")
-                                    .font(AtlasTheme.Typography.caption)
-                                    .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                                    .font(Theme.Typography.caption)
+                                    .foregroundStyle(Theme.Colors.textSecondary)
                             }
                             Spacer(minLength: 0)
                             Text("\(record.weight.weightString) kg × \(record.reps)")
-                                .font(AtlasTheme.Typography.body)
+                                .font(Theme.Typography.body)
                                 .monospacedDigit()
                         }
                         .frame(minHeight: 44)

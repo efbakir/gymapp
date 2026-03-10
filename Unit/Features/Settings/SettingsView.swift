@@ -41,7 +41,7 @@ struct SettingsView: View {
                             Text("Default Increment")
                             Spacer()
                             Text("\(defaultIncrementKg.weightString) kg")
-                                .foregroundStyle(AtlasTheme.Colors.accent)
+                                .foregroundStyle(Theme.Colors.accent)
                                 .monospacedDigit()
                         }
                     }
@@ -57,7 +57,7 @@ struct SettingsView: View {
                         Text("Version")
                         Spacer()
                         Text("\(appVersion) (\(buildNumber))")
-                            .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                            .foregroundStyle(Theme.Colors.textSecondary)
                     }
                     .frame(minHeight: 44)
                 }
