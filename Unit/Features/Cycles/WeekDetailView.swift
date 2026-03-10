@@ -39,9 +39,17 @@ struct WeekDetailView: View {
                     .padding(.top, AtlasTheme.Spacing.xs)
 
                 if cycleRules.isEmpty {
-                    Text("No progression rules for this cycle.")
-                        .font(AtlasTheme.Typography.body)
-                        .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                    VStack(spacing: AtlasTheme.Spacing.sm) {
+                        Image(systemName: "slider.horizontal.3")
+                            .font(.system(size: 32, weight: .light))
+                            .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                        Text("No progression rules for this cycle.")
+                            .font(AtlasTheme.Typography.body)
+                            .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                            .multilineTextAlignment(.center)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, AtlasTheme.Spacing.xl)
                 } else {
                     ForEach(cycleRules, id: \.id) { rule in
                         exerciseCard(rule: rule)
@@ -84,11 +92,11 @@ struct WeekDetailView: View {
                 HStack {
                     Text("Target")
                         .font(AtlasTheme.Typography.caption)
-                        .foregroundStyle(AtlasTheme.Colors.ghostText)
+                        .foregroundStyle(AtlasTheme.Colors.textSecondary)
                     Spacer(minLength: 0)
                     Text("\(target.weightKg.weightString)kg × \(target.reps)")
                         .font(AtlasTheme.Typography.body)
-                        .foregroundStyle(AtlasTheme.Colors.ghostText)
+                        .foregroundStyle(AtlasTheme.Colors.textSecondary)
                         .monospacedDigit()
                 }
                 .accessibilityElement(children: .combine)

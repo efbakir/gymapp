@@ -45,7 +45,7 @@ struct AddTemplateView: View {
                         .foregroundStyle(.white)
                         .frame(maxWidth: .infinity)
                         .frame(height: 52)
-                        .background(canSave ? AtlasTheme.Colors.accent : Color.gray.opacity(0.35))
+                        .background(canSave ? AtlasTheme.Colors.accent : AtlasTheme.Colors.disabled)
                         .clipShape(RoundedRectangle(cornerRadius: AtlasTheme.Radius.md, style: .continuous))
                 }
                 .buttonStyle(.plain)

@@ -62,11 +62,17 @@ struct ExerciseProgressView: View {
                 if !sessionPoints.isEmpty {
                     sessionListCard
                 } else {
-                    Text("No data yet for \(exerciseName).")
-                        .font(AtlasTheme.Typography.body)
-                        .foregroundStyle(AtlasTheme.Colors.textSecondary)
-                        .frame(maxWidth: .infinity, alignment: .center)
-                        .padding(.top, AtlasTheme.Spacing.xl)
+                    VStack(spacing: AtlasTheme.Spacing.sm) {
+                        Image(systemName: "chart.line.uptrend.xyaxis")
+                            .font(.system(size: 32, weight: .light))
+                            .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                        Text("No data yet for \(exerciseName).")
+                            .font(AtlasTheme.Typography.body)
+                            .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                            .multilineTextAlignment(.center)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, AtlasTheme.Spacing.xl)
                 }
             }
             .padding(AtlasTheme.Spacing.md)

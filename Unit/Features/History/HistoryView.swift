@@ -9,6 +9,21 @@ import Charts
 import SwiftUI
 import SwiftData
 
+// MARK: - Day Cell State
+
+private enum DayCellState {
+    case none, completed, progressed, failed
+}
+
+// MARK: - Selected Day (for bottom sheet)
+
+private struct SelectedDay: Identifiable {
+    let id = UUID()
+    let session: WorkoutSession
+    let templateName: String
+    let exercises: [Exercise]
+}
+
 struct HistoryView: View {
     @Query(sort: \WorkoutSession.date, order: .reverse) private var sessions: [WorkoutSession]
     @Query(sort: \DayTemplate.name) private var templates: [DayTemplate]
@@ -17,6 +32,7 @@ struct HistoryView: View {
     @State private var searchText = ""
     @State private var selectedExercise: Exercise?
     @State private var showingAllPRs = false
+    @State private var selectedDay: SelectedDay?
 
     private var completedSessions: [WorkoutSession] {
         sessions.filter(\.isCompleted)
@@ -73,6 +89,9 @@ struct HistoryView: View {
             .sheet(isPresented: $showingAllPRs) {
                 PRLibraryView(sessions: completedSessions, exercises: exercises)
             }
+            .sheet(item: $selectedDay) { day in
+                DayDetailSheet(day: day)
+            }
         }
     }
 
@@ -82,9 +101,17 @@ struct HistoryView: View {
                 // Exercise filter results
                 Section("Exercises") {
                     if filteredExercises.isEmpty {
-                        Text("No exercises found.")
-                            .foregroundStyle(AtlasTheme.Colors.textSecondary)
-                            .frame(minHeight: 44)
+                        VStack(spacing: AtlasTheme.Spacing.sm) {
+                            Image(systemName: "magnifyingglass")
+                                .font(.system(size: 32, weight: .light))
+                                .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                            Text("No exercises found.")
+                                .font(AtlasTheme.Typography.body)
+                                .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                                .multilineTextAlignment(.center)
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, AtlasTheme.Spacing.xl)
                     } else {
                         ForEach(filteredExercises, id: \.id) { exercise in
                             Button {
@@ -103,12 +130,16 @@ struct HistoryView: View {
                         }
                     }
                 }
+                .listRowBackground(AtlasTheme.Colors.elevatedBackground)
             } else {
                 // Calendar heatmap
                 Section {
-                    CalendarHeatmap(sessions: completedSessions)
-                        .listRowInsets(EdgeInsets())
-                        .listRowBackground(Color.clear)
+                    CalendarHeatmap(sessions: completedSessions) { session in
+                        let name = templates.first(where: { $0.id == session.templateId })?.name ?? "Workout"
+                        selectedDay = SelectedDay(session: session, templateName: name, exercises: exercises)
+                    }
+                    .listRowInsets(EdgeInsets())
+                    .listRowBackground(Color.clear)
                 }
 
                 // Inline top PRs
@@ -148,14 +179,25 @@ struct HistoryView: View {
                     } header: {
                         Text("Personal Records")
                     }
+                    .listRowBackground(AtlasTheme.Colors.elevatedBackground)
                 }
 
                 // Session list
                 if completedSessions.isEmpty {
-                    Text("No completed sessions yet.")
-                        .font(AtlasTheme.Typography.body)
-                        .foregroundStyle(AtlasTheme.Colors.textSecondary)
-                        .frame(minHeight: 44)
+                    Section {
+                        VStack(spacing: AtlasTheme.Spacing.sm) {
+                            Image(systemName: "clock.arrow.trianglehead.counterclockwise.rotate.90")
+                                .font(.system(size: 32, weight: .light))
+                                .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                            Text("No completed sessions yet.")
+                                .font(AtlasTheme.Typography.body)
+                                .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                                .multilineTextAlignment(.center)
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, AtlasTheme.Spacing.xl)
+                    }
+                    .listRowBackground(AtlasTheme.Colors.elevatedBackground)
                 } else {
                     Section("Sessions") {
                         ForEach(completedSessions, id: \.id) { session in
@@ -164,10 +206,13 @@ struct HistoryView: View {
                             }
                         }
                     }
+                    .listRowBackground(AtlasTheme.Colors.elevatedBackground)
                 }
             }
         }
         .listStyle(.insetGrouped)
+        .scrollContentBackground(.hidden)
+        .background(AtlasTheme.Colors.background.ignoresSafeArea())
     }
 
     private func templateName(for templateID: UUID) -> String {
@@ -179,6 +224,7 @@ struct HistoryView: View {
 
 private struct CalendarHeatmap: View {
     let sessions: [WorkoutSession]
+    let onDayTap: (WorkoutSession) -> Void
 
     private let columns = Array(repeating: GridItem(.flexible(), spacing: 4), count: 7)
     private let dayHeaders = ["M", "T", "W", "T", "F", "S", "S"]
@@ -186,31 +232,41 @@ private struct CalendarHeatmap: View {
     private var calendarDays: [CalendarDay] {
         let cal = Calendar.current
         let today = cal.startOfDay(for: Date())
-        // 3 months back
         let start = cal.date(byAdding: .month, value: -2, to: today) ?? today
         let startOfWeek: Date = {
             let comps = cal.dateComponents([.yearForWeekOfYear, .weekOfYear], from: start)
             return cal.date(from: comps) ?? start
         }()
 
-        // Total tonnage per day for quick lookup
-        var tonnageByDay: [Date: Double] = [:]
+        // Map each day to its session (first completed session that day)
+        var sessionByDay: [Date: WorkoutSession] = [:]
         for session in sessions {
             let day = cal.startOfDay(for: session.date)
-            let t = session.setEntries.filter(\.isCompleted).reduce(0.0) { $0 + $1.weight * Double($1.reps) }
-            tonnageByDay[day, default: 0] += t
+            if sessionByDay[day] == nil {
+                sessionByDay[day] = session
+            }
         }
-
-        let maxTonnage = tonnageByDay.values.max() ?? 1
 
         var days: [CalendarDay] = []
         var current = startOfWeek
         while current <= today {
-            let tonnage = tonnageByDay[current] ?? 0
-            days.append(CalendarDay(date: current, tonnage: tonnage, maxTonnage: maxTonnage))
+            let session = sessionByDay[current]
+            let state = dayCellState(for: session)
+            days.append(CalendarDay(date: current, state: state, session: session))
             current = cal.date(byAdding: .day, value: 1, to: current) ?? current
         }
         return days
+    }
+
+    private func dayCellState(for session: WorkoutSession?) -> DayCellState {
+        guard let session else { return .none }
+        let sets = session.setEntries.filter { $0.isCompleted && !$0.isWarmup }
+        let hasTargetData = sets.contains { $0.targetWeight > 0 }
+        guard hasTargetData else { return .completed }
+        let hasFailure = sets.contains { $0.targetWeight > 0 && !$0.metTarget }
+        if hasFailure { return .failed }
+        let hasProgress = sets.contains { $0.metTarget }
+        return hasProgress ? .progressed : .completed
     }
 
     var body: some View {
@@ -227,14 +283,42 @@ private struct CalendarHeatmap: View {
 
             LazyVGrid(columns: columns, spacing: 4) {
                 ForEach(calendarDays) { day in
-                    RoundedRectangle(cornerRadius: 3, style: .continuous)
-                        .fill(day.fillColor)
-                        .aspectRatio(1, contentMode: .fit)
-                        .accessibilityLabel(day.accessibilityLabel)
+                    Button {
+                        if let session = day.session {
+                            onDayTap(session)
+                        }
+                    } label: {
+                        RoundedRectangle(cornerRadius: 3, style: .continuous)
+                            .fill(day.fillColor)
+                            .aspectRatio(1, contentMode: .fit)
+                    }
+                    .buttonStyle(.plain)
+                    .disabled(day.session == nil)
+                    .accessibilityLabel(day.accessibilityLabel)
                 }
             }
             .padding(.horizontal, AtlasTheme.Spacing.md)
             .padding(.vertical, AtlasTheme.Spacing.sm)
+
+            // Legend
+            HStack(spacing: AtlasTheme.Spacing.md) {
+                legendItem(color: AtlasTheme.Colors.accent, label: "Progressed")
+                legendItem(color: AtlasTheme.Colors.accent.opacity(0.3), label: "Completed")
+                legendItem(color: AtlasTheme.Colors.failureAccent.opacity(0.5), label: "Failed")
+            }
+            .padding(.horizontal, AtlasTheme.Spacing.md)
+            .padding(.bottom, AtlasTheme.Spacing.xs)
+        }
+    }
+
+    private func legendItem(color: Color, label: String) -> some View {
+        HStack(spacing: 4) {
+            RoundedRectangle(cornerRadius: 2)
+                .fill(color)
+                .frame(width: 10, height: 10)
+            Text(label)
+                .font(AtlasTheme.Typography.caption)
+                .foregroundStyle(AtlasTheme.Colors.textSecondary)
         }
     }
 }
@@ -242,26 +326,139 @@ private struct CalendarHeatmap: View {
 private struct CalendarDay: Identifiable {
     let id = UUID()
     let date: Date
-    let tonnage: Double
-    let maxTonnage: Double
-
-    var intensity: Double {
-        guard maxTonnage > 0, tonnage > 0 else { return 0 }
-        return min(tonnage / maxTonnage, 1)
-    }
+    let state: DayCellState
+    let session: WorkoutSession?
 
     var fillColor: Color {
-        if intensity == 0 { return Color(uiColor: .tertiarySystemFill) }
-        return AtlasTheme.Colors.accent.opacity(0.2 + intensity * 0.8)
+        switch state {
+        case .none:      return Color(uiColor: .tertiarySystemFill)
+        case .completed: return AtlasTheme.Colors.accent.opacity(0.3)
+        case .progressed: return AtlasTheme.Colors.accent
+        case .failed:    return AtlasTheme.Colors.failureAccent.opacity(0.5)
+        }
     }
 
     var accessibilityLabel: String {
         let fmt = DateFormatter()
         fmt.dateStyle = .medium
-        if tonnage > 0 {
-            return "\(fmt.string(from: date)): \(Int(tonnage))kg total volume"
+        let dateStr = fmt.string(from: date)
+        switch state {
+        case .none:       return "\(dateStr): no session"
+        case .completed:  return "\(dateStr): completed"
+        case .progressed: return "\(dateStr): progressed"
+        case .failed:     return "\(dateStr): failed or missed target"
         }
-        return "\(fmt.string(from: date)): rest day"
+    }
+}
+
+// MARK: - Day Detail Sheet
+
+private struct DayDetailSheet: View {
+    let day: SelectedDay
+    @Environment(\.dismiss) private var dismiss
+
+    private var sessionDateText: String {
+        let fmt = DateFormatter()
+        fmt.dateStyle = .medium
+        fmt.timeStyle = .short
+        return fmt.string(from: day.session.date)
+    }
+
+    private var progressedSets: [SetEntry] {
+        day.session.setEntries
+            .filter { $0.isCompleted && !$0.isWarmup && $0.metTarget }
+    }
+
+    private var failedSets: [SetEntry] {
+        day.session.setEntries
+            .filter { $0.isCompleted && !$0.isWarmup && $0.targetWeight > 0 && !$0.metTarget }
+    }
+
+    private func exerciseName(for id: UUID) -> String {
+        day.exercises.first(where: { $0.id == id })?.displayName ?? "Exercise"
+    }
+
+    var body: some View {
+        NavigationStack {
+            List {
+                Section {
+                    HStack {
+                        Text(day.templateName)
+                            .font(AtlasTheme.Typography.sectionTitle)
+                        Spacer()
+                        Text(sessionDateText)
+                            .font(AtlasTheme.Typography.caption)
+                            .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                    }
+                    .frame(minHeight: 44)
+                }
+                .listRowBackground(AtlasTheme.Colors.elevatedBackground)
+
+                if !progressedSets.isEmpty {
+                    Section("Hit Target") {
+                        ForEach(progressedSets, id: \.id) { entry in
+                            HStack {
+                                Text(exerciseName(for: entry.exerciseId))
+                                    .font(AtlasTheme.Typography.body)
+                                Spacer()
+                                Text("\(entry.weight.weightString)kg × \(entry.reps)")
+                                    .font(AtlasTheme.Typography.body)
+                                    .foregroundStyle(AtlasTheme.Colors.accent)
+                                    .monospacedDigit()
+                            }
+                            .frame(minHeight: 44)
+                        }
+                    }
+                    .listRowBackground(AtlasTheme.Colors.elevatedBackground)
+                }
+
+                if !failedSets.isEmpty {
+                    Section("Missed Target") {
+                        ForEach(failedSets, id: \.id) { entry in
+                            HStack {
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text(exerciseName(for: entry.exerciseId))
+                                        .font(AtlasTheme.Typography.body)
+                                    Text("Target: \(entry.targetWeight.weightString)kg × \(entry.targetReps)")
+                                        .font(AtlasTheme.Typography.caption)
+                                        .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                                        .monospacedDigit()
+                                }
+                                Spacer()
+                                Label("\(entry.weight.weightString)kg × \(entry.reps)", systemImage: "xmark.circle.fill")
+                                    .font(AtlasTheme.Typography.body)
+                                    .foregroundStyle(AtlasTheme.Colors.failureAccent)
+                                    .monospacedDigit()
+                            }
+                            .frame(minHeight: 44)
+                        }
+                    }
+                    .listRowBackground(AtlasTheme.Colors.elevatedBackground)
+                }
+
+                if progressedSets.isEmpty && failedSets.isEmpty {
+                    Section {
+                        Text("No progression data for this session.")
+                            .font(AtlasTheme.Typography.caption)
+                            .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                            .frame(minHeight: 44)
+                    }
+                    .listRowBackground(AtlasTheme.Colors.elevatedBackground)
+                }
+            }
+            .listStyle(.insetGrouped)
+            .scrollContentBackground(.hidden)
+            .background(AtlasTheme.Colors.background.ignoresSafeArea())
+            .navigationTitle("Session Detail")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("Done") { dismiss() }
+                }
+            }
+        }
+        .presentationDetents([.medium, .large])
+        .presentationBackground(AtlasTheme.Colors.background)
     }
 }
 

@@ -67,20 +67,20 @@ struct CyclesView: View {
     // MARK: - Empty State
 
     private var emptyCycleState: some View {
-        VStack(spacing: AtlasTheme.Spacing.lg) {
+        VStack(spacing: AtlasTheme.Spacing.sm) {
             Spacer()
             Image(systemName: "calendar.badge.clock")
-                .font(.system(size: 56, weight: .light))
+                .font(.system(size: 32, weight: .light))
                 .foregroundStyle(AtlasTheme.Colors.textSecondary)
                 .accessibilityHidden(true)
-            VStack(spacing: AtlasTheme.Spacing.xs) {
-                Text("No Active Cycle")
-                    .font(AtlasTheme.Typography.hero)
+            VStack(spacing: AtlasTheme.Spacing.sm) {
                 Text("Start an 8-week cycle to unlock auto-progression.\nThe app computes your targets every week.")
                     .font(AtlasTheme.Typography.body)
                     .foregroundStyle(AtlasTheme.Colors.textSecondary)
                     .multilineTextAlignment(.center)
             }
+            .frame(maxWidth: .infinity)
+            .padding(.bottom, AtlasTheme.Spacing.lg)
             Button {
                 showingCreateCycle = true
             } label: {
@@ -352,7 +352,7 @@ private struct ProjectedWeekSheet: View {
                                 Spacer(minLength: 0)
                                 Text("\(target.weightKg.weightString)kg × \(target.reps)")
                                     .font(AtlasTheme.Typography.body)
-                                    .foregroundStyle(AtlasTheme.Colors.ghostText)
+                                    .foregroundStyle(AtlasTheme.Colors.textSecondary)
                             }
                             .padding(.vertical, AtlasTheme.Spacing.xs)
                             Divider()

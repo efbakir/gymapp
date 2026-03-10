@@ -105,12 +105,14 @@ struct CreateCycleView: View {
                         }
                     }
                 }
+                .listRowBackground(AtlasTheme.Colors.elevatedBackground)
 
                 // Step 2: Name
                 Section("2. Cycle Name") {
                     TextField("e.g. PPL Cycle 1 — March 2026", text: $cycleName)
                         .frame(minHeight: 44)
                 }
+                .listRowBackground(AtlasTheme.Colors.elevatedBackground)
 
                 // Step 3: Start Date
                 Section("3. Start Date") {
@@ -118,6 +120,7 @@ struct CreateCycleView: View {
                         .datePickerStyle(.compact)
                         .frame(minHeight: 44)
                 }
+                .listRowBackground(AtlasTheme.Colors.elevatedBackground)
 
                 // Step 4: Global Increment
                 Section("4. Default Weekly Increment") {
@@ -136,6 +139,7 @@ struct CreateCycleView: View {
                     }
                     .frame(minHeight: 44)
                 }
+                .listRowBackground(AtlasTheme.Colors.elevatedBackground)
 
                 // Step 5: Per-exercise overrides (advanced, collapsed)
                 Section {
@@ -151,6 +155,7 @@ struct CreateCycleView: View {
                         }
                     }
                 }
+                .listRowBackground(AtlasTheme.Colors.elevatedBackground)
 
                 // Step 6: Goal awareness (optional)
                 Section {
@@ -202,7 +207,10 @@ struct CreateCycleView: View {
                         }
                     }
                 }
+                .listRowBackground(AtlasTheme.Colors.elevatedBackground)
             }
+            .scrollContentBackground(.hidden)
+            .background(AtlasTheme.Colors.background.ignoresSafeArea())
             .navigationTitle("New Cycle")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -214,7 +222,7 @@ struct CreateCycleView: View {
                         createCycle()
                     }
                     .font(AtlasTheme.Typography.body.weight(.semibold))
-                    .foregroundStyle(canCreate ? AtlasTheme.Colors.accent : Color.gray)
+                    .foregroundStyle(canCreate ? AtlasTheme.Colors.accent : AtlasTheme.Colors.textSecondary)
                     .disabled(!canCreate)
                 }
             }

@@ -9,7 +9,6 @@ import SwiftUI
 
 struct SettingsView: View {
     @AppStorage("unitSystem") private var unitSystem: String = "kg"
-    @AppStorage("defaultIncrementKg") private var defaultIncrementKg: Double = 2.5
 
     private var appVersion: String {
         Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "—"
@@ -30,27 +29,7 @@ struct SettingsView: View {
                     .pickerStyle(.segmented)
                     .frame(minHeight: 44)
                 }
-
-                Section {
-                    Stepper(
-                        value: $defaultIncrementKg,
-                        in: 0.5...10.0,
-                        step: 0.5
-                    ) {
-                        HStack {
-                            Text("Default Increment")
-                            Spacer()
-                            Text("\(defaultIncrementKg.weightString) kg")
-                                .foregroundStyle(AtlasTheme.Colors.accent)
-                                .monospacedDigit()
-                        }
-                    }
-                    .frame(minHeight: 44)
-                } header: {
-                    Text("Progression")
-                } footer: {
-                    Text("Applied to new cycles when no per-exercise override is set.")
-                }
+                .listRowBackground(AtlasTheme.Colors.elevatedBackground)
 
                 Section("About") {
                     HStack {
@@ -61,7 +40,10 @@ struct SettingsView: View {
                     }
                     .frame(minHeight: 44)
                 }
+                .listRowBackground(AtlasTheme.Colors.elevatedBackground)
             }
+            .scrollContentBackground(.hidden)
+            .background(AtlasTheme.Colors.background.ignoresSafeArea())
             .navigationTitle("Settings")
         }
     }

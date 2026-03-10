@@ -38,6 +38,7 @@ struct TemplatesView: View {
                         }
                         .padding(.vertical, AtlasTheme.Spacing.xs)
                     }
+                    .listRowBackground(AtlasTheme.Colors.elevatedBackground)
                 }
 
                 ForEach(splits, id: \.id) { split in
@@ -46,6 +47,7 @@ struct TemplatesView: View {
                     }
                 }
                 .onDelete(perform: deleteSplits)
+                .listRowBackground(AtlasTheme.Colors.elevatedBackground)
 
                 if !orphanTemplates.isEmpty {
                     Section("Unassigned Days") {
@@ -55,8 +57,11 @@ struct TemplatesView: View {
                             }
                         }
                     }
+                    .listRowBackground(AtlasTheme.Colors.elevatedBackground)
                 }
             }
+            .scrollContentBackground(.hidden)
+            .background(AtlasTheme.Colors.background.ignoresSafeArea())
             .navigationTitle("Program")
             .navigationDestination(for: Split.self) { split in
                 SplitDetailView(split: split)
@@ -72,19 +77,18 @@ struct TemplatesView: View {
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
-                        showingCycles = true
-                    } label: {
-                        Image(systemName: "calendar.badge.clock")
-                    }
-                    .accessibilityLabel("Manage training cycles")
-                }
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button {
                         showingAddSplit = true
                     } label: {
                         Image(systemName: "plus.circle.fill")
                     }
                     .accessibilityLabel("Add split")
+                }
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("Cycles") {
+                        showingCycles = true
+                    }
+                    .font(AtlasTheme.Typography.body)
+                    .accessibilityLabel("Manage training cycles")
                 }
             }
             .sheet(isPresented: $showingAddSplit) {
@@ -155,6 +159,7 @@ struct SplitDetailView: View {
                 TextField("Split", text: $split.name)
                     .frame(minHeight: 44)
             }
+            .listRowBackground(AtlasTheme.Colors.elevatedBackground)
 
             Section {
                 ForEach(orderedTemplates, id: \.id) { template in
@@ -180,7 +185,10 @@ struct SplitDetailView: View {
             } footer: {
                 Text("Open a day to reorder exercises.")
             }
+            .listRowBackground(AtlasTheme.Colors.elevatedBackground)
         }
+        .scrollContentBackground(.hidden)
+        .background(AtlasTheme.Colors.background.ignoresSafeArea())
         .navigationTitle(split.name)
         .navigationBarTitleDisplayMode(.inline)
         .navigationDestination(for: DayTemplate.self) { template in
@@ -263,7 +271,7 @@ private struct AddSplitView: View {
                         .foregroundStyle(.white)
                         .frame(maxWidth: .infinity)
                         .frame(height: 52)
-                        .background(canSave ? AtlasTheme.Colors.accent : Color.gray.opacity(0.35))
+                        .background(canSave ? AtlasTheme.Colors.accent : AtlasTheme.Colors.disabled)
                         .clipShape(RoundedRectangle(cornerRadius: AtlasTheme.Radius.md, style: .continuous))
                 }
                 .buttonStyle(.plain)

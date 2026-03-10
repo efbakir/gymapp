@@ -34,10 +34,20 @@ struct PRLibraryView: View {
         NavigationStack {
             List {
                 if records.isEmpty {
-                    Text("No PRs yet. Complete workouts to build your library.")
-                        .font(AtlasTheme.Typography.body)
-                        .foregroundStyle(AtlasTheme.Colors.textSecondary)
-                        .frame(minHeight: 44)
+                    Section {
+                        VStack(spacing: AtlasTheme.Spacing.sm) {
+                            Image(systemName: "trophy")
+                                .font(.system(size: 32, weight: .light))
+                                .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                            Text("No PRs yet. Complete workouts to build your library.")
+                                .font(AtlasTheme.Typography.body)
+                                .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                                .multilineTextAlignment(.center)
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, AtlasTheme.Spacing.xl)
+                    }
+                    .listRowBackground(AtlasTheme.Colors.elevatedBackground)
                 } else {
                     ForEach(records) { record in
                         HStack {
@@ -55,8 +65,11 @@ struct PRLibraryView: View {
                         }
                         .frame(minHeight: 44)
                     }
+                    .listRowBackground(AtlasTheme.Colors.elevatedBackground)
                 }
             }
+            .scrollContentBackground(.hidden)
+            .background(AtlasTheme.Colors.background.ignoresSafeArea())
             .navigationTitle("PR Library")
         }
     }

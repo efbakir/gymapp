@@ -11,7 +11,7 @@ import SwiftData
 // MARK: - HomeContext
 
 enum HomeContext {
-    case trainingDay(weekNumber: Int, templateName: String, targets: [ExerciseTarget])
+    case trainingDay(weekNumber: Int, templateName: String, targets: [ExerciseTarget], lastSessionDate: Date?)
     case restDay(nextSession: String, nextSessionTiming: String, wins: [SessionWin])
     case noCycle
 }
@@ -77,7 +77,7 @@ struct TodayView: View {
                     dashboardContent
                 }
             }
-            .navigationTitle("Home")
+            .navigationTitle("")
         }
     }
 
@@ -102,19 +102,23 @@ struct TodayView: View {
                         DayCardView(
                             title: template.name,
                             splitName: viewModel.splitName(for: template, in: splits),
-                            lastPerformed: viewModel.lastPerformedLabel(date: session?.date),
-                            topLift: viewModel.topLiftSummary(from: session, exercises: exercises)
+                            lastPerformed: viewModel.lastPerformedLabel(date: session?.date)
                         ) {
                             startWorkout(template)
                         }
                     }
                 } else {
-                    Text("No day templates yet. Build your split in Program.")
-                        .font(AtlasTheme.Typography.body)
-                        .foregroundStyle(AtlasTheme.Colors.textSecondary)
-                        .frame(maxWidth: .infinity, alignment: .center)
-                        .multilineTextAlignment(.center)
-                        .padding(.top, AtlasTheme.Spacing.xl)
+                    VStack(spacing: AtlasTheme.Spacing.sm) {
+                        Image(systemName: "list.bullet.rectangle")
+                            .font(.system(size: 32, weight: .light))
+                            .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                        Text("No day templates yet. Build your split in Program.")
+                            .font(AtlasTheme.Typography.body)
+                            .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                            .multilineTextAlignment(.center)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, AtlasTheme.Spacing.xl)
                 }
             }
             .padding(AtlasTheme.Spacing.md)
@@ -134,11 +138,9 @@ struct TodayView: View {
             exercises: exercises
         )
         switch ctx {
-        case .trainingDay(let week, let name, let targets):
-            TrainingDayCard(weekNumber: week, templateName: name, targets: targets) {
-                if let template = templates.first(where: { $0.name == name }) {
-                    startWorkout(template)
-                }
+        case .trainingDay(let week, let name, let targets, let lastDate):
+            TrainingDayCard(weekNumber: week, templateName: name, targets: targets, lastSessionDate: lastDate) {
+                startWorkout(named: name)
             }
         case .restDay(let next, let timing, let wins):
             RestDayCard(nextSession: next, nextSessionTiming: timing, wins: wins)
@@ -148,6 +150,11 @@ struct TodayView: View {
     }
 
     // MARK: - Actions
+
+    private func startWorkout(named name: String) {
+        guard let template = templates.first(where: { $0.name == name }) else { return }
+        startWorkout(template)
+    }
 
     private func startWorkout(_ template: DayTemplate) {
         let cycle = activeCycle
@@ -172,13 +179,23 @@ private struct TrainingDayCard: View {
     let weekNumber: Int
     let templateName: String
     let targets: [ExerciseTarget]
+    let lastSessionDate: Date?
     let onStart: () -> Void
+
+    @State private var showFullSession = false
+
+    private var subtitleLabel: String {
+        guard let date = lastSessionDate else { return templateName }
+        let fmt = DateFormatter()
+        fmt.dateFormat = "MMM d"
+        return "Last \(templateName) · \(fmt.string(from: date))"
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: AtlasTheme.Spacing.sm) {
             HStack {
                 VStack(alignment: .leading, spacing: AtlasTheme.Spacing.xxs) {
-                    Text("Compared to last \(templateName)")
+                    Text(subtitleLabel)
                         .font(AtlasTheme.Typography.caption)
                         .foregroundStyle(AtlasTheme.Colors.textSecondary)
                     Text(templateName)
@@ -186,7 +203,7 @@ private struct TrainingDayCard: View {
                 }
                 Spacer(minLength: 0)
                 Button(action: onStart) {
-                    Label("Start Session", systemImage: "play.circle.fill")
+                    Text("Start Session")
                         .font(AtlasTheme.Typography.sectionTitle)
                         .foregroundStyle(.white)
                         .padding(.horizontal, AtlasTheme.Spacing.md)
@@ -199,12 +216,45 @@ private struct TrainingDayCard: View {
 
             if !targets.isEmpty {
                 Divider()
-                ForEach(targets.prefix(3), id: \.exerciseName) { target in
+                ForEach(targets.prefix(2), id: \.exerciseName) { target in
                     ExerciseTargetRow(target: target)
+                }
+                if targets.count > 2 {
+                    Button {
+                        showFullSession = true
+                    } label: {
+                        Text("See full session (\(targets.count) exercises)")
+                            .font(AtlasTheme.Typography.caption)
+                            .foregroundStyle(AtlasTheme.Colors.accent)
+                            .frame(minHeight: 36)
+                    }
+                    .buttonStyle(.plain)
                 }
             }
         }
         .atlasCardStyle()
+        .sheet(isPresented: $showFullSession) {
+            NavigationStack {
+                List {
+                    ForEach(targets, id: \.exerciseName) { target in
+                        ExerciseTargetRow(target: target)
+                            .listRowBackground(AtlasTheme.Colors.elevatedBackground)
+                    }
+                }
+                .listStyle(.insetGrouped)
+                .scrollContentBackground(.hidden)
+                .background(AtlasTheme.Colors.background.ignoresSafeArea())
+                .navigationTitle(templateName)
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button("Done") { showFullSession = false }
+                    }
+                }
+            }
+            .presentationDetents([.medium, .large])
+            .presentationBackground(AtlasTheme.Colors.background)
+        }
     }
 }
 
@@ -311,7 +361,7 @@ private struct NoCycleCard: View {
         VStack(alignment: .leading, spacing: AtlasTheme.Spacing.xs) {
             Text("No Active Cycle")
                 .font(AtlasTheme.Typography.sectionTitle)
-            Text("Go to Program → tap the calendar icon to start an 8-week cycle and unlock auto-progression targets.")
+            Text("Go to Program → tap Cycles to start an 8-week cycle and unlock auto-progression targets.")
                 .font(AtlasTheme.Typography.caption)
                 .foregroundStyle(AtlasTheme.Colors.textSecondary)
         }
@@ -325,45 +375,24 @@ private struct DayCardView: View {
     let title: String
     let splitName: String
     let lastPerformed: String
-    let topLift: String
     let onStart: () -> Void
 
     var body: some View {
         Button(action: onStart) {
-            VStack(alignment: .leading, spacing: AtlasTheme.Spacing.sm) {
-                HStack(alignment: .top) {
-                    VStack(alignment: .leading, spacing: AtlasTheme.Spacing.xxs) {
-                        Text(title)
-                            .font(AtlasTheme.Typography.sectionTitle)
-                            .foregroundStyle(AtlasTheme.Colors.textPrimary)
-                        Text(splitName)
-                            .font(AtlasTheme.Typography.caption)
-                            .foregroundStyle(AtlasTheme.Colors.textSecondary)
-                    }
-                    Spacer(minLength: 0)
-                    Image(systemName: "play.circle.fill")
-                        .font(.system(size: 26, weight: .semibold))
-                        .foregroundStyle(AtlasTheme.Colors.accent)
+            HStack(alignment: .center) {
+                VStack(alignment: .leading, spacing: AtlasTheme.Spacing.xxs) {
+                    Text(title)
+                        .font(AtlasTheme.Typography.sectionTitle)
+                        .foregroundStyle(AtlasTheme.Colors.textPrimary)
+                    Text(splitName)
+                        .font(AtlasTheme.Typography.caption)
+                        .foregroundStyle(AtlasTheme.Colors.textSecondary)
                 }
-                Divider()
-                HStack {
-                    VStack(alignment: .leading, spacing: AtlasTheme.Spacing.xxs) {
-                        Text("Last performed")
-                            .font(AtlasTheme.Typography.caption)
-                            .foregroundStyle(AtlasTheme.Colors.textSecondary)
-                        Text(lastPerformed)
-                            .font(AtlasTheme.Typography.body)
-                    }
-                    Spacer(minLength: 0)
-                    VStack(alignment: .trailing, spacing: AtlasTheme.Spacing.xxs) {
-                        Text("Top lift")
-                            .font(AtlasTheme.Typography.caption)
-                            .foregroundStyle(AtlasTheme.Colors.textSecondary)
-                        Text(topLift)
-                            .font(AtlasTheme.Typography.body)
-                            .multilineTextAlignment(.trailing)
-                    }
-                }
+                Spacer(minLength: 0)
+                Text(lastPerformed)
+                    .font(AtlasTheme.Typography.caption)
+                    .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                    .multilineTextAlignment(.trailing)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .contentShape(RoundedRectangle(cornerRadius: AtlasTheme.Radius.lg, style: .continuous))
@@ -435,7 +464,7 @@ final class TodayDashboardViewModel: ObservableObject {
             )
         }
 
-        return .trainingDay(weekNumber: weekNum, templateName: template.name, targets: targets)
+        return .trainingDay(weekNumber: weekNum, templateName: template.name, targets: targets, lastSessionDate: lastSession?.date)
     }
 
     private func restDayContext(

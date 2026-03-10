@@ -28,6 +28,7 @@ struct TemplateDetailView: View {
                     .font(AtlasTheme.Typography.body)
                     .frame(minHeight: 44)
             }
+            .listRowBackground(AtlasTheme.Colors.elevatedBackground)
 
             Section {
                 ForEach(Array(orderedExercises.enumerated()), id: \.element.id) { index, exercise in
@@ -64,7 +65,10 @@ struct TemplateDetailView: View {
             } footer: {
                 Text("Drag and drop to reorder. Search matches display name and aliases.")
             }
+            .listRowBackground(AtlasTheme.Colors.elevatedBackground)
         }
+        .scrollContentBackground(.hidden)
+        .background(AtlasTheme.Colors.background.ignoresSafeArea())
         .navigationTitle(template.name)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
@@ -166,6 +170,7 @@ struct AddExerciseToTemplateView: View {
                 } header: {
                     Text("Results")
                 }
+                .listRowBackground(AtlasTheme.Colors.elevatedBackground)
 
                 if !trimmedQuery.isEmpty && !hasExactNameMatch {
                     Section("Create") {
@@ -179,8 +184,11 @@ struct AddExerciseToTemplateView: View {
                                 .frame(minHeight: 44)
                         }
                     }
+                    .listRowBackground(AtlasTheme.Colors.elevatedBackground)
                 }
             }
+            .scrollContentBackground(.hidden)
+            .background(AtlasTheme.Colors.background.ignoresSafeArea())
             .navigationTitle("Add Exercise")
             .navigationBarTitleDisplayMode(.inline)
             .searchable(text: $query, prompt: "Search by name or alias")

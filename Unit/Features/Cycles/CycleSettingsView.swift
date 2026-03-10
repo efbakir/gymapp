@@ -30,6 +30,7 @@ struct CycleSettingsView: View {
                     TextField("Name", text: $cycle.name)
                         .frame(minHeight: 44)
                 }
+                .listRowBackground(AtlasTheme.Colors.elevatedBackground)
 
                 Section("Defaults") {
                     Stepper(
@@ -47,6 +48,7 @@ struct CycleSettingsView: View {
                     }
                     .frame(minHeight: 44)
                 }
+                .listRowBackground(AtlasTheme.Colors.elevatedBackground)
 
                 if !cycleRules.isEmpty {
                     Section {
@@ -63,6 +65,7 @@ struct CycleSettingsView: View {
                     } footer: {
                         Text("Changing base weight recalculates all future week targets.")
                     }
+                    .listRowBackground(AtlasTheme.Colors.elevatedBackground)
                 }
 
                 Section("Danger Zone") {
@@ -85,7 +88,10 @@ struct CycleSettingsView: View {
                         Text("This resets all failure counts and deload flags. Logged sessions are preserved.")
                     }
                 }
+                .listRowBackground(AtlasTheme.Colors.elevatedBackground)
             }
+            .scrollContentBackground(.hidden)
+            .background(AtlasTheme.Colors.background.ignoresSafeArea())
             .navigationTitle("Cycle Settings")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

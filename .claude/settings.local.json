@@ -22,7 +22,21 @@
       "Bash(sed -n '315,325p' /Users/efbakir/gymapp/AtlasLog.xcodeproj/project.pbxproj)",
       "Bash(sed -n '600,620p' /Users/efbakir/gymapp/AtlasLog.xcodeproj/project.pbxproj)",
       "Bash(git reset HEAD .claude/settings.local.json)",
-      "Bash(ls /Users/efbakir/gymapp/*.xcodeproj)"
+      "Bash(ls /Users/efbakir/gymapp/*.xcodeproj)",
+      "Read(//Users/efbakir/**)",
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); mcps=d.get\\(''mcpServers'',{}\\); [print\\(k\\) for k in mcps]\")",
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); paper=d.get\\(''mcpServers'',{}\\).get\\(''paper'',{}\\); print\\(json.dumps\\(paper, indent=2\\)\\)\")",
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\(json.dumps\\(d.get\\(''mcpServers'',{}\\), indent=2\\)\\)\")",
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\(json.dumps\\(d.get\\(''mcpServers'',{}\\).get\\(''paper'',{}\\), indent=2\\)\\)\")",
+      "Bash(curl -s http://127.0.0.1:29979/mcp)",
+      "Bash(xcrun simctl:*)",
+      "mcp__paper__get_basic_info",
+      "Bash(ls:*)",
+      "Bash(open:*)",
+      "Bash(osascript:*)",
+      "mcp__figma__get_metadata",
+      "mcp__figma__get_design_context",
+      "mcp__figma__get_screenshot"
     ]
   }
 }

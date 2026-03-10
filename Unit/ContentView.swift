@@ -1,4 +1,4 @@
-//
+ //
 //  ContentView.swift
 //  Unit
 //
@@ -46,9 +46,9 @@ enum AtlasTheme {
     }
 
     enum Radius {
-        static let sm: CGFloat = 10
-        static let md: CGFloat = 14
-        static let lg: CGFloat = 18
+        static let sm: CGFloat = 6
+        static let md: CGFloat = 10
+        static let lg: CGFloat = 12
     }
 
     enum Colors {
@@ -57,22 +57,20 @@ enum AtlasTheme {
         static let accentSoft = Color(red: 1.0, green: 0.267, blue: 0.0).opacity(0.12)
 
         // Dark surfaces — softened near-black with subtle blue-grey tone (not pure black)
-        /// Page background: #111318
-        static let background = Color(red: 0.067, green: 0.075, blue: 0.094)
-        /// Elevated context (grouped sections, sheets): #1A1D25
-        static let elevatedBackground = Color(red: 0.102, green: 0.114, blue: 0.145)
-        /// Card surface — fills contrast background without shadows: #252831
-        static let card = Color(red: 0.145, green: 0.157, blue: 0.192)
+        /// Page background: #0A0A0A
+        static let background = Color(red: 0.039, green: 0.039, blue: 0.039)
+        /// Elevated context (grouped sections, sheets): #0E1420
+        static let elevatedBackground = Color(red: 0.055, green: 0.078, blue: 0.125)
+        /// Card surface — fills contrast background without shadows: #141C2E
+        static let card = Color(red: 0.078, green: 0.110, blue: 0.180)
 
         /// Fixed for dark-only UI — does not depend on ColorScheme resolution
         static let textPrimary = Color(white: 0.92)
         static let textSecondary = Color(white: 0.55)
+        static let disabled = Color(white: 0.22)
 
         /// Separator for input field borders (sparse use only)
         static let border = Color(white: 1.0, opacity: 0.12)
-
-        /// Ghost / target text: read-only engine values
-        static let ghostText = Color(white: 0.55)
 
         /// Progress / PR accent: slightly darker orange for dense chart contexts
         static let progress = Color(red: 0.84, green: 0.33, blue: 0.0)

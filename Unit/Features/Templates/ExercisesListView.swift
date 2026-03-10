@@ -51,7 +51,10 @@ struct ExercisesListView: View {
                 }
             }
             .onDelete(perform: deleteExercises)
+            .listRowBackground(AtlasTheme.Colors.elevatedBackground)
         }
+        .scrollContentBackground(.hidden)
+        .background(AtlasTheme.Colors.background.ignoresSafeArea())
         .navigationTitle("Exercises")
         .navigationDestination(for: Exercise.self) { exercise in
             ExerciseDetailView(exercise: exercise)
@@ -107,7 +110,10 @@ struct AddExerciseView: View {
                     Toggle("Bodyweight", isOn: $isBodyweight)
                         .frame(minHeight: 44)
                 }
+                .listRowBackground(AtlasTheme.Colors.elevatedBackground)
             }
+            .scrollContentBackground(.hidden)
+            .background(AtlasTheme.Colors.background.ignoresSafeArea())
             .navigationTitle("New Exercise")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
