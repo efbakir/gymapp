@@ -25,25 +25,25 @@ struct TemplateDetailView: View {
         List {
             Section("Day") {
                 TextField("Template name", text: $template.name)
-                    .font(Theme.Typography.body)
+                    .font(AtlasTheme.Typography.body)
                     .frame(minHeight: 44)
             }
             .listRowBackground(AtlasTheme.Colors.elevatedBackground)
 
             Section {
                 ForEach(Array(orderedExercises.enumerated()), id: \.element.id) { index, exercise in
-                    HStack(spacing: Theme.Spacing.sm) {
+                    HStack(spacing: AtlasTheme.Spacing.sm) {
                         Text("\(index + 1).")
-                            .font(Theme.Typography.caption)
-                            .foregroundStyle(Theme.Colors.textSecondary)
+                            .font(AtlasTheme.Typography.caption)
+                            .foregroundStyle(AtlasTheme.Colors.textSecondary)
                             .frame(width: 24, alignment: .leading)
-                        VStack(alignment: .leading, spacing: Theme.Spacing.xxs) {
+                        VStack(alignment: .leading, spacing: AtlasTheme.Spacing.xxs) {
                             Text(exercise.displayName)
-                                .font(Theme.Typography.body)
+                                .font(AtlasTheme.Typography.body)
                             if !exercise.aliases.isEmpty {
                                 Text(exercise.aliases.joined(separator: ", "))
-                                    .font(Theme.Typography.caption)
-                                    .foregroundStyle(Theme.Colors.textSecondary)
+                                    .font(AtlasTheme.Typography.caption)
+                                    .foregroundStyle(AtlasTheme.Colors.textSecondary)
                             }
                         }
                     }
@@ -56,10 +56,10 @@ struct TemplateDetailView: View {
                     showingAddExercise = true
                 } label: {
                     Label("Add Exercise", systemImage: "plus.circle.fill")
-                        .font(Theme.Typography.title)
+                        .font(AtlasTheme.Typography.sectionTitle)
                         .frame(minHeight: 44)
                 }
-                .foregroundStyle(Theme.Colors.accent)
+                .foregroundStyle(AtlasTheme.Colors.accent)
             } header: {
                 Text("Exercises")
             } footer: {
@@ -141,20 +141,20 @@ struct AddExerciseToTemplateView: View {
                         Button {
                             addExercise(exercise)
                         } label: {
-                            HStack(spacing: Theme.Spacing.sm) {
-                                VStack(alignment: .leading, spacing: Theme.Spacing.xxs) {
+                            HStack(spacing: AtlasTheme.Spacing.sm) {
+                                VStack(alignment: .leading, spacing: AtlasTheme.Spacing.xxs) {
                                     Text(exercise.displayName)
-                                        .font(Theme.Typography.body)
-                                        .foregroundStyle(Theme.Colors.textPrimary)
+                                        .font(AtlasTheme.Typography.body)
+                                        .foregroundStyle(AtlasTheme.Colors.textPrimary)
                                     if !exercise.aliases.isEmpty {
                                         Text(exercise.aliases.joined(separator: " • "))
-                                            .font(Theme.Typography.caption)
-                                            .foregroundStyle(Theme.Colors.textSecondary)
+                                            .font(AtlasTheme.Typography.caption)
+                                            .foregroundStyle(AtlasTheme.Colors.textSecondary)
                                     }
                                 }
                                 Spacer()
                                 Image(systemName: "plus")
-                                    .foregroundStyle(Theme.Colors.accent)
+                                    .foregroundStyle(AtlasTheme.Colors.accent)
                             }
                             .frame(minHeight: 44)
                         }
@@ -163,8 +163,8 @@ struct AddExerciseToTemplateView: View {
 
                     if filteredExercises.isEmpty {
                         Text("No matching exercises")
-                            .font(Theme.Typography.caption)
-                            .foregroundStyle(Theme.Colors.textSecondary)
+                            .font(AtlasTheme.Typography.caption)
+                            .foregroundStyle(AtlasTheme.Colors.textSecondary)
                             .frame(minHeight: 44)
                     }
                 } header: {
@@ -180,7 +180,7 @@ struct AddExerciseToTemplateView: View {
                             createAndAdd()
                         } label: {
                             Label("Create \"\(trimmedQuery)\"", systemImage: "plus.circle.fill")
-                                .foregroundStyle(Theme.Colors.accent)
+                                .foregroundStyle(AtlasTheme.Colors.accent)
                                 .frame(minHeight: 44)
                         }
                     }

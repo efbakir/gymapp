@@ -158,6 +158,9 @@ struct ActiveWorkoutView: View {
             )
             .presentationDetents([.height(280)])
         }
+        .onDisappear {
+            restTimer.stop()
+        }
     }
 
     // MARK: - Rest Timer Strip
@@ -927,13 +930,20 @@ final class RestTimerManager {
         activity = try? Activity<RestTimerAttributes>.request(attributes: attributes, content: content, pushType: nil)
 
         task = Task { [weak self] in
-            guard let self else { return }
-            while self.secondsRemaining > 0 {
+            while !Task.isCancelled {
+                guard let manager = self else { return }
+                guard manager.secondsRemaining > 0 else {
+                    manager.completeIfFinished()
+                    return
+                }
+
                 try? await Task.sleep(for: .seconds(1))
-                if Task.isCancelled { break }
-                self.secondsRemaining -= 1
+
+                if Task.isCancelled { return }
+
+                guard let manager = self else { return }
+                manager.secondsRemaining -= 1
             }
-            self.completeIfFinished()
         }
     }
 
@@ -960,8 +970,6 @@ final class RestTimerManager {
         Task { await activity.end(nil, dismissalPolicy: dismissalPolicy) }
         self.activity = nil
     }
-
-    deinit { task?.cancel() }
 }
 
 #Preview {

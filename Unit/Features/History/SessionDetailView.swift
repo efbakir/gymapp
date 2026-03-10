@@ -29,13 +29,13 @@ struct SessionDetailView: View {
         List {
             Section {
                 Text(templateName)
-                    .font(Theme.Typography.title)
+                    .font(AtlasTheme.Typography.sectionTitle)
                 Text(session.date, style: .date)
-                    .font(Theme.Typography.caption)
-                    .foregroundStyle(Theme.Colors.textSecondary)
+                    .font(AtlasTheme.Typography.caption)
+                    .foregroundStyle(AtlasTheme.Colors.textSecondary)
                 Text(session.date, style: .time)
-                    .font(Theme.Typography.caption)
-                    .foregroundStyle(Theme.Colors.textSecondary)
+                    .font(AtlasTheme.Typography.caption)
+                    .foregroundStyle(AtlasTheme.Colors.textSecondary)
             }
             .listRowBackground(AtlasTheme.Colors.elevatedBackground)
 
@@ -44,15 +44,15 @@ struct SessionDetailView: View {
                     ForEach(section.entries, id: \.id) { entry in
                         HStack {
                             Text("Set \(entry.setIndex + 1)")
-                                .font(Theme.Typography.caption)
-                                .foregroundStyle(Theme.Colors.textSecondary)
+                                .font(AtlasTheme.Typography.caption)
+                                .foregroundStyle(AtlasTheme.Colors.textSecondary)
                             Text("\(formatWeight(entry.weight)) kg × \(entry.reps)")
-                                .font(Theme.Typography.body)
+                                .font(AtlasTheme.Typography.body)
                             Spacer(minLength: 0)
                             if entry.rpe > 0 {
                                 Text("RPE \(formatWeight(entry.rpe))")
-                                    .font(Theme.Typography.caption)
-                                    .foregroundStyle(Theme.Colors.textSecondary)
+                                    .font(AtlasTheme.Typography.caption)
+                                    .foregroundStyle(AtlasTheme.Colors.textSecondary)
                             }
                         }
                         .frame(minHeight: 44)
@@ -70,10 +70,10 @@ struct SessionDetailView: View {
                         Spacer(minLength: 0)
                         if session.overallFeeling > 0 {
                             Text("\(session.overallFeeling)/5")
-                                .foregroundStyle(Theme.Colors.accent)
+                                .foregroundStyle(AtlasTheme.Colors.accent)
                         } else {
                             Text("Tap to set")
-                                .foregroundStyle(Theme.Colors.textSecondary)
+                                .foregroundStyle(AtlasTheme.Colors.textSecondary)
                         }
                     }
                     .frame(minHeight: 44)
@@ -101,29 +101,29 @@ private struct FeelingPickerView: View {
 
     var body: some View {
         NavigationStack {
-            VStack(spacing: Theme.Spacing.lg) {
+            VStack(spacing: AtlasTheme.Spacing.lg) {
                 Text("How did this workout feel?")
-                    .font(Theme.Typography.title)
+                    .font(AtlasTheme.Typography.sectionTitle)
 
-                HStack(spacing: Theme.Spacing.md) {
+                HStack(spacing: AtlasTheme.Spacing.md) {
                     ForEach(1...5, id: \.self) { value in
                         Button("\(value)") {
                             session.overallFeeling = value
                             try? modelContext.save()
                             dismiss()
                         }
-                        .font(Theme.Typography.title)
+                        .font(AtlasTheme.Typography.sectionTitle)
                         .frame(width: 44, height: 44)
-                        .background(session.overallFeeling == value ? Theme.Colors.accent : Theme.Colors.background)
-                        .foregroundStyle(session.overallFeeling == value ? .white : Theme.Colors.textPrimary)
+                        .background(session.overallFeeling == value ? AtlasTheme.Colors.accent : AtlasTheme.Colors.background)
+                        .foregroundStyle(session.overallFeeling == value ? .white : AtlasTheme.Colors.textPrimary)
                         .clipShape(Circle())
                     }
                 }
 
                 Spacer(minLength: 0)
             }
-            .padding(Theme.Spacing.md)
-            .background(Theme.Colors.background.ignoresSafeArea())
+            .padding(AtlasTheme.Spacing.md)
+            .background(AtlasTheme.Colors.background.ignoresSafeArea())
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {

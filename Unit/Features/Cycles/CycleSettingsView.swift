@@ -42,7 +42,7 @@ struct CycleSettingsView: View {
                             Text("Global Increment")
                             Spacer()
                             Text("\(cycle.globalIncrementKg.weightString) kg/week")
-                                .foregroundStyle(Theme.Colors.accent)
+                                .foregroundStyle(AtlasTheme.Colors.accent)
                                 .monospacedDigit()
                         }
                     }
@@ -138,9 +138,9 @@ private struct ExerciseWeightRow: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
+        VStack(alignment: .leading, spacing: AtlasTheme.Spacing.xs) {
             Text(exerciseName)
-                .font(Theme.Typography.body)
+                .font(AtlasTheme.Typography.body)
 
             Stepper(
                 value: $rule.baseWeightKg,
@@ -149,11 +149,11 @@ private struct ExerciseWeightRow: View {
             ) {
                 HStack {
                     Text("Base")
-                        .font(Theme.Typography.caption)
-                        .foregroundStyle(Theme.Colors.textSecondary)
+                        .font(AtlasTheme.Typography.caption)
+                        .foregroundStyle(AtlasTheme.Colors.textSecondary)
                     Spacer()
                     Text("\(rule.baseWeightKg.weightString)kg")
-                        .font(Theme.Typography.body)
+                        .font(AtlasTheme.Typography.body)
                         .monospacedDigit()
                 }
             }
@@ -161,10 +161,10 @@ private struct ExerciseWeightRow: View {
 
             // Inline preview
             Text("Next target: \(nextWeight.weightString)kg  ·  was \(previousWeight.weightString)kg")
-                .font(Theme.Typography.caption)
-                .foregroundStyle(Theme.Colors.accent)
+                .font(AtlasTheme.Typography.caption)
+                .foregroundStyle(AtlasTheme.Colors.accent)
                 .monospacedDigit()
         }
-        .padding(.vertical, Theme.Spacing.xxs)
+        .padding(.vertical, AtlasTheme.Spacing.xxs)
     }
 }
