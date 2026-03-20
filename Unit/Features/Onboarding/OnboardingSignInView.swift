@@ -14,53 +14,53 @@ struct OnboardingSignInView: View {
 
     var body: some View {
         ZStack {
-            AtlasTheme.Colors.background.ignoresSafeArea()
+            AppColor.background.ignoresSafeArea()
 
             VStack(spacing: 0) {
                 Spacer()
 
-                VStack(alignment: .leading, spacing: AtlasTheme.Spacing.sm) {
-                    Image(systemName: "icloud.fill")
-                        .font(.system(size: 36))
-                        .foregroundStyle(AtlasTheme.Colors.textSecondary)
-                        .padding(.bottom, AtlasTheme.Spacing.xs)
+                VStack(alignment: .leading, spacing: AppSpacing.sm) {
+                    AppIcon.cloud.image(size: 36, weight: .semibold)
+                        .foregroundStyle(AppColor.textSecondary)
+                        .padding(.bottom, AppSpacing.sm)
 
                     Text("Save your cycle to iCloud")
-                        .font(AtlasTheme.Typography.hero)
-                        .foregroundStyle(AtlasTheme.Colors.textPrimary)
+                        .font(AppFont.largeTitle.font)
+                        .foregroundStyle(AppColor.textPrimary)
 
                     Text("Your program and progress sync across devices automatically with Sign in with Apple.")
-                        .font(AtlasTheme.Typography.body)
-                        .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                        .font(AppFont.body.font)
+                        .foregroundStyle(AppColor.textSecondary)
                         .lineSpacing(4)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.horizontal, AtlasTheme.Spacing.xl)
+                .padding(.horizontal, AppSpacing.xl)
 
                 Spacer()
 
-                VStack(spacing: AtlasTheme.Spacing.md) {
-                    // Sign in with Apple (system button)
+                VStack(spacing: AppSpacing.md) {
                     SignInWithAppleButton(.signIn) { request in
                         request.requestedScopes = []
                     } onCompletion: { result in
-                        // Auth handling would go here in a real implementation
                         onFinish()
                     }
-                    .signInWithAppleButtonStyle(.white)
-                    .frame(height: 52)
-                    .clipShape(RoundedRectangle(cornerRadius: AtlasTheme.Radius.lg, style: .continuous))
-                    .padding(.horizontal, AtlasTheme.Spacing.xl)
+                    .signInWithAppleButtonStyle(.black)
+                    .frame(height: 50)
+                    .clipShape(RoundedRectangle(cornerRadius: AppRadius.md, style: .continuous))
+                    .padding(.horizontal, AppSpacing.xl)
 
-                    // Skip link
-                    Button(action: onFinish) {
-                        Text("Skip for now")
-                            .font(AtlasTheme.Typography.body)
-                            .foregroundStyle(AtlasTheme.Colors.textSecondary)
-                            .frame(height: 44)
+                    VStack(spacing: AppSpacing.sm) {
+                        AppSecondaryButton("Skip for now") {
+                            onFinish()
+                        }
+                        .padding(.horizontal, AppSpacing.xl)
+
+                        Text("Your cycle is saved on this device.")
+                            .font(AppFont.caption.font)
+                            .foregroundStyle(AppColor.textSecondary)
                     }
                 }
-                .padding(.bottom, AtlasTheme.Spacing.xxxl)
+                .padding(.bottom, AppSpacing.xl)
             }
         }
         .toolbar(.hidden, for: .navigationBar)
@@ -69,5 +69,4 @@ struct OnboardingSignInView: View {
 
 #Preview {
     OnboardingSignInView { }
-        .preferredColorScheme(.dark)
 }

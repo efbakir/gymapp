@@ -7,11 +7,16 @@
 
 import SwiftUI
 import SwiftData
+import OSLog
 
 @main
 struct UnitApp: App {
-    var sharedModelContainer: ModelContainer = {
-        let schema = Schema([
+    private static let logger = Logger(
+        subsystem: Bundle.main.bundleIdentifier ?? "com.atlaslog.app",
+        category: "SwiftData"
+    )
+
+    private static let schema = Schema([
             Split.self,
             Exercise.self,
             DayTemplate.self,
@@ -20,22 +25,75 @@ struct UnitApp: App {
             Cycle.self,
             ProgressionRule.self
         ])
-        let modelConfiguration = ModelConfiguration(
-            schema: schema,
-            isStoredInMemoryOnly: false
-        )
+
+    var sharedModelContainer: ModelContainer = Self.makeSharedModelContainer()
+
+    private static func makeSharedModelContainer() -> ModelContainer {
+        let isRunningPreviews = ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1"
+        if isRunningPreviews {
+            return makeInMemoryContainer(orDieWith: "Could not create preview ModelContainer.")
+        }
+
         do {
-            return try ModelContainer(for: schema, configurations: [modelConfiguration])
+            let storeURL = try persistentStoreURL()
+            let configuration = ModelConfiguration(schema: schema, url: storeURL)
+            return try makePersistentContainer(configuration: configuration)
         } catch {
-            assertionFailure("Persistent ModelContainer failed: \(error)")
-            let memoryConfig = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
+            logger.error("Persistent ModelContainer failed. Falling back to in-memory store. Error: \(String(describing: error), privacy: .public)")
+            return makeInMemoryContainer(orDieWith: "Could not create fallback ModelContainer.")
+        }
+    }
+
+    private static func makePersistentContainer(configuration: ModelConfiguration) throws -> ModelContainer {
+        do {
+            return try ModelContainer(for: schema, configurations: [configuration])
+        } catch {
+            logger.error("Persistent store open failed. Resetting local store. Error: \(String(describing: error), privacy: .public)")
+            resetStoreFiles(at: configuration.url)
+            return try ModelContainer(for: schema, configurations: [configuration])
+        }
+    }
+
+    private static func makeInMemoryContainer(orDieWith message: String) -> ModelContainer {
+        let configuration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
+        do {
+            return try ModelContainer(for: schema, configurations: [configuration])
+        } catch {
+            fatalError("\(message) \(error)")
+        }
+    }
+
+    private static func persistentStoreURL() throws -> URL {
+        let fileManager = FileManager.default
+        let appSupportURL = try fileManager.url(
+            for: .applicationSupportDirectory,
+            in: .userDomainMask,
+            appropriateFor: nil,
+            create: true
+        )
+        let directoryURL = appSupportURL.appendingPathComponent("Unit", isDirectory: true)
+        if !fileManager.fileExists(atPath: directoryURL.path) {
+            try fileManager.createDirectory(at: directoryURL, withIntermediateDirectories: true)
+        }
+        return directoryURL.appendingPathComponent("Unit.store")
+    }
+
+    private static func resetStoreFiles(at storeURL: URL) {
+        let fileManager = FileManager.default
+        let sidecarURLs = [
+            storeURL,
+            URL(fileURLWithPath: storeURL.path + "-shm"),
+            URL(fileURLWithPath: storeURL.path + "-wal")
+        ]
+
+        for url in sidecarURLs where fileManager.fileExists(atPath: url.path) {
             do {
-                return try ModelContainer(for: schema, configurations: [memoryConfig])
+                try fileManager.removeItem(at: url)
             } catch {
-                fatalError("Could not create fallback ModelContainer: \(error)")
+                logger.error("Failed to remove store file at \(url.path, privacy: .public): \(String(describing: error), privacy: .public)")
             }
         }
-    }()
+    }
 
     var body: some Scene {
         WindowGroup {
@@ -49,7 +107,16 @@ enum PreviewSampleData {
     @MainActor
     static func makePreviewContainer() -> ModelContainer {
         let config = ModelConfiguration(isStoredInMemoryOnly: true)
-        let container = try! ModelContainer(
+        guard let container = buildContainer(config: config) else {
+            preconditionFailure("Preview container creation failed.")
+        }
+        seedIfNeeded(in: container.mainContext)
+        return container
+    }
+
+    @MainActor
+    private static func buildContainer(config: ModelConfiguration) -> ModelContainer? {
+        try? ModelContainer(
             for: Split.self,
             Exercise.self,
             DayTemplate.self,
@@ -59,8 +126,6 @@ enum PreviewSampleData {
             ProgressionRule.self,
             configurations: config
         )
-        seedIfNeeded(in: container.mainContext)
-        return container
     }
 
     @MainActor

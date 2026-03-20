@@ -18,8 +18,16 @@ struct CyclesView: View {
     @State private var showingCreateCycle = false
     @State private var selectedCycle: Cycle?
     @State private var showingSettings = false
+    @State private var cycleToRename: Cycle?
+    @State private var cycleNameDraft = ""
 
-    private var activeCycle: Cycle? { cycles.first(where: { $0.isActive && !$0.isCompleted }) }
+    private var activeCycle: Cycle? {
+        ongoingCycles.first(where: { $0.isActive }) ?? ongoingCycles.first
+    }
+
+    private var ongoingCycles: [Cycle] {
+        cycles.filter { !$0.isCompleted }
+    }
 
     var body: some View {
         NavigationStack {
@@ -38,17 +46,20 @@ struct CyclesView: View {
                             selectedCycle = active
                             showingSettings = true
                         } label: {
-                            Image(systemName: "gearshape")
+                            AppIcon.settingsOutline.image()
                         }
                         .accessibilityLabel("Cycle settings")
                     }
                 }
                 ToolbarItem(placement: .topBarLeading) {
-                    if activeCycle == nil {
+                    if ongoingCycles.isEmpty {
                         Button {
                             showingCreateCycle = true
                         } label: {
-                            Label("New Cycle", systemImage: "plus")
+                            HStack(spacing: AppSpacing.xs) {
+                                AppIcon.add.image()
+                                Text("New Cycle")
+                            }
                         }
                     }
                 }
@@ -56,13 +67,25 @@ struct CyclesView: View {
             .sheet(isPresented: $showingCreateCycle) {
                 CreateCycleView()
                     .presentationDragIndicator(.visible)
-                    .presentationBackground(AtlasTheme.Colors.sheet)
+                    .presentationBackground(AppColor.cardBackground)
             }
             .sheet(isPresented: $showingSettings) {
                 if let cycle = selectedCycle ?? activeCycle {
                     CycleSettingsView(cycle: cycle)
                         .presentationDragIndicator(.visible)
-                        .presentationBackground(AtlasTheme.Colors.sheet)
+                        .presentationBackground(AppColor.cardBackground)
+                }
+            }
+            .alert("Rename Cycle", isPresented: Binding(
+                get: { cycleToRename != nil },
+                set: { if !$0 { cycleToRename = nil } }
+            )) {
+                TextField("Cycle name", text: $cycleNameDraft)
+                Button("Save") {
+                    renameSelectedCycle()
+                }
+                Button("Cancel", role: .cancel) {
+                    cycleToRename = nil
                 }
             }
         }
@@ -71,53 +94,64 @@ struct CyclesView: View {
     // MARK: - Empty State
 
     private var emptyCycleState: some View {
-        VStack(spacing: AtlasTheme.Spacing.sm) {
+        VStack(spacing: AppSpacing.sm) {
             Spacer()
-            Image(systemName: "calendar.badge.clock")
-                .font(.system(size: 32, weight: .light))
-                .foregroundStyle(AtlasTheme.Colors.textSecondary)
+            AppIcon.calendarClock.image(size: 32, weight: .light)
+                .foregroundStyle(AppColor.textSecondary)
                 .accessibilityHidden(true)
-            VStack(spacing: AtlasTheme.Spacing.sm) {
+            VStack(spacing: AppSpacing.sm) {
                 Text("Start an 8-week cycle to unlock auto-progression.\nThe app computes your targets every week.")
-                    .font(AtlasTheme.Typography.body)
-                    .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                    .font(AppFont.body.font)
+                    .foregroundStyle(AppColor.textSecondary)
                     .multilineTextAlignment(.center)
             }
             .frame(maxWidth: .infinity)
-            .padding(.bottom, AtlasTheme.Spacing.lg)
+            .padding(.bottom, AppSpacing.lg)
             Button {
                 showingCreateCycle = true
             } label: {
                 Text("Start 8-Week Cycle")
-                    .font(AtlasTheme.Typography.sectionTitle)
+                    .font(AppFont.sectionHeader.font)
                     .foregroundStyle(.white)
                     .frame(maxWidth: 280)
                     .frame(height: 52)
-                    .background(AtlasTheme.Colors.accent)
-                    .clipShape(RoundedRectangle(cornerRadius: AtlasTheme.Radius.md, style: .continuous))
+                    .background(AppColor.accent)
+                    .clipShape(RoundedRectangle(cornerRadius: AppRadius.md, style: .continuous))
             }
             .buttonStyle(.plain)
             Spacer()
         }
-        .padding(AtlasTheme.Spacing.xl)
-        .background(AtlasTheme.Colors.background.ignoresSafeArea())
+        .padding(AppSpacing.xl)
+        .background(AppColor.background.ignoresSafeArea())
     }
 
     // MARK: - Cycle Content
 
     private var cycleContent: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: AtlasTheme.Spacing.md) {
+            VStack(alignment: .leading, spacing: AppSpacing.md) {
                 if let active = activeCycle {
                     activeCycleSection(active)
                 }
 
-                let completed = cycles.filter { !$0.isActive || $0.isCompleted }
+                let otherPrograms = ongoingCycles.filter { $0.id != activeCycle?.id }
+                if !otherPrograms.isEmpty {
+                    VStack(alignment: .leading, spacing: AppSpacing.sm) {
+                        Text("Other Programs")
+                            .font(AppFont.sectionHeader.font)
+                            .padding(.top, AppSpacing.sm)
+                        ForEach(otherPrograms, id: \.id) { cycle in
+                            switchableCycleRow(cycle)
+                        }
+                    }
+                }
+
+                let completed = cycles.filter { $0.isCompleted }
                 if !completed.isEmpty {
-                    VStack(alignment: .leading, spacing: AtlasTheme.Spacing.xs) {
+                    VStack(alignment: .leading, spacing: AppSpacing.sm) {
                         Text("Past Cycles")
-                            .font(AtlasTheme.Typography.sectionTitle)
-                            .padding(.top, AtlasTheme.Spacing.sm)
+                            .font(AppFont.sectionHeader.font)
+                            .padding(.top, AppSpacing.sm)
                         ForEach(completed, id: \.id) { cycle in
                             pastCycleRow(cycle)
                         }
@@ -125,44 +159,58 @@ struct CyclesView: View {
                 }
 
                 // "Start new cycle" button when active cycle exists (for future)
-                if activeCycle == nil {
+                if ongoingCycles.isEmpty {
                     Button {
                         showingCreateCycle = true
                     } label: {
-                        Label("Start New Cycle", systemImage: "plus.circle.fill")
-                            .font(AtlasTheme.Typography.sectionTitle)
-                            .foregroundStyle(AtlasTheme.Colors.accent)
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 52)
-                            .atlasCardStyle()
+                        HStack(spacing: AppSpacing.xs) {
+                            AppIcon.addCircle.image()
+                            Text("Start New Cycle")
+                        }
+                        .font(AppFont.sectionHeader.font)
+                        .foregroundStyle(AppColor.accent)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 52)
+                        .appCardStyle()
                     }
                     .buttonStyle(.plain)
                 }
             }
-            .padding(AtlasTheme.Spacing.md)
+            .padding(AppSpacing.md)
         }
-        .background(AtlasTheme.Colors.background)
+        .background(AppColor.background)
     }
 
     // MARK: - Active Cycle Section
 
     private func activeCycleSection(_ cycle: Cycle) -> some View {
-        VStack(alignment: .leading, spacing: AtlasTheme.Spacing.xs) {
+        VStack(alignment: .leading, spacing: AppSpacing.sm) {
             HStack {
-                VStack(alignment: .leading, spacing: AtlasTheme.Spacing.xxs) {
+                VStack(alignment: .leading, spacing: AppSpacing.xs) {
                     Text(cycle.name)
-                        .font(AtlasTheme.Typography.hero)
+                        .font(AppFont.largeTitle.font)
                     Text("Week \(cycle.currentWeekNumber) of \(cycle.weekCount)")
-                        .font(AtlasTheme.Typography.caption)
-                        .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                        .font(AppFont.caption.font)
+                        .foregroundStyle(AppColor.textSecondary)
                 }
                 Spacer(minLength: 0)
+                Button {
+                    cycleNameDraft = cycle.name
+                    cycleToRename = cycle
+                } label: {
+                    AppIcon.edit.image(size: 14)
+                        .foregroundStyle(AppColor.accent)
+                        .frame(width: 36, height: 36)
+                        .background(AppColor.accentSoft)
+                        .clipShape(Circle())
+                }
+                .buttonStyle(.plain)
                 ProgressRing(
                     progress: Double(cycle.currentWeekNumber) / Double(cycle.weekCount)
                 )
                 .frame(width: 56, height: 56)
             }
-            .atlasCardStyle()
+            .appCardStyle()
 
             ForEach(1...cycle.weekCount, id: \.self) { week in
                 WeekRowView(
@@ -176,19 +224,73 @@ struct CyclesView: View {
         }
     }
 
+    private func switchableCycleRow(_ cycle: Cycle) -> some View {
+        HStack(spacing: AppSpacing.md) {
+            VStack(alignment: .leading, spacing: AppSpacing.xs) {
+                Text(cycle.name)
+                    .font(AppFont.sectionHeader.font)
+                    .foregroundStyle(AppColor.textPrimary)
+                Text("Week \(cycle.currentWeekNumber) of \(cycle.weekCount)")
+                    .font(AppFont.caption.font)
+                    .foregroundStyle(AppColor.textSecondary)
+            }
+            Spacer()
+            Button {
+                cycleNameDraft = cycle.name
+                cycleToRename = cycle
+            } label: {
+                AppIcon.edit.image(size: 14)
+                    .foregroundStyle(AppColor.accent)
+                    .frame(width: 36, height: 36)
+                    .background(AppColor.accentSoft)
+                    .clipShape(Circle())
+            }
+            .buttonStyle(.plain)
+            Button {
+                setActiveCycle(cycle)
+            } label: {
+                Text("Make Current")
+                    .font(AppFont.captionBold.font)
+                    .foregroundStyle(AppColor.accent)
+                    .padding(.horizontal, AppSpacing.sm)
+                    .padding(.vertical, AppSpacing.xs)
+                    .background(AppColor.accentSoft)
+                    .clipShape(Capsule())
+            }
+            .buttonStyle(.plain)
+        }
+        .appCardStyle()
+    }
+
     // MARK: - Past Cycle Row
 
     private func pastCycleRow(_ cycle: Cycle) -> some View {
-        VStack(alignment: .leading, spacing: AtlasTheme.Spacing.xxs) {
+        VStack(alignment: .leading, spacing: AppSpacing.xs) {
             Text(cycle.name)
-                .font(AtlasTheme.Typography.sectionTitle)
+                .font(AppFont.sectionHeader.font)
             Text("Completed · \(cycle.weekCount) weeks")
-                .font(AtlasTheme.Typography.caption)
-                .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                .font(AppFont.caption.font)
+                .foregroundStyle(AppColor.textSecondary)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .frame(minHeight: 44)
-        .atlasCardStyle()
+        .appCardStyle()
+    }
+
+    private func setActiveCycle(_ selectedCycle: Cycle) {
+        for cycle in cycles where !cycle.isCompleted {
+            cycle.isActive = cycle.id == selectedCycle.id
+        }
+        try? modelContext.save()
+    }
+
+    private func renameSelectedCycle() {
+        guard let cycle = cycleToRename else { return }
+        let trimmed = cycleNameDraft.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return }
+        cycle.name = trimmed
+        try? modelContext.save()
+        cycleToRename = nil
     }
 }
 
@@ -243,31 +345,31 @@ private struct WeekRowView: View {
                     ProjectedWeekSheet(cycle: cycle, weekNumber: weekNumber, rules: rules, exercises: exercises)
                         .presentationDetents([.medium])
                         .presentationDragIndicator(.visible)
-                        .presentationBackground(AtlasTheme.Colors.sheet)
+                        .presentationBackground(AppColor.cardBackground)
                 }
             }
         }
     }
 
     private func rowContent(status: WeekStatus) -> some View {
-        HStack(spacing: AtlasTheme.Spacing.md) {
+        HStack(spacing: AppSpacing.md) {
             Text("Week \(weekNumber)")
-                .font(AtlasTheme.Typography.body.weight(.medium))
+                .font(AppFont.body.font.weight(.medium))
                 .frame(width: 60, alignment: .leading)
 
             Text(dateRangeText)
-                .font(AtlasTheme.Typography.caption)
-                .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                .font(AppFont.caption.font)
+                .foregroundStyle(AppColor.textSecondary)
                 .frame(maxWidth: .infinity, alignment: .leading)
 
             statusBadge(status: status)
         }
-        .padding(.horizontal, AtlasTheme.Spacing.md)
+        .padding(.horizontal, AppSpacing.md)
         .frame(minHeight: 52)
-        .background(AtlasTheme.Colors.card)
-        .clipShape(RoundedRectangle(cornerRadius: AtlasTheme.Radius.sm, style: .continuous))
+        .background(AppColor.cardBackground)
+        .clipShape(RoundedRectangle(cornerRadius: AppRadius.sm, style: .continuous))
         .overlay(
-            RoundedRectangle(cornerRadius: AtlasTheme.Radius.sm, style: .continuous)
+            RoundedRectangle(cornerRadius: AppRadius.sm, style: .continuous)
                 .stroke(borderColor(for: status), lineWidth: status == .current ? 2 : 1.5)
         )
     }
@@ -276,34 +378,40 @@ private struct WeekRowView: View {
     private func statusBadge(status: WeekStatus) -> some View {
         switch status {
         case .completed:
-            Label("Done", systemImage: "checkmark.circle.fill")
-                .font(AtlasTheme.Typography.caption)
-                .foregroundStyle(.green)
+            HStack(spacing: AppSpacing.xs) {
+                AppIcon.checkmarkFilled.image()
+                Text("Done")
+            }
+            .font(AppFont.caption.font)
+            .foregroundStyle(AppColor.success)
         case .failed:
-            Label("Failed", systemImage: "xmark.circle.fill")
-                .font(AtlasTheme.Typography.caption)
-                .foregroundStyle(AtlasTheme.Colors.failureAccent)
+            HStack(spacing: AppSpacing.xs) {
+                AppIcon.xmarkFilled.image()
+                Text("Failed")
+            }
+            .font(AppFont.caption.font)
+            .foregroundStyle(AppColor.error)
         case .current:
             HStack(spacing: 4) {
                 Circle()
-                    .fill(AtlasTheme.Colors.accent)
+                    .fill(AppColor.accent)
                     .frame(width: 8, height: 8)
                     .accessibilityHidden(true)
                 Text("Current")
-                    .font(AtlasTheme.Typography.caption)
-                    .foregroundStyle(AtlasTheme.Colors.accent)
+                    .font(AppFont.caption.font)
+                    .foregroundStyle(AppColor.accent)
             }
         case .upcoming:
             Text("—")
-                .font(AtlasTheme.Typography.caption)
-                .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                .font(AppFont.caption.font)
+                .foregroundStyle(AppColor.textSecondary)
         }
     }
 
     private func borderColor(for status: WeekStatus) -> Color {
         switch status {
-        case .current: return AtlasTheme.Colors.accent
-        case .failed: return AtlasTheme.Colors.failureAccent.opacity(0.4)
+        case .current: return AppColor.accent
+        case .failed: return AppColor.error.opacity(0.4)
         default: return Color.clear
         }
     }
@@ -319,14 +427,14 @@ private struct ProgressRing: View {
     var body: some View {
         ZStack {
             Circle()
-                .stroke(AtlasTheme.Colors.border, lineWidth: 5)
+                .stroke(AppColor.border, lineWidth: 5)
             Circle()
                 .trim(from: 0, to: min(progress, 1))
-                .stroke(AtlasTheme.Colors.accent, style: StrokeStyle(lineWidth: 5, lineCap: .round))
+                .stroke(AppColor.accent, style: StrokeStyle(lineWidth: 5, lineCap: .round))
                 .rotationEffect(.degrees(-90))
             Text("\(Int(progress * 100))%")
-                .font(.system(size: 11, weight: .bold, design: .rounded))
-                .foregroundStyle(AtlasTheme.Colors.textPrimary)
+                .font(AppFont.tinyBold)
+                .foregroundStyle(AppColor.textPrimary)
         }
     }
 }
@@ -344,30 +452,30 @@ private struct ProjectedWeekSheet: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(alignment: .leading, spacing: AtlasTheme.Spacing.sm) {
+                VStack(alignment: .leading, spacing: AppSpacing.sm) {
                     Text("Projected targets — no outcomes yet.")
-                        .font(AtlasTheme.Typography.caption)
-                        .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                        .font(AppFont.caption.font)
+                        .foregroundStyle(AppColor.textSecondary)
 
                     ForEach(rules.filter { $0.cycleId == cycle.id }, id: \.id) { rule in
                         if let target = ProgressionEngine.target(for: weekNumber, rule: rule.snapshot(weekCount: cycle.weekCount), outcomes: []) {
                             let name = exercises.first(where: { $0.id == rule.exerciseId })?.displayName ?? "Exercise"
                             HStack {
                                 Text(name)
-                                    .font(AtlasTheme.Typography.body)
+                                    .font(AppFont.body.font)
                                 Spacer(minLength: 0)
                                 Text("\(target.weightKg.weightString)kg × \(target.reps)")
-                                    .font(AtlasTheme.Typography.body)
-                                    .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                                    .font(AppFont.body.font)
+                                    .foregroundStyle(AppColor.textSecondary)
                             }
-                            .padding(.vertical, AtlasTheme.Spacing.xs)
-                            Divider()
+                            .padding(.vertical, AppSpacing.sm)
+                            AppDivider()
                         }
                     }
                 }
-                .padding(AtlasTheme.Spacing.md)
+                .padding(AppSpacing.md)
             }
-            .background(AtlasTheme.Colors.background)
+            .background(AppColor.background)
             .navigationTitle("Week \(weekNumber) Targets")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -383,5 +491,4 @@ private struct ProjectedWeekSheet: View {
 #Preview {
     CyclesView()
         .modelContainer(PreviewSampleData.makePreviewContainer())
-        .preferredColorScheme(.dark)
 }

@@ -26,7 +26,7 @@ struct ActiveWorkoutView: View {
 
     @State private var currentExerciseIndex: Int = 0
     @State private var showLineup = false
-    @State private var showingEndWorkoutFeeling = false
+    @State private var showingRestTimerControls = false
     @State private var toastMessage: String?
     @State private var selectedRestSeconds: Int = 90
 
@@ -59,12 +59,12 @@ struct ActiveWorkoutView: View {
     var body: some View {
         ZStack(alignment: .bottom) {
             VStack(spacing: 0) {
-                // Rest timer — compact strip, always at top
-                restTimerStrip
+                // Session + rest timer access
+                sessionHeaderStrip
 
                 // Current exercise — scrollable
                 ScrollView {
-                    VStack(alignment: .leading, spacing: AtlasTheme.Spacing.md) {
+                    VStack(alignment: .leading, spacing: AppSpacing.md) {
                         if let exercise = currentExercise {
                             let rule = progressionRules.first(where: {
                                 $0.exerciseId == exercise.id && $0.cycleId == session.cycleId
@@ -108,10 +108,10 @@ struct ActiveWorkoutView: View {
                             )
                         }
                     }
-                    .padding(AtlasTheme.Spacing.md)
-                    .padding(.bottom, AtlasTheme.Spacing.xl)
+                    .padding(AppSpacing.md)
+                    .padding(.bottom, AppSpacing.xl)
                 }
-                .background(AtlasTheme.Colors.background)
+                .background(AppColor.background)
 
                 // Bottom navigation bar
                 bottomBar
@@ -131,86 +131,108 @@ struct ActiveWorkoutView: View {
         .sheet(isPresented: $showLineup) {
             lineupSheet
                 .presentationDragIndicator(.visible)
-                .presentationBackground(AtlasTheme.Colors.sheet)
+                .presentationBackground(AppColor.cardBackground)
         }
-        .sheet(isPresented: $showingEndWorkoutFeeling) {
-            EndWorkoutFeelingView(session: session) {
-                showingEndWorkoutFeeling = false
-                checkAndShowRecalibrationToast()
-            }
+        .sheet(isPresented: $showingRestTimerControls) {
+            restTimerControlsSheet
             .presentationDragIndicator(.visible)
-            .presentationBackground(AtlasTheme.Colors.sheet)
+            .presentationBackground(AppColor.cardBackground)
         }
         .onDisappear {
             restTimer.stop()
         }
     }
 
-    // MARK: - Rest Timer Strip
+    // MARK: - Session Header
 
-    private var restTimerStrip: some View {
-        HStack(spacing: AtlasTheme.Spacing.sm) {
-            if restTimer.isRunning {
-                Text(restTimer.label)
-                    .font(.system(size: 22, weight: .bold, design: .rounded).monospacedDigit())
-                    .foregroundStyle(AtlasTheme.Colors.accent)
-                Spacer()
-                Button("Stop") { restTimer.stop() }
-                    .font(AtlasTheme.Typography.body)
-                    .foregroundStyle(.red)
-                    .frame(minWidth: 44, minHeight: 44)
-            } else {
-                Text("Rest")
-                    .font(.system(size: 17, weight: .semibold, design: .rounded))
-                    .foregroundStyle(AtlasTheme.Colors.textSecondary)
-                Spacer()
-                HStack(spacing: AtlasTheme.Spacing.xs) {
+    private var sessionHeaderStrip: some View {
+        HStack(spacing: AppSpacing.sm) {
+            VStack(alignment: .leading, spacing: 2) {
+                Text(template?.name ?? "Workout")
+                    .font(AppFont.caption.font)
+                    .foregroundStyle(AppColor.textSecondary)
+                Text("Exercise \(min(currentExerciseIndex + 1, max(orderedExercises.count, 1))) of \(max(orderedExercises.count, 1))")
+                    .font(AppFont.body.font.weight(.semibold))
+                    .foregroundStyle(AppColor.textPrimary)
+            }
+            Spacer()
+            Button {
+                showingRestTimerControls = true
+            } label: {
+                HStack(spacing: AppSpacing.xs) {
+                    AppIcon.timer.image(size: 12, weight: .semibold)
+                    Text(restTimer.isRunning ? restTimer.label : formatRestDuration(selectedRestSeconds))
+                        .font(AppFont.numericTimer)
+                }
+                .foregroundStyle(restTimer.isRunning ? AppColor.accent : AppColor.textPrimary)
+                .padding(.horizontal, AppSpacing.sm)
+                .frame(height: 34)
+                .background(AppColor.cardBackground)
+                .clipShape(Capsule())
+                .overlay(
+                    Capsule().stroke(restTimer.isRunning ? AppColor.accent : AppColor.border, lineWidth: 1)
+                )
+            }
+            .buttonStyle(.plain)
+            .frame(minWidth: 44, minHeight: 44)
+        }
+        .padding(.horizontal, AppSpacing.md)
+        .padding(.vertical, AppSpacing.sm)
+        .background(AppColor.surface)
+    }
+
+    private var restTimerControlsSheet: some View {
+        NavigationStack {
+            VStack(spacing: AppSpacing.lg) {
+                Text(restTimer.isRunning ? restTimer.label : formatRestDuration(selectedRestSeconds))
+                    .font(AppFont.numericDisplay)
+                    .foregroundStyle(restTimer.isRunning ? AppColor.accent : AppColor.textPrimary)
+                    .monospacedDigit()
+
+                HStack(spacing: AppSpacing.md) {
                     Button {
                         selectedRestSeconds = max(30, selectedRestSeconds - 30)
                     } label: {
-                        Image(systemName: "chevron.left")
-                            .font(.system(size: 13, weight: .semibold))
-                            .frame(minWidth: 36, minHeight: 36)
+                        AppIcon.remove.image(size: 14, weight: .semibold)
+                            .foregroundStyle(AppColor.textPrimary)
+                            .frame(width: 44, height: 44)
+                            .background(AppColor.cardBackground)
+                            .clipShape(RoundedRectangle(cornerRadius: AppRadius.md, style: .continuous))
                     }
-                    Text(formatRestDuration(selectedRestSeconds))
-                        .font(.system(size: 15, weight: .semibold, design: .rounded).monospacedDigit())
-                        .frame(minWidth: 44)
-                        .multilineTextAlignment(.center)
+                    .buttonStyle(.plain)
+
                     Button {
                         selectedRestSeconds = min(300, selectedRestSeconds + 30)
                     } label: {
-                        Image(systemName: "chevron.right")
-                            .font(.system(size: 13, weight: .semibold))
-                            .frame(minWidth: 36, minHeight: 36)
+                        AppIcon.add.image(size: 14, weight: .semibold)
+                            .foregroundStyle(AppColor.textPrimary)
+                            .frame(width: 44, height: 44)
+                            .background(AppColor.cardBackground)
+                            .clipShape(RoundedRectangle(cornerRadius: AppRadius.md, style: .continuous))
+                    }
+                    .buttonStyle(.plain)
+                }
+
+                AppPrimaryButton(restTimer.isRunning ? "Stop Timer" : "Start Timer") {
+                    if restTimer.isRunning {
+                        restTimer.stop()
+                    } else {
+                        restTimer.start(totalSeconds: selectedRestSeconds)
                     }
                 }
-                .foregroundStyle(AtlasTheme.Colors.textPrimary)
-                .buttonStyle(.plain)
-                Button("Start") {
-                    restTimer.start(totalSeconds: selectedRestSeconds)
-                }
-                .font(.system(size: 15, weight: .semibold, design: .rounded))
-                .foregroundStyle(.white)
-                .padding(.horizontal, AtlasTheme.Spacing.sm)
-                .frame(height: 32)
-                .background(AtlasTheme.Colors.accent)
-                .clipShape(Capsule())
-                .buttonStyle(.plain)
+
+                Spacer(minLength: 0)
             }
-        }
-        .padding(.horizontal, AtlasTheme.Spacing.md)
-        .padding(.vertical, AtlasTheme.Spacing.xs)
-        .background(AtlasTheme.Colors.elevatedBackground)
-        .overlay(alignment: .bottom) {
-            if restTimer.isRunning && restTimer.totalDuration > 0 {
-                GeometryReader { geo in
-                    let progress = Double(restTimer.secondsRemaining) / Double(restTimer.totalDuration)
-                    Rectangle()
-                        .fill(AtlasTheme.Colors.accent.opacity(0.45))
-                        .frame(width: geo.size.width * max(0, min(progress, 1)), height: 2)
-                        .animation(.linear(duration: 1), value: restTimer.secondsRemaining)
+            .padding(AppSpacing.md)
+            .background(AppColor.background.ignoresSafeArea())
+            .navigationTitle("Rest Timer")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button("Back") {
+                        showingRestTimerControls = false
+                    }
                 }
-                .frame(height: 2)
             }
         }
     }
@@ -224,17 +246,16 @@ struct ActiveWorkoutView: View {
     // MARK: - Bottom Bar
 
     private var bottomBar: some View {
-        HStack(spacing: AtlasTheme.Spacing.md) {
+        HStack(spacing: AppSpacing.md) {
             Button {
                 showLineup = true
             } label: {
-                HStack(spacing: AtlasTheme.Spacing.xxs) {
-                    Image(systemName: "list.bullet")
-                        .font(.system(size: 14))
-                    Text("See Program")
-                        .font(AtlasTheme.Typography.body)
+                HStack(spacing: AppSpacing.xs) {
+                    AppIcon.list.image(size: 14, weight: .regular)
+                    Text("See lineup")
+                        .font(AppFont.body.font)
                 }
-                .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                .foregroundStyle(AppColor.textSecondary)
                 .frame(minHeight: 44)
             }
             .buttonStyle(.plain)
@@ -249,30 +270,30 @@ struct ActiveWorkoutView: View {
                     currentExerciseIndex += 1
                 } label: {
                     Text("Next: \(nextName)")
-                        .font(AtlasTheme.Typography.body)
-                        .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                        .font(AppFont.body.font)
+                        .foregroundStyle(AppColor.textSecondary)
                         .frame(minHeight: 44)
                 }
                 .buttonStyle(.plain)
                 .accessibilityLabel("Move to next exercise: \(orderedExercises[currentExerciseIndex + 1].displayName)")
             } else {
                 Button {
-                    showingEndWorkoutFeeling = true
+                    finishWorkout()
                 } label: {
                     Text("End Workout")
-                        .font(AtlasTheme.Typography.sectionTitle)
+                        .font(AppFont.sectionHeader.font)
                         .foregroundStyle(.white)
-                        .padding(.horizontal, AtlasTheme.Spacing.md)
+                        .padding(.horizontal, AppSpacing.md)
                         .frame(height: 44)
-                        .background(AtlasTheme.Colors.accent)
+                        .background(AppColor.accent)
                         .clipShape(Capsule())
                 }
                 .buttonStyle(.plain)
             }
         }
-        .padding(.horizontal, AtlasTheme.Spacing.md)
-        .padding(.vertical, AtlasTheme.Spacing.sm)
-        .background(AtlasTheme.Colors.elevatedBackground)
+        .padding(.horizontal, AppSpacing.md)
+        .padding(.vertical, AppSpacing.sm)
+        .background(AppColor.surface)
     }
 
     // MARK: - Lineup Sheet
@@ -283,20 +304,20 @@ struct ActiveWorkoutView: View {
                 ForEach(Array(orderedExercises.enumerated()), id: \.element.id) { index, exercise in
                     HStack {
                         Text(exercise.displayName)
-                            .font(AtlasTheme.Typography.body)
-                            .foregroundStyle(index <= currentExerciseIndex ? AtlasTheme.Colors.textPrimary : AtlasTheme.Colors.textSecondary)
+                            .font(AppFont.body.font)
+                            .foregroundStyle(index <= currentExerciseIndex ? AppColor.textPrimary : AppColor.textSecondary)
                         Spacer()
                         if index < currentExerciseIndex {
-                            Image(systemName: "checkmark.circle.fill")
-                                .foregroundStyle(AtlasTheme.Colors.accent)
+                            AppIcon.checkmarkFilled.image()
+                                .foregroundStyle(AppColor.success)
                                 .accessibilityHidden(true)
                         } else if index == currentExerciseIndex {
                             Text("Now")
-                                .font(AtlasTheme.Typography.caption)
-                                .foregroundStyle(AtlasTheme.Colors.accent)
+                                .font(AppFont.caption.font)
+                                .foregroundStyle(AppColor.accent)
                                 .padding(.horizontal, 6)
                                 .padding(.vertical, 2)
-                                .background(AtlasTheme.Colors.accentSoft)
+                                .background(AppColor.accentSoft)
                                 .clipShape(Capsule())
                         }
                     }
@@ -306,7 +327,7 @@ struct ActiveWorkoutView: View {
             }
             .listStyle(.insetGrouped)
             .scrollContentBackground(.hidden)
-            .background(AtlasTheme.Colors.background.ignoresSafeArea())
+            .background(AppColor.background.ignoresSafeArea())
             .navigationTitle("Today's Lineup")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -317,7 +338,7 @@ struct ActiveWorkoutView: View {
         }
         .presentationDetents([.medium, .large])
         .presentationDragIndicator(.visible)
-        .presentationBackground(AtlasTheme.Colors.sheet)
+        .presentationBackground(AppColor.cardBackground)
     }
 
     // MARK: - Helpers
@@ -382,6 +403,16 @@ struct ActiveWorkoutView: View {
         }
     }
 
+    private func finishWorkout() {
+        session.isCompleted = true
+        try? modelContext.save()
+        if session.overallFeeling == 0 {
+            UserDefaults.standard.set(session.id.uuidString, forKey: "pendingFeelingSessionId")
+        }
+        checkAndShowRecalibrationToast()
+        showToast("Workout saved.")
+    }
+
     private func showToast(_ message: String) {
         toastMessage = message
         Task {
@@ -393,14 +424,14 @@ struct ActiveWorkoutView: View {
     @ViewBuilder
     private func toastView(_ message: String) -> some View {
         Text(message)
-            .font(AtlasTheme.Typography.caption)
+            .font(AppFont.caption.font)
             .foregroundStyle(.white)
-            .padding(.horizontal, AtlasTheme.Spacing.md)
-            .padding(.vertical, AtlasTheme.Spacing.sm)
-            .background(AtlasTheme.Colors.sheet.opacity(0.95))
+            .padding(.horizontal, AppSpacing.md)
+            .padding(.vertical, AppSpacing.sm)
+            .background(Color.black.opacity(0.85))
             .clipShape(Capsule())
-            .padding(.horizontal, AtlasTheme.Spacing.md)
-            .padding(.bottom, AtlasTheme.Spacing.lg)
+            .padding(.horizontal, AppSpacing.md)
+            .padding(.bottom, AppSpacing.lg)
             .accessibilityAddTraits(.isStaticText)
     }
 }
@@ -418,43 +449,41 @@ private struct ExerciseLoggingCard: View {
     let referenceProvider: (Int) -> SetEntry?
     let onComplete: (_ weight: Double, _ reps: Int, _ note: String) -> Void
 
-    @State private var weightText = ""
-    @State private var repsText = ""
-    @State private var noteText = ""
-    @State private var seeded = false
-    @State private var showCustomInput = false
-
-    private var parsedWeight: Double {
-        Double(weightText.replacingOccurrences(of: ",", with: ".")) ?? 0
-    }
-    private var parsedReps: Int { Int(repsText) ?? 0 }
-    private var canComplete: Bool { parsedWeight > 0 && parsedReps > 0 }
+    @State private var showingManualInput = false
 
     private var weekTarget: ProgressionEngine.WeekTarget? {
         guard let rule = progressionRule, let cycle = activeCycle, weekNumber > 0 else { return nil }
         return ProgressionEngine.target(for: weekNumber, rule: rule.snapshot(weekCount: cycle.weekCount), outcomes: [])
     }
 
+    private var manualPrefill: SetPrefill? {
+        if let prefill {
+            return prefill
+        }
+        guard let target = weekTarget else { return nil }
+        return SetPrefill(weight: target.weightKg, reps: target.reps)
+    }
+
     var body: some View {
-        VStack(alignment: .leading, spacing: AtlasTheme.Spacing.sm) {
+        VStack(alignment: .leading, spacing: AppSpacing.sm) {
             // Exercise header + deload badge
             HStack(alignment: .firstTextBaseline) {
                 Text(exercise.displayName)
-                    .font(AtlasTheme.Typography.hero)
+                    .font(AppFont.largeTitle.font)
                 Spacer(minLength: 0)
                 if weekNumber > 0 {
                     Text("Week \(weekNumber)")
-                        .font(AtlasTheme.Typography.caption)
-                        .foregroundStyle(AtlasTheme.Colors.textSecondary)
-                        .padding(.horizontal, AtlasTheme.Spacing.xs)
-                        .padding(.vertical, AtlasTheme.Spacing.xxs)
-                        .background(AtlasTheme.Colors.accentSoft)
+                        .font(AppFont.caption.font)
+                        .foregroundStyle(AppColor.textSecondary)
+                        .padding(.horizontal, AppSpacing.sm)
+                        .padding(.vertical, AppSpacing.xs)
+                        .background(AppColor.accentSoft)
                         .clipShape(Capsule())
                 }
                 if progressionRule?.isDeloaded == true {
-                    Label("Deload", systemImage: "arrow.down.circle.fill")
-                        .font(AtlasTheme.Typography.caption)
-                        .foregroundStyle(AtlasTheme.Colors.deloadBadge)
+                    Label { Text("Deload") } icon: { AppIcon.deload.image() }
+                        .font(AppFont.caption.font)
+                        .foregroundStyle(AppColor.warning)
                         .accessibilityLabel("Deload week")
                 }
             }
@@ -462,14 +491,14 @@ private struct ExerciseLoggingCard: View {
             // Last vs. context lines
             if let last = lastActual {
                 Text("Last: \(last.weight.weightString)kg × \(last.reps)")
-                    .font(AtlasTheme.Typography.caption)
-                    .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                    .font(AppFont.caption.font)
+                    .foregroundStyle(AppColor.textSecondary)
                     .monospacedDigit()
             }
 
             // Completed set rows
             if !currentEntries.isEmpty {
-                VStack(spacing: AtlasTheme.Spacing.xs) {
+                VStack(spacing: AppSpacing.sm) {
                     ForEach(currentEntries, id: \.id) { entry in
                         CompletedSetRow(
                             index: entry.setIndex + 1,
@@ -480,139 +509,138 @@ private struct ExerciseLoggingCard: View {
                 }
             }
 
-            // Input section
-            VStack(spacing: AtlasTheme.Spacing.sm) {
-                // Warmup info — shown before first work set
-                if currentEntries.isEmpty {
-                    HStack(spacing: AtlasTheme.Spacing.xs) {
-                        Image(systemName: "info.circle")
-                            .font(AtlasTheme.Typography.caption)
-                        Text("Complete warm-up sets before logging work sets.")
-                            .font(AtlasTheme.Typography.caption)
+            // Logging controls
+            VStack(spacing: AppSpacing.sm) {
+                if let target = weekTarget {
+                    AppPrimaryButton("Log \(target.weightKg.weightString)kg × \(target.reps)") {
+                        onComplete(target.weightKg, target.reps, "")
                     }
-                    .foregroundStyle(AtlasTheme.Colors.textSecondary)
-                }
-
-                if let target = weekTarget, !showCustomInput {
-                    // Primary CTA: confirm target
-                    Button {
-                        weightText = target.weightKg.weightString
-                        repsText = "\(target.reps)"
-                        handleDone()
-                    } label: {
-                        Text("Log \(target.weightKg.weightString)kg × \(target.reps)")
-                            .font(AtlasTheme.Typography.sectionTitle)
-                            .foregroundStyle(.white)
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 52)
-                            .background(AtlasTheme.Colors.accent)
-                            .clipShape(RoundedRectangle(cornerRadius: AtlasTheme.Radius.md, style: .continuous))
-                    }
-                    .buttonStyle(.plain)
                     .accessibilityLabel("Log set at target: \(target.weightKg.weightString)kg × \(target.reps) reps")
 
-                    // Secondary: log a different weight
                     Button {
-                        showCustomInput = true
+                        showingManualInput = true
                     } label: {
                         Text("Different weight")
-                            .font(AtlasTheme.Typography.caption)
-                            .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                            .font(AppFont.caption.font)
+                            .foregroundStyle(AppColor.textSecondary)
                             .frame(maxWidth: .infinity)
                             .frame(minHeight: 36)
                     }
                     .buttonStyle(.plain)
                 } else {
-                    // Custom input row: WEIGHT | REPS | done
-                    HStack(spacing: AtlasTheme.Spacing.xs) {
-                        MetricInputField(title: "WEIGHT (kg)", text: $weightText, keyboard: .decimalPad)
-                        MetricInputField(title: "REPS", text: $repsText, keyboard: .numberPad)
-                        VStack(alignment: .center, spacing: AtlasTheme.Spacing.xxs) {
-                            Text("SET")
-                                .font(AtlasTheme.Typography.caption)
-                                .foregroundStyle(AtlasTheme.Colors.textSecondary)
-                            Button {
-                                handleDone()
-                            } label: {
-                                Image(systemName: "checkmark")
-                                    .font(.system(size: 20, weight: .bold))
-                                    .foregroundStyle(.white)
-                                    .frame(maxWidth: .infinity)
-                                    .frame(height: 64)
-                                    .background(canComplete ? AtlasTheme.Colors.accent : AtlasTheme.Colors.disabled)
-                                    .clipShape(RoundedRectangle(cornerRadius: AtlasTheme.Radius.md, style: .continuous))
-                            }
-                            .buttonStyle(.plain)
-                            .disabled(!canComplete)
-                            .accessibilityLabel("Log set")
-                        }
-                        .frame(maxWidth: 72)
+                    AppPrimaryButton("Log Set") {
+                        showingManualInput = true
                     }
                 }
-
-                // Note field
-                TextField("Note...", text: $noteText)
-                    .font(AtlasTheme.Typography.caption)
-                    .foregroundStyle(AtlasTheme.Colors.textSecondary)
-                    .padding(.horizontal, AtlasTheme.Spacing.sm)
-                    .padding(.vertical, AtlasTheme.Spacing.xs)
-                    .background(AtlasTheme.Colors.background)
-                    .clipShape(RoundedRectangle(cornerRadius: AtlasTheme.Radius.sm, style: .continuous))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: AtlasTheme.Radius.sm, style: .continuous)
-                            .stroke(AtlasTheme.Colors.border, lineWidth: 0.5)
-                    )
             }
         }
-        .atlasCardStyle()
-        .onAppear { seedFromPrefillIfNeeded() }
-    }
-
-    private func handleDone() {
-        onComplete(parsedWeight, parsedReps, noteText)
-        resetInputs()
-    }
-
-    private func resetInputs() {
-        weightText = ""
-        repsText = ""
-        noteText = ""
-        showCustomInput = false
-    }
-
-    private func seedFromPrefillIfNeeded() {
-        guard !seeded else { return }
-        seeded = true
-        guard let prefill else { return }
-        weightText = prefill.weight.weightString
-        repsText = "\(prefill.reps)"
+        .appCardStyle()
+        .sheet(isPresented: $showingManualInput) {
+            ManualSetInputSheet(prefill: manualPrefill) { weight, reps, note in
+                onComplete(weight, reps, note)
+            }
+            .presentationDetents([.medium])
+            .presentationDragIndicator(.visible)
+            .presentationBackground(AppColor.cardBackground)
+        }
     }
 }
 
-// MARK: - Metric Input Field
+// MARK: - Manual Set Input
 
-private struct MetricInputField: View {
-    let title: String
-    @Binding var text: String
-    let keyboard: UIKeyboardType
+private struct ManualSetInputSheet: View {
+    let prefill: SetPrefill?
+    let onSave: (_ weight: Double, _ reps: Int, _ note: String) -> Void
+
+    @Environment(\.dismiss) private var dismiss
+    @State private var weightText = ""
+    @State private var repsText = ""
+    @State private var noteText = ""
+    @State private var seeded = false
+
+    private var parsedWeight: Double {
+        Double(weightText.replacingOccurrences(of: ",", with: ".")) ?? 0
+    }
+
+    private var parsedReps: Int {
+        Int(repsText) ?? 0
+    }
+
+    private var canSave: Bool {
+        parsedWeight > 0 && parsedReps > 0
+    }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: AtlasTheme.Spacing.xxs) {
+        NavigationStack {
+            VStack(spacing: AppSpacing.md) {
+                manualInputField(title: "WEIGHT (kg)", text: $weightText, keyboardType: .decimalPad)
+                manualInputField(title: "REPS", text: $repsText, keyboardType: .numberPad)
+
+                TextField("Optional note", text: $noteText)
+                    .font(AppFont.body.font)
+                    .padding(.horizontal, AppSpacing.md)
+                    .frame(height: 48)
+                    .background(AppColor.cardBackground)
+                    .clipShape(RoundedRectangle(cornerRadius: AppRadius.md, style: .continuous))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: AppRadius.md, style: .continuous)
+                            .stroke(AppColor.border, lineWidth: 0.5)
+                    )
+
+                Button {
+                    onSave(parsedWeight, parsedReps, noteText)
+                    dismiss()
+                } label: {
+                    Text("Log Set")
+                        .font(AppFont.label.font)
+                        .foregroundStyle(.white)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 50)
+                        .background(AppColor.accent)
+                        .clipShape(RoundedRectangle(cornerRadius: AppRadius.md, style: .continuous))
+                }
+                .buttonStyle(.plain)
+                .disabled(!canSave)
+                .opacity(canSave ? 1 : 0.6)
+
+                Spacer(minLength: 0)
+            }
+            .padding(AppSpacing.md)
+            .background(AppColor.background.ignoresSafeArea())
+            .navigationTitle("Different Weight")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button("Back") { dismiss() }
+                }
+            }
+            .onAppear {
+                guard !seeded else { return }
+                seeded = true
+                guard let prefill else { return }
+                weightText = prefill.weight.weightString
+                repsText = "\(prefill.reps)"
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func manualInputField(title: String, text: Binding<String>, keyboardType: UIKeyboardType) -> some View {
+        VStack(alignment: .leading, spacing: AppSpacing.xs) {
             Text(title)
-                .font(AtlasTheme.Typography.caption)
-                .foregroundStyle(AtlasTheme.Colors.textSecondary)
-            TextField("0", text: $text)
-                .keyboardType(keyboard)
-                .font(AtlasTheme.Typography.numericDisplay)
+                .font(AppFont.caption.font)
+                .foregroundStyle(AppColor.textSecondary)
+            TextField("0", text: text)
+                .keyboardType(keyboardType)
+                .font(AppFont.numericDisplay)
                 .multilineTextAlignment(.center)
-                .padding(.horizontal, AtlasTheme.Spacing.xs)
-                .frame(maxWidth: .infinity)
+                .padding(.horizontal, AppSpacing.sm)
                 .frame(height: 64)
-                .background(AtlasTheme.Colors.background)
-                .clipShape(RoundedRectangle(cornerRadius: AtlasTheme.Radius.md, style: .continuous))
+                .background(AppColor.cardBackground)
+                .clipShape(RoundedRectangle(cornerRadius: AppRadius.md, style: .continuous))
                 .overlay(
-                    RoundedRectangle(cornerRadius: AtlasTheme.Radius.md, style: .continuous)
-                        .stroke(AtlasTheme.Colors.border, lineWidth: 0.5)
+                    RoundedRectangle(cornerRadius: AppRadius.md, style: .continuous)
+                        .stroke(AppColor.border, lineWidth: 0.5)
                 )
         }
     }
@@ -638,44 +666,44 @@ private struct CompletedSetRow: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 2) {
-            HStack(spacing: AtlasTheme.Spacing.sm) {
+            HStack(spacing: AppSpacing.sm) {
                 Text("Set \(index)")
-                    .font(AtlasTheme.Typography.caption)
-                    .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                    .font(AppFont.caption.font)
+                    .foregroundStyle(AppColor.textSecondary)
                     .frame(width: 44, alignment: .leading)
 
                 Text("\(entry.weight.weightString) kg")
-                    .font(AtlasTheme.Typography.body)
+                    .font(AppFont.body.font)
                     .monospacedDigit()
                 Text("× \(entry.reps)")
-                    .font(AtlasTheme.Typography.body)
+                    .font(AppFont.body.font)
                     .monospacedDigit()
 
                 Spacer(minLength: 0)
 
-                Image(systemName: isFailed ? "xmark.circle.fill" : "checkmark.circle.fill")
-                    .foregroundStyle(isFailed ? AtlasTheme.Colors.failureAccent : AtlasTheme.Colors.accent)
+                (isFailed ? AppIcon.xmarkFilled : AppIcon.checkmarkFilled).image()
+                    .foregroundStyle(isFailed ? AppColor.error : AppColor.success)
                     .accessibilityHidden(true)
             }
             if !entry.note.isEmpty {
                 Text(entry.note)
-                    .font(AtlasTheme.Typography.caption)
-                    .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                    .font(AppFont.caption.font)
+                    .foregroundStyle(AppColor.textSecondary)
                     .padding(.leading, 52)
             }
         }
-        .padding(.horizontal, AtlasTheme.Spacing.sm)
+        .padding(.horizontal, AppSpacing.sm)
         .frame(minHeight: 44)
-        .background(isFailed ? AtlasTheme.Colors.failureAccent.opacity(0.07) : AtlasTheme.Colors.background)
-        .clipShape(RoundedRectangle(cornerRadius: AtlasTheme.Radius.md, style: .continuous))
+        .background(isFailed ? AppColor.error.opacity(0.07) : AppColor.background)
+        .clipShape(RoundedRectangle(cornerRadius: AppRadius.md, style: .continuous))
         .overlay(alignment: .leading) {
             if isFailed || isProgressive {
                 Rectangle()
-                    .fill(isFailed ? AtlasTheme.Colors.failureAccent : AtlasTheme.Colors.progress)
+                    .fill(isFailed ? AppColor.error : AppColor.success)
                     .frame(width: 3)
                     .clipShape(.rect(
-                        topLeadingRadius: AtlasTheme.Radius.md,
-                        bottomLeadingRadius: AtlasTheme.Radius.md
+                        topLeadingRadius: AppRadius.md,
+                        bottomLeadingRadius: AppRadius.md
                     ))
             }
         }
@@ -700,31 +728,31 @@ struct EndWorkoutFeelingView: View {
 
     var body: some View {
         NavigationStack {
-            VStack(spacing: AtlasTheme.Spacing.lg) {
+            VStack(spacing: AppSpacing.lg) {
                 Text("How did this workout feel?")
-                    .font(AtlasTheme.Typography.sectionTitle)
-                HStack(spacing: AtlasTheme.Spacing.md) {
+                    .font(AppFont.sectionHeader.font)
+                HStack(spacing: AppSpacing.md) {
                     ForEach(1...5, id: \.self) { value in
                         Button("\(value)") {
                             session.overallFeeling = value
                             finishSession()
                         }
-                        .font(AtlasTheme.Typography.sectionTitle)
+                        .font(AppFont.sectionHeader.font)
                         .frame(width: 44, height: 44)
-                        .background(session.overallFeeling == value ? AtlasTheme.Colors.accent : AtlasTheme.Colors.background)
-                        .foregroundStyle(session.overallFeeling == value ? .white : AtlasTheme.Colors.textPrimary)
+                        .background(session.overallFeeling == value ? AppColor.accent : AppColor.background)
+                        .foregroundStyle(session.overallFeeling == value ? .white : AppColor.textPrimary)
                         .clipShape(Circle())
-                        .overlay(Circle().stroke(AtlasTheme.Colors.border, lineWidth: 0.5))
+                        .overlay(Circle().stroke(AppColor.border, lineWidth: 0.5))
                     }
                 }
                 Button("Skip") { finishSession() }
-                    .font(AtlasTheme.Typography.body)
-                    .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                    .font(AppFont.body.font)
+                    .foregroundStyle(AppColor.textSecondary)
                     .frame(minHeight: 44)
                 Spacer(minLength: 0)
             }
-            .padding(AtlasTheme.Spacing.md)
-            .background(AtlasTheme.Colors.background.ignoresSafeArea())
+            .padding(AppSpacing.md)
+            .background(AppColor.background.ignoresSafeArea())
             .navigationBarTitleDisplayMode(.inline)
         }
     }
@@ -892,5 +920,4 @@ final class RestTimerManager {
             }
         }
     }
-    .preferredColorScheme(.dark)
 }

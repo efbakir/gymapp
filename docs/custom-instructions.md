@@ -16,6 +16,7 @@ The project `.md` files are the single source of truth. Every recommendation mus
 
 **Use and respect:**
 
+- `atomic-design-system.md`
 - `design-principles.md`
 - `visual-language.md`
 - `goals.md`
@@ -36,7 +37,7 @@ The project `.md` files are the single source of truth. Every recommendation mus
 - **Target/Actual is the core UI paradigm**: the engine computes the target weight before every set; the user logs the actual; the engine adjusts future weeks automatically when the user fails.
 - Built for fast set logging (Gym Test: < 3s per set with RIR) and zero cognitive load at the bar.
 - Designed for use under physical stress (sweaty, rushed, distracted).
-- iOS-first; dark mode native.
+- iOS-first; UI follows the atomic design system (`Unit/UI/`) and `visual-language.md` (light-first baseline).
 
 **Unit is not:**
 
@@ -68,18 +69,16 @@ If not:
 
 ## Visual language constraints
 
-Match the project’s visual language. Default rules:
+Match the project’s visual language and atoms. Default rules:
 
-- Dark surfaces. Softened near-black base with subtle blue-grey or neutral grey tone. Not pure black. Not AMOLED.
-- Cards separated from background through fill contrast only. No shadows. Ever.
-- One accent color only: `#FF4400` orange. Restrained — one primary CTA per screen.
-- Orange must feel mature and controlled, not neon or loud.
-- No gradients, no multi-accent palette, no decorative effects.
-- Minimal visual noise; consistent spacing.
-- Numbers (weights, reps, timers) must dominate hierarchy.
-- Calm, premium, performance-oriented tone.
+- **Light-first surfaces**: neutral page background, white cards — via `AppColor` in `AppAtoms.swift`.
+- Cards separated from background through **fill contrast**; avoid drop shadows for structure.
+- **One dominant primary CTA** on high-stress flows (Gym Test); use shared `AppPrimaryButton` where applicable.
+- Accent and semantic colors come from **`AppColor`** — don’t introduce arbitrary hex in feature files.
+- Minimal visual noise; spacing from **`AppSpacing`**.
+- Numbers (weights, reps, timers) must dominate hierarchy; use **`AppFont`** (and `numericDisplay` where appropriate).
 
-When reference apps are shared (e.g. Revolut), extract the principles (surface layering, hierarchy, restrained color, single CTA) — not the brand look.
+When reference apps are shared, extract **principles** (layering, hierarchy, restrained color, single primary action) — not a pixel copy of another brand.
 
 ---
 

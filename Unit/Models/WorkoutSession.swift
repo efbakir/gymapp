@@ -21,7 +21,7 @@ final class WorkoutSession {
     /// 0 = legacy (no cycle); 1–8 = week number within the cycle
     var weekNumber: Int
 
-    @Relationship(deleteRule: .cascade, inverse: \SetEntry.session)
+    @Relationship(deleteRule: .cascade)
     var setEntries: [SetEntry] = []
 
     init(

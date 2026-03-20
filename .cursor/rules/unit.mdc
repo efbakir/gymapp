@@ -30,7 +30,8 @@ alwaysApply: true
 ## Design and docs
 
 - **Design principles**: See `docs/design-principles.md` (minimalism, clarity, speed, consistency, accessibility).
-- **Visual language**: See `docs/visual-language.md` (accent color, cards, hierarchy, success feedback; Cash App–inspired).
+- **Atomic design system**: See `docs/atomic-design-system.md` (maps to `Unit/UI/Atoms`, `Molecules`, `Organisms`, `Templates`).
+- **Visual language**: See `docs/visual-language.md` (light-first surfaces, tokens, hierarchy, Gym Test).
 - **Competitors / analysis**: `docs/competitors.md`, `docs/competitors-analysis.md`.
 - **Behavior / cognitive**: `docs/cognitive-principles.md`, `docs/behavior-change.md`, `docs/mental-models.md`.
 - **Strategy**: `docs/values.md`, `docs/goals.md`, `docs/skills-reference.md`.

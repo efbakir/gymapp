@@ -15,6 +15,7 @@ struct CreateCycleView: View {
     @Query(sort: \Split.name) private var splits: [Split]
     @Query(sort: \DayTemplate.name) private var templates: [DayTemplate]
     @Query(sort: \Exercise.displayName) private var exercises: [Exercise]
+    @Query(sort: \Cycle.startDate, order: .reverse) private var cycles: [Cycle]
     @Query(sort: \WorkoutSession.date, order: .reverse) private var sessions: [WorkoutSession]
 
     // Form state
@@ -83,7 +84,7 @@ struct CreateCycleView: View {
                 Section("1. Pick a Split") {
                     if splits.isEmpty {
                         Text("No splits found. Create a split in Program first.")
-                            .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                            .foregroundStyle(AppColor.textSecondary)
                     } else {
                         ForEach(splits, id: \.id) { split in
                             Button {
@@ -93,11 +94,11 @@ struct CreateCycleView: View {
                             } label: {
                                 HStack {
                                     Text(split.name)
-                                        .foregroundStyle(AtlasTheme.Colors.textPrimary)
+                                        .foregroundStyle(AppColor.textPrimary)
                                     Spacer()
                                     if selectedSplitId == split.id {
-                                        Image(systemName: "checkmark")
-                                            .foregroundStyle(AtlasTheme.Colors.accent)
+                                        AppIcon.checkmark.image()
+                                            .foregroundStyle(AppColor.accent)
                                     }
                                 }
                             }
@@ -105,14 +106,14 @@ struct CreateCycleView: View {
                         }
                     }
                 }
-                .listRowBackground(AtlasTheme.Colors.elevatedBackground)
+                .listRowBackground(AppColor.surface)
 
                 // Step 2: Name
                 Section("2. Cycle Name") {
                     TextField("e.g. PPL Cycle 1 — March 2026", text: $cycleName)
                         .frame(minHeight: 44)
                 }
-                .listRowBackground(AtlasTheme.Colors.elevatedBackground)
+                .listRowBackground(AppColor.surface)
 
                 // Step 3: Start Date
                 Section("3. Start Date") {
@@ -120,7 +121,7 @@ struct CreateCycleView: View {
                         .datePickerStyle(.compact)
                         .frame(minHeight: 44)
                 }
-                .listRowBackground(AtlasTheme.Colors.elevatedBackground)
+                .listRowBackground(AppColor.surface)
 
                 // Step 4: Global Increment
                 Section("4. Default Weekly Increment") {
@@ -133,21 +134,21 @@ struct CreateCycleView: View {
                             Text("Increment")
                             Spacer()
                             Text("\(globalIncrementKg.weightString) kg")
-                                .foregroundStyle(AtlasTheme.Colors.accent)
+                                .foregroundStyle(AppColor.accent)
                                 .monospacedDigit()
                         }
                     }
                     .frame(minHeight: 44)
                 }
-                .listRowBackground(AtlasTheme.Colors.elevatedBackground)
+                .listRowBackground(AppColor.surface)
 
                 // Step 5: Per-exercise overrides (advanced, collapsed)
                 Section {
                     DisclosureGroup("Per-Exercise Overrides (Advanced)", isExpanded: $showAdvanced) {
                         if exercisesInSplit.isEmpty {
                             Text("Select a split above to configure per-exercise targets.")
-                                .font(AtlasTheme.Typography.caption)
-                                .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                                .font(AppFont.caption.font)
+                                .foregroundStyle(AppColor.textSecondary)
                         } else {
                             ForEach(exercisesInSplit, id: \.id) { exercise in
                                 exerciseOverrideRow(exercise)
@@ -155,15 +156,15 @@ struct CreateCycleView: View {
                         }
                     }
                 }
-                .listRowBackground(AtlasTheme.Colors.elevatedBackground)
+                .listRowBackground(AppColor.surface)
 
                 // Step 6: Goal awareness (optional)
                 Section {
                     DisclosureGroup("Goal Lift (Optional)", isExpanded: $showGoal) {
                         if exercisesInSplit.isEmpty {
                             Text("Select a split above to choose a goal lift.")
-                                .font(AtlasTheme.Typography.caption)
-                                .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                                .font(AppFont.caption.font)
+                                .foregroundStyle(AppColor.textSecondary)
                         } else {
                             Picker("Exercise", selection: $goalExerciseId) {
                                 Text("None").tag(Optional<UUID>.none)
@@ -199,18 +200,18 @@ struct CreateCycleView: View {
 
                                 if let estimate = goalEstimateText {
                                     Text(estimate)
-                                        .font(AtlasTheme.Typography.caption)
-                                        .foregroundStyle(AtlasTheme.Colors.accent)
-                                        .padding(.vertical, AtlasTheme.Spacing.xxs)
+                                        .font(AppFont.caption.font)
+                                        .foregroundStyle(AppColor.accent)
+                                        .padding(.vertical, AppSpacing.xs)
                                 }
                             }
                         }
                     }
                 }
-                .listRowBackground(AtlasTheme.Colors.elevatedBackground)
+                .listRowBackground(AppColor.surface)
             }
             .scrollContentBackground(.hidden)
-            .background(AtlasTheme.Colors.background.ignoresSafeArea())
+            .background(AppColor.background.ignoresSafeArea())
             .navigationTitle("New Cycle")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -221,8 +222,8 @@ struct CreateCycleView: View {
                     Button("Create Cycle") {
                         createCycle()
                     }
-                    .font(AtlasTheme.Typography.body.weight(.semibold))
-                    .foregroundStyle(canCreate ? AtlasTheme.Colors.accent : AtlasTheme.Colors.textSecondary)
+                    .font(AppFont.body.font.weight(.semibold))
+                    .foregroundStyle(canCreate ? AppColor.accent : AppColor.textSecondary)
                     .disabled(!canCreate)
                 }
             }
@@ -244,15 +245,15 @@ struct CreateCycleView: View {
             set: { perExerciseOverrides[exercise.id] = $0 }
         )
 
-        return VStack(alignment: .leading, spacing: AtlasTheme.Spacing.xs) {
+        return VStack(alignment: .leading, spacing: AppSpacing.sm) {
             Text(exercise.displayName)
-                .font(AtlasTheme.Typography.sectionTitle)
+                .font(AppFont.sectionHeader.font)
 
-            HStack(spacing: AtlasTheme.Spacing.md) {
+            HStack(spacing: AppSpacing.md) {
                 VStack(alignment: .leading) {
                     Text("Base Weight (kg)")
-                        .font(AtlasTheme.Typography.caption)
-                        .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                        .font(AppFont.caption.font)
+                        .foregroundStyle(AppColor.textSecondary)
                     Stepper(
                         value: override.baseWeightKg,
                         in: 0...300,
@@ -265,8 +266,8 @@ struct CreateCycleView: View {
 
                 VStack(alignment: .leading) {
                     Text("Increment (kg)")
-                        .font(AtlasTheme.Typography.caption)
-                        .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                        .font(AppFont.caption.font)
+                        .foregroundStyle(AppColor.textSecondary)
                     Stepper(
                         value: override.incrementKg,
                         in: 0.5...10,
@@ -279,7 +280,7 @@ struct CreateCycleView: View {
             }
             .frame(minHeight: 44)
         }
-        .padding(.vertical, AtlasTheme.Spacing.xs)
+        .padding(.vertical, AppSpacing.sm)
     }
 
     // MARK: - Actions
@@ -311,6 +312,10 @@ struct CreateCycleView: View {
     private func createCycle() {
         guard let splitId = selectedSplitId else { return }
 
+        for existingCycle in cycles where !existingCycle.isCompleted {
+            existingCycle.isActive = false
+        }
+
         let cycle = Cycle(
             name: cycleName.trimmingCharacters(in: .whitespaces),
             splitId: splitId,
@@ -321,9 +326,6 @@ struct CreateCycleView: View {
             isCompleted: false
         )
         modelContext.insert(cycle)
-
-        // Deactivate any previously active cycle
-        // (handled by the new cycle's isActive flag being the source of truth)
 
         // Insert ProgressionRule for each exercise in the split
         for exercise in exercisesInSplit {
@@ -347,5 +349,4 @@ struct CreateCycleView: View {
 #Preview {
     CreateCycleView()
         .modelContainer(PreviewSampleData.makePreviewContainer())
-        .preferredColorScheme(.dark)
 }

@@ -39,7 +39,7 @@ The [awesome-openclaw-skills](https://github.com/VoltAgent/awesome-openclaw-skil
 |-------|--------------------|
 | **apple-hig** | (See above.) Primary reference for iOS visual and interaction standards. |
 
-Our **design principles** and **visual language** docs (see [design-principles.md](design-principles.md), [visual-language.md](visual-language.md)) are the source of truth; these skills reinforce or contrast with them.
+Our **design principles**, **atomic design system**, and **visual language** docs (see [design-principles.md](design-principles.md), [atomic-design-system.md](atomic-design-system.md), [visual-language.md](visual-language.md)) are the source of truth; these skills reinforce or contrast with them.
 
 ---
 

@@ -19,13 +19,13 @@ struct OnboardingUnitsView: View {
         ) {
             @Bindable var vm = vm
 
-            VStack(spacing: AtlasTheme.Spacing.xl) {
+            VStack(spacing: AppSpacing.xl) {
                 Picker("Weight Unit", selection: $vm.unitSystem) {
                     Text("kg").tag("kg")
                     Text("lb").tag("lb")
                 }
                 .pickerStyle(.segmented)
-                .tint(AtlasTheme.Colors.accent)
+                .tint(AppColor.accent)
             }
         }
     }
@@ -35,7 +35,6 @@ struct OnboardingUnitsView: View {
     NavigationStack {
         OnboardingUnitsView { }
             .environment(OnboardingViewModel())
-            .preferredColorScheme(.dark)
     }
-    .tint(AtlasTheme.Colors.accent)
+    .tint(AppColor.accent)
 }

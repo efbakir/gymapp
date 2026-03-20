@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=402">
+<link rel="stylesheet" href="shared.css">
+<title>Settings</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<style>
+.toggle-track {
+  width: 51px; height: 31px; border-radius: 16px;
+  background: var(--success); position: relative; display: inline-block;
+}
+.toggle-thumb {
+  width: 27px; height: 27px; border-radius: 50%; background: #fff;
+  position: absolute; top: 2px; right: 2px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+}
+.segmented {
+  display: flex; background: var(--bg); border-radius: 8px; padding: 2px; gap: 0;
+}
+.segmented span {
+  flex: 1; text-align: center; padding: 6px 12px; border-radius: 7px;
+  font-size: 13px; font-weight: 500; color: var(--text-secondary);
+}
+.segmented span.active {
+  background: #fff; color: var(--text-primary); font-weight: 600;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+</style>
+</head>
+<body>
+
+<div class="status-bar">
+  <span class="time">9:41</span>
+  <span class="icons">
+    <svg width="17" height="12" fill="none"><rect x="0" y="3" width="3" height="9" rx="1" fill="#000"/><rect x="4.5" y="2" width="3" height="10" rx="1" fill="#000"/><rect x="9" y="0.5" width="3" height="11.5" rx="1" fill="#000"/><rect x="13.5" y="0" width="3" height="12" rx="1" fill="#000"/></svg>
+    <svg width="16" height="12" fill="none"><path d="M8 2.4C10.7 2.4 13 3.5 14.6 5.2L13.2 6.6C11.9 5.2 10.1 4.4 8 4.4S4.1 5.2 2.8 6.6L1.4 5.2C3 3.5 5.3 2.4 8 2.4ZM8 6.4C9.5 6.4 10.9 7 11.8 8L10.4 9.4C9.8 8.8 9 8.4 8 8.4S6.2 8.8 5.6 9.4L4.2 8C5.1 7 6.5 6.4 8 6.4ZM9.4 11.4L8 12.8L6.6 11.4C7 11 7.5 10.8 8 10.8S9 11 9.4 11.4Z" fill="#000"/></svg>
+    <svg width="27" height="12" fill="none"><rect x="0" y="1" width="22" height="10" rx="2.5" stroke="#000" stroke-width="1"/><rect x="1.5" y="2.5" width="18" height="7" rx="1.5" fill="#000"/><rect x="23" y="4" width="2.5" height="4" rx="1" fill="#000"/></svg>
+  </span>
+</div>
+
+<div class="nav-bar">
+  <div class="title">Settings</div>
+</div>
+
+<div class="content">
+  <!-- Appearance -->
+  <div class="card flex-col gap-12">
+    <span class="section-title">Appearance</span>
+    <div class="row" style="border:none;">
+      <span class="body-text">Light Mode</span>
+      <div class="toggle-track"><div class="toggle-thumb"></div></div>
+    </div>
+  </div>
+
+  <!-- Onboarding Questions -->
+  <div class="card flex-col gap-16">
+    <span class="section-title">Onboarding Questions</span>
+
+    <div class="flex-col gap-8">
+      <span class="caption text-secondary">Weight unit</span>
+      <div class="segmented">
+        <span class="active">kg</span>
+        <span>lb</span>
+      </div>
+    </div>
+
+    <div class="flex-col gap-8">
+      <span class="caption text-secondary">Days per week</span>
+      <div class="flex-row gap-12">
+        <div style="width: 36px; height: 36px; border-radius: var(--radius-sm); background: var(--bg); display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600;">−</div>
+        <span class="metric">3</span>
+        <div style="width: 36px; height: 36px; border-radius: var(--radius-sm); background: var(--bg); display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600;">+</div>
+      </div>
+    </div>
+
+    <div class="flex-col gap-8">
+      <span class="caption text-secondary">Day names</span>
+      <div style="background: var(--bg); border-radius: var(--radius-sm); padding: 0 12px; height: 44px; display: flex; align-items: center;">
+        <span class="body-text">Push</span>
+      </div>
+      <div style="background: var(--bg); border-radius: var(--radius-sm); padding: 0 12px; height: 44px; display: flex; align-items: center;">
+        <span class="body-text">Pull</span>
+      </div>
+      <div style="background: var(--bg); border-radius: var(--radius-sm); padding: 0 12px; height: 44px; display: flex; align-items: center;">
+        <span class="body-text">Legs</span>
+      </div>
+    </div>
+
+    <div class="flex-col gap-8">
+      <span class="caption text-secondary">Weekly increment</span>
+      <div class="flex-row gap-12">
+        <div style="width: 36px; height: 36px; border-radius: var(--radius-sm); background: var(--bg); display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600;">−</div>
+        <span class="body-text fw-600">2.5 kg</span>
+        <div style="width: 36px; height: 36px; border-radius: var(--radius-sm); background: var(--bg); display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600;">+</div>
+      </div>
+    </div>
+
+    <div class="flex-col gap-8">
+      <span class="caption text-secondary">Cycle start</span>
+      <div class="segmented">
+        <span class="active">Today</span>
+        <span>Next Mon</span>
+        <span>Custom</span>
+      </div>
+    </div>
+
+    <button class="cta">Run Onboarding Again</button>
+  </div>
+
+  <!-- About -->
+  <div class="card flex-col gap-12">
+    <span class="section-title">About</span>
+    <div class="row" style="border:none;">
+      <span class="body-text">Version</span>
+      <span class="caption text-secondary">1.0 (1)</span>
+    </div>
+  </div>
+</div>
+
+<div class="tab-bar">
+  <a class="tab-item">
+    <span class="tab-icon">⌂</span>
+    <span>Home</span>
+  </a>
+  <a class="tab-item">
+    <span class="tab-icon">⊞</span>
+    <span>Program</span>
+  </a>
+  <a class="tab-item active">
+    <span class="tab-icon">⚙</span>
+    <span>Settings</span>
+  </a>
+</div>
+
+</body>
+</html>

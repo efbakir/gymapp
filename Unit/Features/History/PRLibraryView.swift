@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct PRLibraryView: View {
+    @Environment(\.dismiss) private var dismiss
+
     let sessions: [WorkoutSession]
     let exercises: [Exercise]
 
@@ -31,46 +33,40 @@ struct PRLibraryView: View {
     }
 
     var body: some View {
-        NavigationStack {
-            List {
-                if records.isEmpty {
-                    Section {
-                        VStack(spacing: AtlasTheme.Spacing.sm) {
-                            Image(systemName: "trophy")
-                                .font(.system(size: 32, weight: .light))
-                                .foregroundStyle(AtlasTheme.Colors.textSecondary)
-                            Text("No PRs yet. Complete workouts to build your library.")
-                                .font(AtlasTheme.Typography.body)
-                                .foregroundStyle(AtlasTheme.Colors.textSecondary)
-                                .multilineTextAlignment(.center)
-                        }
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, AtlasTheme.Spacing.xl)
+        AppScreen(
+            title: "PR Library",
+            leadingAction: NavAction(icon: .back, action: { dismiss() })
+        ) {
+            if records.isEmpty {
+                AppCard {
+                    VStack(spacing: AppSpacing.sm) {
+                        AppIcon.trophy.image(size: 32, weight: .light)
+                            .foregroundStyle(AppColor.textSecondary)
+                        Text("No PRs yet. Complete workouts to build your library.")
+                            .font(AppFont.body.font)
+                            .foregroundStyle(AppColor.textSecondary)
+                            .multilineTextAlignment(.center)
                     }
-                    .listRowBackground(AtlasTheme.Colors.card)
-                } else {
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, AppSpacing.xl)
+                }
+            } else {
+                VStack(spacing: AppSpacing.sm) {
                     ForEach(records) { record in
-                        HStack {
-                            VStack(alignment: .leading, spacing: AtlasTheme.Spacing.xxs) {
-                                Text(record.exerciseName)
-                                    .font(AtlasTheme.Typography.body)
-                                Text("Best set")
-                                    .font(AtlasTheme.Typography.caption)
-                                    .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                        AppCard {
+                            AppListRow(
+                                title: record.exerciseName,
+                                subtitle: "Best set"
+                            ) {
+                                Text("\(record.weight.weightString) kg × \(record.reps)")
+                                    .font(AppFont.body.font)
+                                    .foregroundStyle(AppColor.textPrimary)
+                                    .monospacedDigit()
                             }
-                            Spacer(minLength: 0)
-                            Text("\(record.weight.weightString) kg × \(record.reps)")
-                                .font(AtlasTheme.Typography.body)
-                                .monospacedDigit()
                         }
-                        .frame(minHeight: 44)
                     }
-                    .listRowBackground(AtlasTheme.Colors.card)
                 }
             }
-            .scrollContentBackground(.hidden)
-            .background(AtlasTheme.Colors.background.ignoresSafeArea())
-            .navigationTitle("PR Library")
         }
     }
 }
@@ -84,5 +80,4 @@ private struct PRRecord: Identifiable {
 
 #Preview {
     PRLibraryView(sessions: [], exercises: [])
-        .preferredColorScheme(.dark)
 }

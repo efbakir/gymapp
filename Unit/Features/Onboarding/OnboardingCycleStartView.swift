@@ -10,6 +10,8 @@ import SwiftUI
 
 struct OnboardingCycleStartView: View {
     @Environment(OnboardingViewModel.self) private var vm
+    var progressStep: Int
+    var progressTotal: Int
     var onCreateCycle: () -> Void
 
     private let dateFormatter: DateFormatter = {
@@ -28,10 +30,12 @@ struct OnboardingCycleStartView: View {
 
         OnboardingShell(
             title: "When do you want to start?",
-            ctaLabel: "Create My Cycle",
+            ctaLabel: "Continue",
+            progressStep: progressStep,
+            progressTotal: progressTotal,
             onContinue: onCreateCycle
         ) {
-            VStack(alignment: .leading, spacing: AtlasTheme.Spacing.sm) {
+            VStack(alignment: .leading, spacing: AppSpacing.sm) {
 
                 // Start options
                 StartOptionRow(
@@ -39,7 +43,7 @@ struct OnboardingCycleStartView: View {
                     detail: dateFormatter.string(from: todayDate()),
                     isSelected: vm.startOption == .today
                 ) {
-                    vm.startOption = .today
+                    selectStartOption(.today)
                 }
 
                 StartOptionRow(
@@ -47,7 +51,7 @@ struct OnboardingCycleStartView: View {
                     detail: dateFormatter.string(from: nextMondayDate()),
                     isSelected: vm.startOption == .nextMonday
                 ) {
-                    vm.startOption = .nextMonday
+                    selectStartOption(.nextMonday)
                 }
 
                 // Custom date option
@@ -57,7 +61,7 @@ struct OnboardingCycleStartView: View {
                         detail: vm.startOption == .custom ? dateFormatter.string(from: vm.customDate) : "",
                         isSelected: vm.startOption == .custom
                     ) {
-                        vm.startOption = .custom
+                        selectStartOption(.custom)
                     }
 
                     if vm.startOption == .custom {
@@ -68,24 +72,23 @@ struct OnboardingCycleStartView: View {
                             displayedComponents: .date
                         )
                         .datePickerStyle(.graphical)
-                        .tint(AtlasTheme.Colors.accent)
-                        .padding(.horizontal, AtlasTheme.Spacing.md)
-                        .padding(.bottom, AtlasTheme.Spacing.sm)
+                        .tint(AppColor.accent)
+                        .padding(.horizontal, AppSpacing.md)
+                        .padding(.bottom, AppSpacing.sm)
                     }
                 }
-                .background(AtlasTheme.Colors.card)
-                .clipShape(RoundedRectangle(cornerRadius: AtlasTheme.Radius.lg, style: .continuous))
+                .background(AppColor.cardBackground)
+                .clipShape(RoundedRectangle(cornerRadius: AppRadius.lg, style: .continuous))
 
                 // Cycle summary
                 HStack {
-                    Image(systemName: "calendar")
-                        .foregroundStyle(AtlasTheme.Colors.textSecondary)
-                        .font(.system(size: 14))
+                    AppIcon.calendarPlain.image(size: 14, weight: .semibold)
+                        .foregroundStyle(AppColor.textSecondary)
                     Text("Your 8-week cycle ends on \(dateFormatter.string(from: endDate)).")
-                        .font(AtlasTheme.Typography.caption)
-                        .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                        .font(AppFont.caption.font)
+                        .foregroundStyle(AppColor.textSecondary)
                 }
-                .padding(.top, AtlasTheme.Spacing.xs)
+                .padding(.top, AppSpacing.sm)
             }
         }
     }
@@ -100,6 +103,14 @@ struct OnboardingCycleStartView: View {
         let days = weekday == 2 ? 7 : (9 - weekday) % 7
         return cal.date(byAdding: .day, value: days, to: cal.startOfDay(for: Date())) ?? Date()
     }
+
+    private func selectStartOption(_ option: OnboardingViewModel.StartOption) {
+        var transaction = Transaction()
+        transaction.disablesAnimations = true
+        withTransaction(transaction) {
+            vm.startOption = option
+        }
+    }
 }
 
 // MARK: - Start Option Row
@@ -112,36 +123,40 @@ private struct StartOptionRow: View {
 
     var body: some View {
         Button(action: action) {
-            HStack(spacing: AtlasTheme.Spacing.md) {
+            HStack(spacing: AppSpacing.md) {
                 ZStack {
                     Circle()
                         .stroke(
-                            isSelected ? AtlasTheme.Colors.accent : AtlasTheme.Colors.border,
+                            isSelected ? AppColor.accent : AppColor.border,
                             lineWidth: 2
                         )
                         .frame(width: 20, height: 20)
                     if isSelected {
                         Circle()
-                            .fill(AtlasTheme.Colors.accent)
+                            .fill(AppColor.accent)
                             .frame(width: 10, height: 10)
                     }
                 }
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text(label)
-                        .font(AtlasTheme.Typography.body)
-                        .foregroundStyle(AtlasTheme.Colors.textPrimary)
+                        .font(AppFont.body.font)
+                        .foregroundStyle(AppColor.textPrimary)
                     if !detail.isEmpty {
                         Text(detail)
-                            .font(AtlasTheme.Typography.caption)
-                            .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                            .font(AppFont.caption.font)
+                            .foregroundStyle(AppColor.textSecondary)
                     }
                 }
                 Spacer()
+                if label == "Pick a date" {
+                    AppIcon.calendarPlain.image(size: 15, weight: .semibold)
+                        .foregroundStyle(AppColor.textSecondary)
+                }
             }
-            .padding(AtlasTheme.Spacing.md)
-            .background(AtlasTheme.Colors.card)
-            .clipShape(RoundedRectangle(cornerRadius: AtlasTheme.Radius.lg, style: .continuous))
+            .padding(AppSpacing.md)
+            .background(AppColor.cardBackground)
+            .clipShape(RoundedRectangle(cornerRadius: AppRadius.lg, style: .continuous))
         }
         .buttonStyle(.plain)
     }
@@ -149,9 +164,8 @@ private struct StartOptionRow: View {
 
 #Preview {
     NavigationStack {
-        OnboardingCycleStartView { }
+        OnboardingCycleStartView(progressStep: 6, progressTotal: 6) { }
             .environment(OnboardingViewModel())
-            .preferredColorScheme(.dark)
     }
-    .tint(AtlasTheme.Colors.accent)
+    .tint(AppColor.accent)
 }

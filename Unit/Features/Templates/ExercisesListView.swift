@@ -31,30 +31,30 @@ struct ExercisesListView: View {
         List {
             ForEach(filteredExercises, id: \.id) { exercise in
                 NavigationLink(value: exercise) {
-                    VStack(alignment: .leading, spacing: AtlasTheme.Spacing.xxs) {
-                        HStack(spacing: AtlasTheme.Spacing.xs) {
+                    VStack(alignment: .leading, spacing: AppSpacing.xs) {
+                        HStack(spacing: AppSpacing.sm) {
                             Text(exercise.displayName)
-                                .font(AtlasTheme.Typography.body)
+                                .font(AppFont.body.font)
                             if exercise.isBodyweight {
                                 Text("BW")
-                                    .font(AtlasTheme.Typography.caption)
-                                    .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                                    .font(AppFont.caption.font)
+                                    .foregroundStyle(AppColor.textSecondary)
                             }
                         }
                         if !exercise.aliases.isEmpty {
                             Text(exercise.aliases.joined(separator: " • "))
-                                .font(AtlasTheme.Typography.caption)
-                                .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                                .font(AppFont.caption.font)
+                                .foregroundStyle(AppColor.textSecondary)
                         }
                     }
                     .frame(minHeight: 44, alignment: .leading)
                 }
             }
             .onDelete(perform: deleteExercises)
-            .listRowBackground(AtlasTheme.Colors.card)
+            .listRowBackground(AppColor.cardBackground)
         }
         .scrollContentBackground(.hidden)
-        .background(AtlasTheme.Colors.background.ignoresSafeArea())
+        .background(AppColor.background.ignoresSafeArea())
         .navigationTitle("Exercises")
         .navigationDestination(for: Exercise.self) { exercise in
             ExerciseDetailView(exercise: exercise)
@@ -65,7 +65,7 @@ struct ExercisesListView: View {
                 Button {
                     showingAddExercise = true
                 } label: {
-                    Image(systemName: "plus.circle.fill")
+                    AppIcon.addCircle.image()
                 }
                 .accessibilityLabel("Add exercise")
             }
@@ -110,10 +110,10 @@ struct AddExerciseView: View {
                     Toggle("Bodyweight", isOn: $isBodyweight)
                         .frame(minHeight: 44)
                 }
-                .listRowBackground(AtlasTheme.Colors.card)
+                .listRowBackground(AppColor.cardBackground)
             }
             .scrollContentBackground(.hidden)
-            .background(AtlasTheme.Colors.background.ignoresSafeArea())
+            .background(AppColor.background.ignoresSafeArea())
             .navigationTitle("New Exercise")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -195,90 +195,90 @@ struct ExerciseDetailView: View {
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: AtlasTheme.Spacing.md) {
-                VStack(alignment: .leading, spacing: AtlasTheme.Spacing.xxs) {
+            VStack(alignment: .leading, spacing: AppSpacing.md) {
+                VStack(alignment: .leading, spacing: AppSpacing.xs) {
                     Text(exercise.displayName)
-                        .font(AtlasTheme.Typography.hero)
+                        .font(AppFont.largeTitle.font)
                     Text("Brzycki 1RM and session volume")
-                        .font(AtlasTheme.Typography.caption)
-                        .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                        .font(AppFont.caption.font)
+                        .foregroundStyle(AppColor.textSecondary)
                 }
-                .atlasCardStyle()
+                .appCardStyle()
 
                 if summaries.isEmpty {
                     Text("No logged sessions yet.")
-                        .font(AtlasTheme.Typography.body)
-                        .foregroundStyle(AtlasTheme.Colors.textSecondary)
-                        .atlasCardStyle()
+                        .font(AppFont.body.font)
+                        .foregroundStyle(AppColor.textSecondary)
+                        .appCardStyle()
                 } else {
-                    VStack(alignment: .leading, spacing: AtlasTheme.Spacing.sm) {
+                    VStack(alignment: .leading, spacing: AppSpacing.sm) {
                         Text("Estimated 1RM Trend")
-                            .font(AtlasTheme.Typography.sectionTitle)
+                            .font(AppFont.sectionHeader.font)
                         Chart(trendAscending) { item in
                             LineMark(
                                 x: .value("Date", item.sessionDate),
                                 y: .value("1RM", item.estimatedOneRM)
                             )
-                            .foregroundStyle(AtlasTheme.Colors.accent)
+                            .foregroundStyle(AppColor.textPrimary)
                             PointMark(
                                 x: .value("Date", item.sessionDate),
                                 y: .value("1RM", item.estimatedOneRM)
                             )
-                            .foregroundStyle(AtlasTheme.Colors.accent)
+                            .foregroundStyle(AppColor.textPrimary)
                         }
                         .frame(height: 180)
                     }
-                    .atlasCardStyle()
+                    .appCardStyle()
 
-                    VStack(alignment: .leading, spacing: AtlasTheme.Spacing.sm) {
+                    VStack(alignment: .leading, spacing: AppSpacing.sm) {
                         Text("Session Volume")
-                            .font(AtlasTheme.Typography.sectionTitle)
+                            .font(AppFont.sectionHeader.font)
                         Chart(trendAscending) { item in
                             BarMark(
                                 x: .value("Date", item.sessionDate),
                                 y: .value("Volume", item.totalVolume)
                             )
-                            .foregroundStyle(AtlasTheme.Colors.accentSoft)
+                            .foregroundStyle(AppColor.accentSoft)
                         }
                         .frame(height: 160)
                     }
-                    .atlasCardStyle()
+                    .appCardStyle()
 
-                    VStack(alignment: .leading, spacing: AtlasTheme.Spacing.sm) {
+                    VStack(alignment: .leading, spacing: AppSpacing.sm) {
                         Text("Past Sessions")
-                            .font(AtlasTheme.Typography.sectionTitle)
+                            .font(AppFont.sectionHeader.font)
 
                         ForEach(summaries) { summary in
-                            VStack(alignment: .leading, spacing: AtlasTheme.Spacing.xxs) {
+                            VStack(alignment: .leading, spacing: AppSpacing.xs) {
                                 HStack {
                                     Text(summary.templateName)
-                                        .font(AtlasTheme.Typography.body)
+                                        .font(AppFont.body.font)
                                     Spacer(minLength: 0)
                                     Text(summary.sessionDate, style: .date)
-                                        .font(AtlasTheme.Typography.caption)
-                                        .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                                        .font(AppFont.caption.font)
+                                        .foregroundStyle(AppColor.textSecondary)
                                 }
                                 Text("Top set: \(summary.topSetText)")
-                                    .font(AtlasTheme.Typography.caption)
-                                    .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                                    .font(AppFont.caption.font)
+                                    .foregroundStyle(AppColor.textSecondary)
                                 Text("Est. 1RM: \(formatWeight(summary.estimatedOneRM)) kg • Volume: \(Int(summary.totalVolume))")
-                                    .font(AtlasTheme.Typography.caption)
-                                    .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                                    .font(AppFont.caption.font)
+                                    .foregroundStyle(AppColor.textSecondary)
                             }
                             .frame(maxWidth: .infinity, alignment: .leading)
-                            .padding(.vertical, AtlasTheme.Spacing.xs)
+                            .padding(.vertical, AppSpacing.sm)
 
                             if summary.id != summaries.last?.id {
-                                Divider()
+                                AppDivider()
                             }
                         }
                     }
-                    .atlasCardStyle()
+                    .appCardStyle()
                 }
             }
-            .padding(AtlasTheme.Spacing.md)
+            .padding(AppSpacing.md)
         }
-        .background(AtlasTheme.Colors.background)
+        .background(AppColor.background)
         .navigationTitle("Exercise")
         .navigationBarTitleDisplayMode(.inline)
     }
@@ -304,5 +304,4 @@ struct ExerciseDetailView: View {
         ExercisesListView()
             .modelContainer(PreviewSampleData.makePreviewContainer())
     }
-    .preferredColorScheme(.dark)
 }

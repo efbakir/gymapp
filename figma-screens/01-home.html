@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=402">
+<link rel="stylesheet" href="shared.css">
+<title>Home - Training Day</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+</head>
+<body>
+
+<div class="status-bar">
+  <span class="time">9:41</span>
+  <span class="icons">
+    <svg width="17" height="12" fill="none"><rect x="0" y="3" width="3" height="9" rx="1" fill="#000"/><rect x="4.5" y="2" width="3" height="10" rx="1" fill="#000"/><rect x="9" y="0.5" width="3" height="11.5" rx="1" fill="#000"/><rect x="13.5" y="0" width="3" height="12" rx="1" fill="#000"/></svg>
+    <svg width="16" height="12" fill="none"><path d="M8 2.4C10.7 2.4 13 3.5 14.6 5.2L13.2 6.6C11.9 5.2 10.1 4.4 8 4.4S4.1 5.2 2.8 6.6L1.4 5.2C3 3.5 5.3 2.4 8 2.4ZM8 6.4C9.5 6.4 10.9 7 11.8 8L10.4 9.4C9.8 8.8 9 8.4 8 8.4S6.2 8.8 5.6 9.4L4.2 8C5.1 7 6.5 6.4 8 6.4ZM9.4 11.4L8 12.8L6.6 11.4C7 11 7.5 10.8 8 10.8S9 11 9.4 11.4Z" fill="#000"/></svg>
+    <svg width="27" height="12" fill="none"><rect x="0" y="1" width="22" height="10" rx="2.5" stroke="#000" stroke-width="1"/><rect x="1.5" y="2.5" width="18" height="7" rx="1.5" fill="#000"/><rect x="23" y="4" width="2.5" height="4" rx="1" fill="#000"/></svg>
+  </span>
+</div>
+
+<div class="nav-bar">
+  <div class="title">Home</div>
+  <div class="nav-btn">History</div>
+</div>
+
+<div class="content">
+  <!-- Header -->
+  <div class="flex-col gap-4" style="padding-bottom: 4px;">
+    <div class="hero-text">Good morning</div>
+    <div class="body-text text-secondary">Push Day today</div>
+  </div>
+
+  <!-- Training Day Card -->
+  <div class="card flex-col gap-16">
+    <div class="flex-row gap-12">
+      <span class="caption fw-600" style="color: var(--text-primary);">Week 3 of 8</span>
+      <span class="caption text-secondary">·</span>
+      <span class="caption text-secondary">PPL Cycle 1</span>
+    </div>
+
+    <div class="flex-col gap-4">
+      <div class="hero-text">Push</div>
+      <div class="caption">Last: Mar 10</div>
+    </div>
+
+    <!-- Exercise targets -->
+    <div class="flex-col gap-8">
+      <div class="row" style="border: none;">
+        <span class="body-text" style="flex:1;">Bench Press</span>
+        <div class="flex-col items-start" style="align-items: flex-end; gap: 2px;">
+          <div class="flex-row gap-4">
+            <span class="caption text-secondary mono">Last 80 × 5</span>
+            <span class="badge badge-success">+2.5kg</span>
+          </div>
+          <span class="body-text fw-600 mono">82.5kg × 5</span>
+        </div>
+      </div>
+      <div class="row">
+        <span class="body-text" style="flex:1;">Overhead Press</span>
+        <div class="flex-col" style="align-items: flex-end; gap: 2px;">
+          <div class="flex-row gap-4">
+            <span class="caption text-secondary mono">Last 45 × 8</span>
+            <span class="badge badge-success">+2.5kg</span>
+          </div>
+          <span class="body-text fw-600 mono">47.5kg × 8</span>
+        </div>
+      </div>
+      <div class="caption text-secondary fw-600" style="padding-top: 4px;">+2 more exercises</div>
+    </div>
+
+    <button class="cta">Start Session</button>
+  </div>
+</div>
+
+<div class="tab-bar">
+  <a class="tab-item active">
+    <span class="tab-icon">⌂</span>
+    <span>Home</span>
+  </a>
+  <a class="tab-item">
+    <span class="tab-icon">⊞</span>
+    <span>Program</span>
+  </a>
+  <a class="tab-item">
+    <span class="tab-icon">⚙</span>
+    <span>Settings</span>
+  </a>
+</div>
+
+</body>
+</html>

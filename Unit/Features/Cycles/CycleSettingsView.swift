@@ -30,7 +30,7 @@ struct CycleSettingsView: View {
                     TextField("Name", text: $cycle.name)
                         .frame(minHeight: 44)
                 }
-                .listRowBackground(AtlasTheme.Colors.elevatedBackground)
+                .listRowBackground(AppColor.surface)
 
                 Section("Defaults") {
                     Stepper(
@@ -42,13 +42,13 @@ struct CycleSettingsView: View {
                             Text("Global Increment")
                             Spacer()
                             Text("\(cycle.globalIncrementKg.weightString) kg/week")
-                                .foregroundStyle(AtlasTheme.Colors.accent)
+                                .foregroundStyle(AppColor.accent)
                                 .monospacedDigit()
                         }
                     }
                     .frame(minHeight: 44)
                 }
-                .listRowBackground(AtlasTheme.Colors.elevatedBackground)
+                .listRowBackground(AppColor.surface)
 
                 if !cycleRules.isEmpty {
                     Section {
@@ -65,7 +65,7 @@ struct CycleSettingsView: View {
                     } footer: {
                         Text("Changing base weight recalculates all future week targets.")
                     }
-                    .listRowBackground(AtlasTheme.Colors.elevatedBackground)
+                    .listRowBackground(AppColor.surface)
                 }
 
                 Section("Danger Zone") {
@@ -88,10 +88,10 @@ struct CycleSettingsView: View {
                         Text("This resets all failure counts and deload flags. Logged sessions are preserved.")
                     }
                 }
-                .listRowBackground(AtlasTheme.Colors.elevatedBackground)
+                .listRowBackground(AppColor.surface)
             }
             .scrollContentBackground(.hidden)
-            .background(AtlasTheme.Colors.background.ignoresSafeArea())
+            .background(AppColor.background.ignoresSafeArea())
             .navigationTitle("Cycle Settings")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -138,9 +138,9 @@ private struct ExerciseWeightRow: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: AtlasTheme.Spacing.xs) {
+        VStack(alignment: .leading, spacing: AppSpacing.sm) {
             Text(exerciseName)
-                .font(AtlasTheme.Typography.body)
+                .font(AppFont.body.font)
 
             Stepper(
                 value: $rule.baseWeightKg,
@@ -149,11 +149,11 @@ private struct ExerciseWeightRow: View {
             ) {
                 HStack {
                     Text("Base")
-                        .font(AtlasTheme.Typography.caption)
-                        .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                        .font(AppFont.caption.font)
+                        .foregroundStyle(AppColor.textSecondary)
                     Spacer()
                     Text("\(rule.baseWeightKg.weightString)kg")
-                        .font(AtlasTheme.Typography.body)
+                        .font(AppFont.body.font)
                         .monospacedDigit()
                 }
             }
@@ -161,10 +161,10 @@ private struct ExerciseWeightRow: View {
 
             // Inline preview
             Text("Next target: \(nextWeight.weightString)kg  ·  was \(previousWeight.weightString)kg")
-                .font(AtlasTheme.Typography.caption)
-                .foregroundStyle(AtlasTheme.Colors.accent)
+                .font(AppFont.caption.font)
+                .foregroundStyle(AppColor.accent)
                 .monospacedDigit()
         }
-        .padding(.vertical, AtlasTheme.Spacing.xxs)
+        .padding(.vertical, AppSpacing.xs)
     }
 }

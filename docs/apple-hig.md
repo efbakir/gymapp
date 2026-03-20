@@ -6,10 +6,10 @@ Curated Human Interface Guidelines rules that directly govern Unit decisions.
 |------|----------------|----------------------|
 | **Touch Targets** | Minimum 44×44pt for all interactive elements | All set rows `frame(minHeight: 52)`, RIR capsules `frame(minHeight: 44)`, tab bar items (system default ≥44pt) |
 | **Tab Bar** | Maximum 5 items; tabs navigate only — never trigger actions | 4 tabs (Home, Program, Cycles, History) ✓; no action tabs |
-| **Typography** | SF Pro system font; Dynamic Type support; minimum 11pt | All text uses semantic styles (`.body`, `.headline`, `.caption`) via `AtlasTheme.Typography` |
-| **Contrast** | 4.5:1 for normal text; 3:1 for large text (WCAG AA) | Verify `#FF4400` orange on dark background; failure row uses red + icon, not color alone |
+| **Typography** | SF Pro system font; Dynamic Type support; minimum 11pt | New/refactored UI uses `AppFont` from `Unit/UI/Atoms/AppAtoms.swift`; legacy screens may still use older theme types during migration |
+| **Contrast** | 4.5:1 for normal text; 3:1 for large text (WCAG AA) | Verify primary text on `AppColor.background` / `AppColor.cardBackground`; failure states use red + icon + label, not color alone |
 | **Color as sole indicator** | Never rely on color alone to convey meaning | Failure row: red background + `xmark.circle.fill` icon + "Missed" label. Deload: orange + `arrow.down.circle.fill` icon + "Deload" text |
-| **Dark Mode** | Use system semantic colors for all surfaces | All surfaces use `Color(.systemBackground)`, `Color(.systemGroupedBackground)`, `Color(uiColor: .separator)` |
+| **Appearance** | Respect system appearance where applicable | Light-first product baseline via `AppColor`; prefer tokens over hardcoded `.black` / `.white` in new UI |
 | **Navigation** | `TabView` → `NavigationStack` → Sheets for modal tasks | Cycles tab → `WeekDetailView` (NavigationStack push) → `CreateCycleView` (sheet) ✓ |
 | **Motion** | Respect Reduce Motion preference | All animated transitions guarded with `@Environment(\.accessibilityReduceMotion)`. Toast uses `.opacity` when reduce motion is on, `.move + .opacity` otherwise |
 | **VoiceOver** | All interactive elements need accessible labels; custom views need `.accessibilityValue` | Set rows: `.accessibilityValue("Target: Xkg × Y reps. Actual: Akg × B reps")`. RIR buttons: `.accessibilityLabel("RIR 0 — failure")`. Heatmap cells: date + volume string |
@@ -21,13 +21,12 @@ Curated Human Interface Guidelines rules that directly govern Unit decisions.
 
 ---
 
-## Accent Color Contrast Check
+## Contrast checks (light baseline)
 
-- Brand accent: `#FF4400` (rgb 255, 69, 0)
-- On `Color(.systemBackground)` dark mode (approx `#1C1C1E`): contrast ratio ≈ 4.6:1 ✓
-- Supplement with white text on accent backgrounds (e.g. "Start" CTA button)
-- Ghost text (`Color.secondary`) on dark background: system-managed, always passes
-- Red failure accent on `Color(.systemBackground)`: system red passes 4.5:1 on dark ✓
+- **Primary CTA**: `AppPrimaryButton` uses accent fill + white label — verify ≥ 4.5:1 for the label on the accent background.
+- **Body text**: `AppColor.textPrimary` on `AppColor.background` / `AppColor.cardBackground` should meet WCAG AA for workout flows.
+- **Secondary text**: `AppColor.textSecondary` on page/card surfaces — verify readability in bright gym lighting.
+- **Failure / error**: system red tones from `AppColor.error` — pair with icon + copy, not color alone.
 
 ---
 

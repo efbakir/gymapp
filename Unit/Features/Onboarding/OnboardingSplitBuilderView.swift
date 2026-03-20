@@ -10,10 +10,25 @@ import SwiftUI
 
 struct OnboardingSplitBuilderView: View {
     @Environment(OnboardingViewModel.self) private var vm
+    var progressStep: Int
+    var progressTotal: Int
     var onContinue: () -> Void
 
     private let suggestions = ["Push", "Pull", "Legs", "Upper", "Lower", "Full Body", "Back & Bi", "Chest & Tri"]
     @FocusState private var focusedDay: Int?
+
+    private func dayNameBinding(for index: Int) -> Binding<String> {
+        Binding(
+            get: {
+                guard vm.dayNames.indices.contains(index) else { return "" }
+                return vm.dayNames[index]
+            },
+            set: { newValue in
+                guard vm.dayNames.indices.contains(index) else { return }
+                vm.dayNames[index] = newValue
+            }
+        )
+    }
 
     var body: some View {
         @Bindable var vm = vm
@@ -22,89 +37,95 @@ struct OnboardingSplitBuilderView: View {
             title: "Your training split",
             ctaLabel: "Continue",
             ctaEnabled: vm.splitIsValid,
+            progressStep: progressStep,
+            progressTotal: progressTotal,
             onContinue: onContinue
         ) {
-            VStack(alignment: .leading, spacing: AtlasTheme.Spacing.lg) {
+            VStack(alignment: .leading, spacing: AppSpacing.lg) {
 
                 // Day count stepper
                 HStack {
                     Text("Days per week")
-                        .font(AtlasTheme.Typography.body)
-                        .foregroundStyle(AtlasTheme.Colors.textPrimary)
+                        .font(AppFont.body.font)
+                        .foregroundStyle(AppColor.textPrimary)
                     Spacer()
-                    HStack(spacing: AtlasTheme.Spacing.sm) {
+                    HStack(spacing: AppSpacing.sm) {
                         Button {
                             vm.updateDayCount(vm.dayCount - 1)
                         } label: {
-                            Image(systemName: "minus")
-                                .font(.system(size: 14, weight: .semibold))
+                            AppIcon.remove.image(size: 14, weight: .semibold)
                                 .frame(width: 36, height: 36)
-                                .background(AtlasTheme.Colors.card)
-                                .clipShape(RoundedRectangle(cornerRadius: AtlasTheme.Radius.sm, style: .continuous))
-                                .foregroundStyle(vm.dayCount <= 2 ? AtlasTheme.Colors.disabled : AtlasTheme.Colors.textPrimary)
+                                .background(AppColor.cardBackground)
+                                .clipShape(RoundedRectangle(cornerRadius: AppRadius.sm, style: .continuous))
+                                .foregroundStyle(vm.dayCount <= 2 ? AppColor.disabled : AppColor.textPrimary)
                         }
                         .disabled(vm.dayCount <= 2)
 
                         Text("\(vm.dayCount)")
-                            .font(AtlasTheme.Typography.metric)
-                            .foregroundStyle(AtlasTheme.Colors.textPrimary)
+                            .font(AppFont.title.font)
+                            .foregroundStyle(AppColor.textPrimary)
                             .frame(minWidth: 24, alignment: .center)
 
                         Button {
                             vm.updateDayCount(vm.dayCount + 1)
                         } label: {
-                            Image(systemName: "plus")
-                                .font(.system(size: 14, weight: .semibold))
+                            AppIcon.add.image(size: 14, weight: .semibold)
                                 .frame(width: 36, height: 36)
-                                .background(AtlasTheme.Colors.card)
-                                .clipShape(RoundedRectangle(cornerRadius: AtlasTheme.Radius.sm, style: .continuous))
-                                .foregroundStyle(vm.dayCount >= 6 ? AtlasTheme.Colors.disabled : AtlasTheme.Colors.textPrimary)
+                                .background(AppColor.cardBackground)
+                                .clipShape(RoundedRectangle(cornerRadius: AppRadius.sm, style: .continuous))
+                                .foregroundStyle(vm.dayCount >= 6 ? AppColor.disabled : AppColor.textPrimary)
                         }
                         .disabled(vm.dayCount >= 6)
                     }
                 }
-                .padding(AtlasTheme.Spacing.md)
-                .background(AtlasTheme.Colors.card)
-                .clipShape(RoundedRectangle(cornerRadius: AtlasTheme.Radius.lg, style: .continuous))
+                .padding(AppSpacing.md)
+                .background(AppColor.cardBackground)
+                .clipShape(RoundedRectangle(cornerRadius: AppRadius.lg, style: .continuous))
 
                 // Day name fields
-                VStack(spacing: AtlasTheme.Spacing.xs) {
+                VStack(spacing: AppSpacing.sm) {
                     ForEach(0..<vm.dayCount, id: \.self) { i in
-                        HStack(spacing: AtlasTheme.Spacing.sm) {
+                        HStack(spacing: AppSpacing.sm) {
                             Text("Day \(i + 1)")
-                                .font(AtlasTheme.Typography.caption)
-                                .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                                .font(AppFont.caption.font)
+                                .foregroundStyle(AppColor.textSecondary)
                                 .frame(width: 44, alignment: .leading)
 
-                            TextField("Name", text: $vm.dayNames[i])
-                                .font(AtlasTheme.Typography.body)
-                                .foregroundStyle(AtlasTheme.Colors.textPrimary)
+                            TextField("Name", text: dayNameBinding(for: i))
+                                .font(AppFont.body.font)
+                                .foregroundStyle(AppColor.textPrimary)
                                 .focused($focusedDay, equals: i)
+                                .textInputAutocapitalization(.words)
+                                .autocorrectionDisabled()
                                 .submitLabel(i < vm.dayCount - 1 ? .next : .done)
                                 .onSubmit {
                                     if i < vm.dayCount - 1 { focusedDay = i + 1 }
                                     else { focusedDay = nil }
                                 }
                         }
-                        .padding(.horizontal, AtlasTheme.Spacing.md)
+                        .padding(.horizontal, AppSpacing.md)
                         .frame(height: 48)
-                        .background(AtlasTheme.Colors.card)
-                        .clipShape(RoundedRectangle(cornerRadius: AtlasTheme.Radius.md, style: .continuous))
+                        .background(AppColor.cardBackground)
+                        .contentShape(RoundedRectangle(cornerRadius: AppRadius.md, style: .continuous))
+                        .clipShape(RoundedRectangle(cornerRadius: AppRadius.md, style: .continuous))
                         .overlay(
-                            RoundedRectangle(cornerRadius: AtlasTheme.Radius.md, style: .continuous)
-                                .stroke(focusedDay == i ? AtlasTheme.Colors.accent.opacity(0.5) : Color.clear, lineWidth: 1.5)
+                            RoundedRectangle(cornerRadius: AppRadius.md, style: .continuous)
+                                .stroke(focusedDay == i ? AppColor.accent.opacity(0.5) : Color.clear, lineWidth: 1.5)
                         )
+                        .onTapGesture {
+                            focusedDay = i
+                        }
                     }
                 }
 
                 // Suggestion chips
-                VStack(alignment: .leading, spacing: AtlasTheme.Spacing.xs) {
+                VStack(alignment: .leading, spacing: AppSpacing.sm) {
                     Text("SUGGESTIONS")
-                        .font(AtlasTheme.Typography.overline)
-                        .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                        .font(AppFont.overline)
+                        .foregroundStyle(AppColor.textSecondary)
                         .tracking(1.0)
 
-                    FlowLayout(spacing: AtlasTheme.Spacing.xs) {
+                    FlowLayout(spacing: AppSpacing.sm) {
                         ForEach(suggestions, id: \.self) { suggestion in
                             Button {
                                 if let day = focusedDay, day < vm.dayNames.count {
@@ -115,21 +136,28 @@ struct OnboardingSplitBuilderView: View {
                                 }
                             } label: {
                                 Text(suggestion)
-                                    .font(AtlasTheme.Typography.caption)
-                                    .foregroundStyle(AtlasTheme.Colors.textSecondary)
-                                    .padding(.horizontal, AtlasTheme.Spacing.sm)
-                                    .padding(.vertical, AtlasTheme.Spacing.xxs)
-                                    .background(AtlasTheme.Colors.card)
+                                    .font(AppFont.caption.font)
+                                    .foregroundStyle(AppColor.textSecondary)
+                                    .padding(.horizontal, AppSpacing.sm)
+                                    .padding(.vertical, AppSpacing.xs)
+                                    .background(AppColor.cardBackground)
                                     .clipShape(Capsule())
                                     .overlay(
                                         Capsule()
-                                            .stroke(AtlasTheme.Colors.border, lineWidth: 1)
+                                            .stroke(AppColor.border, lineWidth: 1)
                                     )
                             }
                             .buttonStyle(.plain)
                         }
                     }
                 }
+            }
+        }
+        .scrollDismissesKeyboard(.interactively)
+        .onChange(of: vm.dayCount) { _, newValue in
+            guard let focusedDay else { return }
+            if focusedDay >= newValue {
+                self.focusedDay = max(0, newValue - 1)
             }
         }
     }
@@ -180,9 +208,8 @@ struct FlowLayout: Layout {
 
 #Preview {
     NavigationStack {
-        OnboardingSplitBuilderView { }
+        OnboardingSplitBuilderView(progressStep: 2, progressTotal: 6) { }
             .environment(OnboardingViewModel())
-            .preferredColorScheme(.dark)
     }
-    .tint(AtlasTheme.Colors.accent)
+    .tint(AppColor.accent)
 }

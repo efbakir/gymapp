@@ -19,7 +19,8 @@ The **Gym Test** still applies: logging a set (weight, reps, RIR) in **under 3 s
 | Topic | Location |
 |-------|----------|
 | Design principles | `docs/design-principles.md` |
-| Visual language (dark mode, colors, components) | `docs/visual-language.md` |
+| Atomic design system (layers, tokens, banned patterns) | `docs/atomic-design-system.md` |
+| Visual language (light-first, hierarchy, Gym Test) | `docs/visual-language.md` |
 | Product manifesto | `docs/PRODUCT_MANIFESTO.md` |
 | App positioning | `docs/APP_POSITIONING.md` |
 | Use cases | `docs/USE_CASES.md` |

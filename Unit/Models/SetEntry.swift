@@ -30,6 +30,7 @@ final class SetEntry {
     var setIndex: Int
     var note: String
 
+    @Relationship(inverse: \WorkoutSession.setEntries)
     var session: WorkoutSession?
 
     init(

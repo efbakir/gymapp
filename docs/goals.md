@@ -25,8 +25,8 @@ Ordered goals with success criteria. Used to prioritize and say no.
 
 ## 3. Establish design and doc foundation
 
-- **Goal**: Strategy docs (competitors, design principles, visual language, cognitive/behavior, mental models, values, goals) and Cursor rules so all work is aligned.
-- **Success**: Docs in `docs/`; Cursor/AGENTS reference them and the stack (Swift 6, SwiftUI, SwiftData, iOS 18+). New contributors can onboard from docs.
+- **Goal**: Strategy docs (competitors, design principles, visual language, **atomic design system**, cognitive/behavior, mental models, values, goals) and Cursor rules so all work is aligned.
+- **Success**: Docs in `docs/` (including `atomic-design-system.md`); Cursor/AGENTS reference them and the stack (Swift 6, SwiftUI, SwiftData, iOS 18+). New contributors can onboard from docs.
 
 ---
 

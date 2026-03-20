@@ -36,7 +36,12 @@
       "Bash(osascript:*)",
       "mcp__figma__get_metadata",
       "mcp__figma__get_design_context",
-      "mcp__figma__get_screenshot"
+      "mcp__figma__get_screenshot",
+      "Bash(find Unit -name \"*.swift\" -exec grep -l \"preferredColorScheme\\(.dark\\)\" {})",
+      "Bash(xargs sed:*)",
+      "mcp__figma__generate_figma_design",
+      "Bash(python3 -m http.server 8080 --directory /Users/efbakir/gymapp/figma-screens)",
+      "Bash(wc -l /Users/efbakir/gymapp/Unit/Features/**/*.swift)"
     ]
   }
 }

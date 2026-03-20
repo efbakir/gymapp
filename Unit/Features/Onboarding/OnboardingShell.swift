@@ -2,66 +2,68 @@
 //  OnboardingShell.swift
 //  Unit
 //
-//  Shared layout wrapper for all onboarding screens.
-//  Title at top, scrollable content in middle, sticky CTA at bottom.
+//  Shared onboarding wrapper built on top of AppScreen.
+//  Keeps onboarding on the same atom layer: one screen shell, one nav treatment,
+//  one sticky primary CTA, one progress component.
 //
 
 import SwiftUI
 
 struct OnboardingShell<Content: View>: View {
+    @Environment(\.dismiss) private var dismiss
+
     let title: String
     var ctaLabel: String = "Continue"
     var ctaEnabled: Bool = true
+    var progressStep: Int? = nil
+    var progressTotal: Int? = nil
     var onContinue: (() -> Void)? = nil
     @ViewBuilder var content: () -> Content
 
     var body: some View {
-        ZStack(alignment: .bottom) {
-            AtlasTheme.Colors.background.ignoresSafeArea()
-
-            ScrollView {
-                VStack(alignment: .leading, spacing: AtlasTheme.Spacing.lg) {
-                    Text(title)
-                        .font(AtlasTheme.Typography.hero)
-                        .foregroundStyle(AtlasTheme.Colors.textPrimary)
-                        .padding(.top, AtlasTheme.Spacing.lg)
-
-                    content()
-
-                    // Bottom padding so content clears the sticky CTA
-                    Color.clear.frame(height: 88)
-                }
-                .padding(.horizontal, AtlasTheme.Spacing.lg)
+        AppScreen(
+            leadingAction: NavAction(icon: .back, action: { dismiss() }),
+            primaryButton: onContinue.map { action in
+                PrimaryButtonConfig(
+                    label: ctaLabel,
+                    isEnabled: ctaEnabled,
+                    action: action
+                )
             }
+        ) {
+            VStack(alignment: .leading, spacing: AppSpacing.lg) {
+                if let progressStep, let progressTotal {
+                    OnboardingProgress(step: progressStep, total: progressTotal)
+                }
 
-            // Sticky CTA
-            if let onContinue {
-                VStack(spacing: 0) {
-                    // Gradient fade behind button
-                    LinearGradient(
-                        colors: [AtlasTheme.Colors.background.opacity(0), AtlasTheme.Colors.background],
-                        startPoint: .top,
-                        endPoint: .bottom
-                    )
-                    .frame(height: 24)
+                Text(title)
+                    .font(AppFont.largeTitle.font)
+                    .foregroundStyle(AppColor.textPrimary)
 
-                    Button(action: onContinue) {
-                        Text(ctaLabel)
-                            .font(AtlasTheme.Typography.sectionTitle)
-                            .foregroundStyle(ctaEnabled ? .white : AtlasTheme.Colors.textSecondary)
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 52)
-                            .background(ctaEnabled ? AtlasTheme.Colors.accent : AtlasTheme.Colors.disabled)
-                            .clipShape(RoundedRectangle(cornerRadius: AtlasTheme.Radius.lg, style: .continuous))
-                    }
-                    .disabled(!ctaEnabled)
-                    .padding(.horizontal, AtlasTheme.Spacing.lg)
-                    .padding(.bottom, AtlasTheme.Spacing.lg)
-                    .background(AtlasTheme.Colors.background)
+                content()
+            }
+        }
+        .navigationBarBackButtonHidden(true)
+    }
+}
+
+struct OnboardingProgress: View {
+    let step: Int
+    let total: Int
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: AppSpacing.sm) {
+            Text("\(step) of \(total)")
+                .font(AppFont.muted.font)
+                .foregroundStyle(AppFont.muted.color)
+
+            HStack(spacing: 6) {
+                ForEach(0..<total, id: \.self) { index in
+                    Capsule()
+                        .fill(index < step ? AppColor.accent : AppColor.border.opacity(0.8))
+                        .frame(width: index == step - 1 ? 20 : 10, height: 6)
                 }
             }
         }
-        .background(AtlasTheme.Colors.background.ignoresSafeArea())
-        .navigationBarTitleDisplayMode(.inline)
     }
 }

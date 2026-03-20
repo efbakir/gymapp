@@ -2,8 +2,7 @@
 //  HistoryView.swift
 //  Unit
 //
-//  History tab: month calendar (default scan view) + recent sessions list.
-//  Calendar day circles show state via color fill (green/red/grey).
+//  History tab: calendar-first monthly scan with status-focused day states.
 //  Tapping a day with a session opens a lightweight bottom sheet.
 //
 
@@ -15,15 +14,15 @@ import SwiftData
 enum DaySessionState {
     case none        // no session logged
     case completed   // session logged, no target data
-    case progressed  // ≥1 set met target
-    case failed      // ≥1 set missed target (and no progressed sets)
+    case progressed  // >=1 set met target
+    case failed      // >=1 set missed target (failed wins)
 
-    var fillColor: Color? {
+    var indicatorColor: Color? {
         switch self {
         case .none:       return nil
-        case .completed:  return AtlasTheme.Colors.textSecondary.opacity(0.35)
-        case .progressed: return AtlasTheme.Colors.successAccent
-        case .failed:     return AtlasTheme.Colors.failureAccent
+        case .completed:  return AppColor.textSecondary.opacity(0.35)
+        case .progressed: return AppColor.success
+        case .failed:     return AppColor.error
         }
     }
 
@@ -39,9 +38,9 @@ enum DaySessionState {
     var labelColor: Color {
         switch self {
         case .none:       return .clear
-        case .completed:  return AtlasTheme.Colors.textSecondary
-        case .progressed: return AtlasTheme.Colors.successAccent
-        case .failed:     return AtlasTheme.Colors.failureAccent
+        case .completed:  return AppColor.textSecondary
+        case .progressed: return AppColor.success
+        case .failed:     return AppColor.error
         }
     }
 }
@@ -71,13 +70,16 @@ private struct SelectedDayPayload: Identifiable {
 // MARK: - HistoryView
 
 struct HistoryView: View {
+    let showsCloseButton: Bool
+
     @Query(sort: \WorkoutSession.date, order: .reverse) private var sessions: [WorkoutSession]
     @Query(sort: \DayTemplate.name) private var templates: [DayTemplate]
     @Query(sort: \Exercise.displayName) private var exercises: [Exercise]
 
     @State private var displayMonth: Date = Calendar.current.startOfMonth(for: Date())
     @State private var selectedPayload: SelectedDayPayload?
-    @State private var titleGradientProgress: CGFloat = 0
+    @State private var showingDayDetail = false
+    @Environment(\.dismiss) private var dismiss
 
     private var completedSessions: [WorkoutSession] {
         sessions.filter(\.isCompleted)
@@ -85,183 +87,128 @@ struct HistoryView: View {
 
     var body: some View {
         NavigationStack {
-            ZStack {
-                AtlasTheme.Colors.background.ignoresSafeArea()
-
-                ScrollView {
-                    GeometryReader { proxy in
-                        Color.clear
-                            .preference(
-                                key: HistoryScrollOffsetPreferenceKey.self,
-                                value: proxy.frame(in: .named("historyScroll")).minY
+            ScrollView {
+                VStack(spacing: AppSpacing.md) {
+                    MonthCalendar(
+                        displayMonth: $displayMonth,
+                        sessions: completedSessions,
+                        onDayTap: { calDay in
+                            guard let session = calDay.session else { return }
+                            let name = templates.first(where: { $0.id == session.templateId })?.name ?? "Workout"
+                            let payload = SelectedDayPayload(
+                                date: calDay.date,
+                                session: session,
+                                templateName: name,
+                                exercises: exercises
                             )
-                    }
-                    .frame(height: 0)
-
-                    VStack(spacing: AtlasTheme.Spacing.lg) {
-                        // Calendar card
-                        MonthCalendar(
-                            displayMonth: $displayMonth,
-                            sessions: completedSessions,
-                            onDayTap: { calDay in
-                                guard let session = calDay.session else { return }
-                                let name = templates.first(where: { $0.id == session.templateId })?.name ?? "Workout"
-                                selectedPayload = SelectedDayPayload(
-                                    date: calDay.date,
-                                    session: session,
-                                    templateName: name,
-                                    exercises: exercises
-                                )
+                            selectedPayload = payload
+                            if showsCloseButton {
+                                showingDayDetail = true
                             }
-                        )
-                        .padding(.horizontal, AtlasTheme.Spacing.md)
+                        }
+                    )
+                    .padding(.horizontal, AppSpacing.md)
 
-                        // Sessions list
-                        sessionsSection
-                    }
-                    .padding(.top, AtlasTheme.Spacing.md)
-                    .padding(.bottom, AtlasTheme.Spacing.md)
+                    historyLegend
+                        .padding(.horizontal, AppSpacing.md)
                 }
-                .coordinateSpace(name: "historyScroll")
-                .scrollIndicators(.hidden)
-
-                titleGradientOverlay
+                .padding(.top, AppSpacing.md)
+                .padding(.bottom, AppSpacing.md)
             }
+            .background(AppColor.background.ignoresSafeArea())
             .navigationTitle("History")
             .navigationBarTitleDisplayMode(.large)
-            .toolbarBackground(AtlasTheme.Colors.background, for: .navigationBar)
+            .toolbarBackground(AppColor.background, for: .navigationBar)
             .toolbarBackground(.visible, for: .navigationBar)
-            .navigationDestination(for: WorkoutSession.self) { session in
-                SessionDetailView(
-                    session: session,
-                    templateName: templates.first(where: { $0.id == session.templateId })?.name ?? "Workout"
-                )
+            .tint(AppColor.accent)
+            .toolbar {
+                if showsCloseButton {
+                    ToolbarItem(placement: .topBarLeading) {
+                        Button("Back") { dismiss() }
+                    }
+                }
             }
-            .onPreferenceChange(HistoryScrollOffsetPreferenceKey.self) { minY in
-                let progress = min(max((-minY) / 72, 0), 1)
-                titleGradientProgress = progress
+            .navigationDestination(isPresented: $showingDayDetail) {
+                if let selectedPayload {
+                    DayDetailSheet(payload: selectedPayload)
+                        .background(AppColor.background.ignoresSafeArea())
+                        .onDisappear {
+                            self.selectedPayload = nil
+                        }
+                }
             }
         }
-        .sheet(item: $selectedPayload) { payload in
+        .sheet(item: dayDetailSheetBinding) { payload in
             DayDetailSheet(payload: payload)
                 .presentationDetents([.medium, .large])
                 .presentationDragIndicator(.visible)
-                .presentationBackground(AtlasTheme.Colors.sheet)
+                .presentationBackground(AppColor.cardBackground)
+        }
+        .onChange(of: showingDayDetail) { _, isPresented in
+            if !isPresented {
+                selectedPayload = nil
+            }
         }
     }
 
-    @ViewBuilder
-    private var sessionsSection: some View {
-        if completedSessions.isEmpty {
-            VStack(spacing: AtlasTheme.Spacing.sm) {
-                Image(systemName: "dumbbell")
-                    .font(.system(size: 32, weight: .light))
-                    .foregroundStyle(AtlasTheme.Colors.textSecondary)
-                Text("No completed sessions yet.")
-                    .font(AtlasTheme.Typography.body)
-                    .foregroundStyle(AtlasTheme.Colors.textSecondary)
+    private var historyLegend: some View {
+        AppCard {
+            HStack(spacing: AppSpacing.md) {
+                LegendItem(color: AppColor.success, label: "Progressed")
+                LegendItem(color: AppColor.error, label: "Failed")
+                LegendItem(color: AppColor.textSecondary.opacity(0.35), label: "Completed")
             }
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, AtlasTheme.Spacing.xl)
-        } else {
-            VStack(alignment: .leading, spacing: AtlasTheme.Spacing.sm) {
-                Text("RECENT SESSIONS")
-                    .font(AtlasTheme.Typography.overline)
-                    .tracking(1.0)
-                    .foregroundStyle(AtlasTheme.Colors.textSecondary)
-                    .padding(.horizontal, AtlasTheme.Spacing.md)
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+    }
 
-                ForEach(completedSessions.prefix(20)) { session in
-                    NavigationLink(value: session) {
-                        SessionListRow(
-                            session: session,
-                            templateName: templates.first(where: { $0.id == session.templateId })?.name ?? "Workout"
-                        )
-                    }
-                    .buttonStyle(.plain)
-                    .padding(.horizontal, AtlasTheme.Spacing.md)
+    private var dayDetailSheetBinding: Binding<SelectedDayPayload?> {
+        Binding(
+            get: { showsCloseButton ? nil : selectedPayload },
+            set: { newValue in
+                if !showsCloseButton {
+                    selectedPayload = newValue
                 }
             }
-        }
-    }
-
-    private var titleGradientOverlay: some View {
-        LinearGradient(
-            colors: [
-                AtlasTheme.Colors.background.opacity(0.98),
-                AtlasTheme.Colors.background.opacity(0.92),
-                AtlasTheme.Colors.background.opacity(0.0)
-            ],
-            startPoint: .top,
-            endPoint: .bottom
         )
-        .frame(height: 132)
-        .ignoresSafeArea(edges: .top)
-        .opacity(0.2 + (titleGradientProgress * 0.8))
-        .allowsHitTesting(false)
     }
 }
 
-private struct HistoryScrollOffsetPreferenceKey: PreferenceKey {
-    static var defaultValue: CGFloat = 0
-
-    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
-        value = nextValue()
+extension HistoryView {
+    init(showsCloseButton: Bool = false) {
+        self.showsCloseButton = showsCloseButton
     }
 }
 
-// MARK: - Session List Row
-
-private struct SessionListRow: View {
-    let session: WorkoutSession
-    let templateName: String
-
-    private var state: DaySessionState {
-        let sets = session.setEntries.filter { $0.isCompleted && !$0.isWarmup && $0.targetWeight > 0 }
-        guard !sets.isEmpty else { return .completed }
-        let anyFailed = sets.contains { !$0.metTarget }
-        let anyProgressed = sets.contains { $0.metTarget }
-        if anyFailed && !anyProgressed { return .failed }
-        return .progressed
-    }
-
-    private var dateLabel: String {
-        let fmt = DateFormatter()
-        fmt.dateFormat = "MMM d"
-        return fmt.string(from: session.date)
-    }
+private struct LegendItem: View {
+    let color: Color
+    let label: String
 
     var body: some View {
-        HStack(spacing: AtlasTheme.Spacing.sm) {
-            // State circle
-            ZStack {
-                Circle()
-                    .fill(state.fillColor ?? AtlasTheme.Colors.textSecondary.opacity(0.2))
-                    .frame(width: 32, height: 32)
-                Image(systemName: state == .failed ? "xmark" : "checkmark")
-                    .font(.system(size: 12, weight: .bold))
-                    .foregroundStyle(state == .completed ? AtlasTheme.Colors.textPrimary : .white)
-            }
-
-            VStack(alignment: .leading, spacing: 2) {
-                Text(templateName)
-                    .font(AtlasTheme.Typography.body)
-                    .foregroundStyle(AtlasTheme.Colors.textPrimary)
-                Text(dateLabel)
-                    .font(AtlasTheme.Typography.caption)
-                    .foregroundStyle(AtlasTheme.Colors.textSecondary)
-            }
-
-            Spacer()
-
-            Image(systemName: "chevron.right")
-                .font(.system(size: 12, weight: .semibold))
-                .foregroundStyle(AtlasTheme.Colors.textSecondary.opacity(0.5))
+        HStack(spacing: AppSpacing.xs) {
+            Circle()
+                .fill(color)
+                .frame(width: 8, height: 8)
+            Text(label)
+                .font(AppFont.caption.font)
+                .foregroundStyle(AppColor.textSecondary)
         }
-        .padding(AtlasTheme.Spacing.sm)
-        .background(AtlasTheme.Colors.card)
-        .clipShape(RoundedRectangle(cornerRadius: AtlasTheme.Radius.md, style: .continuous))
-        .frame(minHeight: 52)
+    }
+}
+
+private enum HistoryStatusEvaluator {
+    static func state(for session: WorkoutSession?) -> DaySessionState {
+        guard let session else { return .none }
+        return state(for: session.setEntries)
+    }
+
+    static func state(for entries: [SetEntry]) -> DaySessionState {
+        let targetSets = entries.filter { $0.isCompleted && !$0.isWarmup && $0.targetWeight > 0 }
+        guard !targetSets.isEmpty else { return .completed }
+        if targetSets.contains(where: { !$0.metTarget }) {
+            return .failed
+        }
+        return .progressed
     }
 }
 
@@ -272,8 +219,8 @@ private struct MonthCalendar: View {
     let sessions: [WorkoutSession]
     let onDayTap: (CalDay) -> Void
 
-    private let columns = Array(repeating: GridItem(.flexible(), spacing: 4), count: 7)
-    private let weekdayHeaders = ["M", "T", "W", "T", "F", "S", "S"]
+    private let columns = Array(repeating: GridItem(.flexible(), spacing: AppSpacing.sm), count: 7)
+    private let weekdayHeaders = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"]
 
     private var monthTitle: String {
         let fmt = DateFormatter()
@@ -296,10 +243,10 @@ private struct MonthCalendar: View {
 
         guard let dayRange = cal.range(of: .day, in: .month, for: displayMonth) else { return [] }
 
-        var sessionByDay: [Date: WorkoutSession] = [:]
-        for s in sessions {
-            let day = cal.startOfDay(for: s.date)
-            if sessionByDay[day] == nil { sessionByDay[day] = s }
+        var sessionsByDay: [Date: [WorkoutSession]] = [:]
+        for session in sessions {
+            let day = cal.startOfDay(for: session.date)
+            sessionsByDay[day, default: []].append(session)
         }
 
         let weekday = cal.component(.weekday, from: displayMonth)
@@ -310,8 +257,9 @@ private struct MonthCalendar: View {
             guard let date = cal.date(byAdding: .day, value: offset, to: displayMonth) else { continue }
             let dayNum = offset + 1
             let isFuture = date > today
-            let session = sessionByDay[date]
-            let state: DaySessionState = isFuture ? .none : sessionState(for: session)
+            let daySessions = sessionsByDay[date] ?? []
+            let session = daySessions.first(where: { HistoryStatusEvaluator.state(for: $0) == .failed }) ?? daySessions.first
+            let state: DaySessionState = isFuture ? .none : sessionState(for: daySessions)
             result.append(CalDay(date: date, dayNumber: dayNum, isToday: date == today,
                                   isFuture: isFuture, state: state, session: session))
         }
@@ -319,73 +267,62 @@ private struct MonthCalendar: View {
         return result
     }
 
-    private func sessionState(for session: WorkoutSession?) -> DaySessionState {
-        guard let session else { return .none }
-        let sets = session.setEntries.filter { $0.isCompleted && !$0.isWarmup && $0.targetWeight > 0 }
-        guard !sets.isEmpty else { return .completed }
-        let anyFailed = sets.contains { !$0.metTarget }
-        let anyProgressed = sets.contains { $0.metTarget }
-        if anyFailed && !anyProgressed { return .failed }
-        return .progressed
+    private func sessionState(for daySessions: [WorkoutSession]) -> DaySessionState {
+        guard !daySessions.isEmpty else { return .none }
+        let dayEntries = daySessions.flatMap(\.setEntries)
+        return HistoryStatusEvaluator.state(for: dayEntries)
     }
 
     var body: some View {
-        VStack(spacing: AtlasTheme.Spacing.md) {
+        AppCard {
+            VStack(spacing: AppSpacing.md) {
+                HStack(alignment: .center, spacing: AppSpacing.md) {
+                    Text(monthTitle)
+                        .font(AppFont.title.font)
+                        .foregroundStyle(AppColor.textPrimary)
 
-            // Month navigation
-            HStack {
-                Button { navigateMonth(-1) } label: {
-                    Image(systemName: "chevron.left")
-                        .font(.system(size: 14, weight: .semibold))
-                        .foregroundStyle(AtlasTheme.Colors.textSecondary)
-                        .frame(width: 44, height: 44)
-                        .contentShape(Rectangle())
+                    Spacer(minLength: 0)
+
+                    HStack(spacing: AppSpacing.xs) {
+                        Button { navigateMonth(-1) } label: {
+                            AppIcon.back.image(size: 15, weight: .semibold)
+                                .foregroundStyle(AppColor.textSecondary)
+                                .frame(width: 44, height: 44)
+                                .contentShape(Rectangle())
+                        }
+                        .buttonStyle(.plain)
+
+                        Button { navigateMonth(1) } label: {
+                            AppIcon.forward.image(size: 15, weight: .semibold)
+                                .foregroundStyle(canGoForward ? AppColor.textPrimary : AppColor.disabled)
+                                .frame(width: 44, height: 44)
+                                .contentShape(Rectangle())
+                        }
+                        .buttonStyle(.plain)
+                        .disabled(!canGoForward)
+                    }
                 }
-                .buttonStyle(.plain)
 
-                Spacer()
-
-                Text(monthTitle)
-                    .font(AtlasTheme.Typography.sectionTitle)
-                    .foregroundStyle(AtlasTheme.Colors.textPrimary)
-
-                Spacer()
-
-                Button { navigateMonth(1) } label: {
-                    Image(systemName: "chevron.right")
-                        .font(.system(size: 14, weight: .semibold))
-                        .foregroundStyle(canGoForward ? AtlasTheme.Colors.textSecondary : AtlasTheme.Colors.disabled)
-                        .frame(width: 44, height: 44)
-                        .contentShape(Rectangle())
+                HStack(spacing: AppSpacing.sm) {
+                    ForEach(Array(weekdayHeaders.enumerated()), id: \.offset) { _, header in
+                        Text(header)
+                            .font(AppFont.smallLabel)
+                            .foregroundStyle(AppColor.textSecondary.opacity(0.45))
+                            .frame(maxWidth: .infinity)
+                    }
                 }
-                .buttonStyle(.plain)
-                .disabled(!canGoForward)
-            }
 
-            // Weekday headers
-            HStack(spacing: 4) {
-                ForEach(Array(weekdayHeaders.enumerated()), id: \.offset) { _, h in
-                    Text(h)
-                        .font(.system(size: 11, weight: .medium, design: .rounded))
-                        .foregroundStyle(AtlasTheme.Colors.textSecondary.opacity(0.5))
-                        .frame(maxWidth: .infinity)
-                }
-            }
-
-            // Day grid
-            LazyVGrid(columns: columns, spacing: 4) {
-                ForEach(Array(calDays.enumerated()), id: \.offset) { _, cell in
-                    if let cell {
-                        DayCell(day: cell) { onDayTap(cell) }
-                    } else {
-                        Color.clear.frame(height: 44)
+                LazyVGrid(columns: columns, spacing: AppSpacing.sm) {
+                    ForEach(Array(calDays.enumerated()), id: \.offset) { _, cell in
+                        if let cell {
+                            DayCell(day: cell) { onDayTap(cell) }
+                        } else {
+                            Color.clear.frame(height: 52)
+                        }
                     }
                 }
             }
         }
-        .padding(AtlasTheme.Spacing.md)
-        .background(AtlasTheme.Colors.card)
-        .clipShape(RoundedRectangle(cornerRadius: AtlasTheme.Radius.lg, style: .continuous))
     }
 }
 
@@ -397,33 +334,46 @@ private struct DayCell: View {
 
     var body: some View {
         Button(action: action) {
-            ZStack {
-                // Filled circle for sessions
-                if let fill = day.state.fillColor {
-                    Circle().fill(fill)
+            VStack(spacing: AppSpacing.xs) {
+                ZStack {
+                    if day.isToday {
+                        Circle()
+                            .fill(AppColor.accent)
+                    } else if day.state == .none {
+                        Circle()
+                            .stroke(AppColor.border, lineWidth: 1)
+                    }
+
+                    Text("\(day.dayNumber)")
+                        .font(AppFont.body.font)
+                        .foregroundStyle(numberColor)
                 }
-                // Today ring
-                if day.isToday && day.state == .none {
+                .frame(width: 40, height: 40)
+
+                if let indicatorColor = day.state.indicatorColor {
                     Circle()
-                        .stroke(AtlasTheme.Colors.accent.opacity(0.7), lineWidth: 1.5)
+                        .fill(indicatorColor)
+                        .frame(width: 6, height: 6)
+                } else {
+                    Color.clear.frame(width: 6, height: 6)
                 }
-                // Day number
-                Text("\(day.dayNumber)")
-                    .font(.system(size: 13, weight: day.isToday ? .bold : .regular, design: .rounded))
-                    .foregroundStyle(
-                        day.isFuture ? AtlasTheme.Colors.textSecondary.opacity(0.2) :
-                        day.state == .completed ? AtlasTheme.Colors.textPrimary :
-                        day.state != .none ? Color.white :
-                        day.isToday ? AtlasTheme.Colors.accent :
-                                       AtlasTheme.Colors.textPrimary
-                    )
             }
-            .frame(width: 36, height: 36)
-            .contentShape(Circle())
+            .frame(maxWidth: .infinity, minHeight: 52)
+            .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
         .disabled(day.session == nil && !day.isToday)
         .accessibilityLabel(accessibilityLabel)
+    }
+
+    private var numberColor: Color {
+        if day.isFuture {
+            return AppColor.textSecondary.opacity(0.2)
+        }
+        if day.isToday {
+            return .white
+        }
+        return AppColor.textPrimary
     }
 
     private var accessibilityLabel: String {
@@ -457,41 +407,36 @@ private struct DayDetailSheet: View {
         return grouped.compactMap { exerciseId, entries in
             let name = payload.exercises.first(where: { $0.id == exerciseId })?.displayName ?? "Exercise"
             let best = entries.max(by: { $0.weight < $1.weight }) ?? entries[0]
-            let met = entries.contains { $0.targetWeight > 0 && $0.metTarget }
             let hasTarget = entries.contains { $0.targetWeight > 0 }
-            return (name, best, hasTarget ? met : true)
+            let missedAnyTarget = entries.contains { $0.targetWeight > 0 && !$0.metTarget }
+            return (name, best, hasTarget ? !missedAnyTarget : true)
         }
         .sorted { $0.name < $1.name }
     }
 
     private var sessionState: DaySessionState {
-        let sets = payload.session.setEntries.filter { $0.isCompleted && !$0.isWarmup && $0.targetWeight > 0 }
-        guard !sets.isEmpty else { return .completed }
-        let anyFailed = sets.contains { !$0.metTarget }
-        let anyProgressed = sets.contains { $0.metTarget }
-        if anyFailed && !anyProgressed { return .failed }
-        return .progressed
+        HistoryStatusEvaluator.state(for: payload.session)
     }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
 
             // Header
-            VStack(alignment: .leading, spacing: AtlasTheme.Spacing.xxs) {
+            VStack(alignment: .leading, spacing: AppSpacing.xs) {
                 Text(Self.dayFormatter.string(from: payload.date))
-                    .font(AtlasTheme.Typography.caption)
-                    .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                    .font(AppFont.caption.font)
+                    .foregroundStyle(AppColor.textSecondary)
                     .tracking(0.3)
 
-                HStack(alignment: .firstTextBaseline, spacing: AtlasTheme.Spacing.sm) {
+                HStack(alignment: .firstTextBaseline, spacing: AppSpacing.sm) {
                     Text(payload.templateName)
-                        .font(AtlasTheme.Typography.hero)
-                        .foregroundStyle(AtlasTheme.Colors.textPrimary)
+                        .font(AppFont.largeTitle.font)
+                        .foregroundStyle(AppColor.textPrimary)
 
                     let state = sessionState
                     if state != .none {
                         Text(state.label)
-                            .font(.system(size: 10, weight: .bold, design: .rounded))
+                            .font(AppFont.badgeText)
                             .tracking(0.8)
                             .foregroundStyle(state.labelColor)
                             .padding(.horizontal, 7)
@@ -503,39 +448,35 @@ private struct DayDetailSheet: View {
 
                 if payload.session.weekNumber > 0 {
                     Text("Week \(payload.session.weekNumber) of 8")
-                        .font(AtlasTheme.Typography.caption)
-                        .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                        .font(AppFont.caption.font)
+                        .foregroundStyle(AppColor.textSecondary)
                 }
             }
-            .padding(.horizontal, AtlasTheme.Spacing.lg)
-            .padding(.top, AtlasTheme.Spacing.lg)
-            .padding(.bottom, AtlasTheme.Spacing.md)
-
-            Divider()
-                .background(AtlasTheme.Colors.border)
+            .padding(.horizontal, AppSpacing.lg)
+            .padding(.top, AppSpacing.lg)
+            .padding(.bottom, AppSpacing.md)
 
             if exerciseRows.isEmpty {
                 VStack {
                     Text("No set data recorded.")
-                        .font(AtlasTheme.Typography.caption)
-                        .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                        .font(AppFont.caption.font)
+                        .foregroundStyle(AppColor.textSecondary)
                 }
                 .frame(maxWidth: .infinity)
-                .padding(.vertical, AtlasTheme.Spacing.xl)
+                .padding(.vertical, AppSpacing.xl)
             } else {
                 ScrollView {
-                    VStack(spacing: 0) {
+                    VStack(spacing: AppSpacing.sm) {
                         ForEach(exerciseRows, id: \.name) { row in
                             ExerciseOutcomeRow(
                                 name: row.name,
                                 set: row.bestSet,
                                 metTarget: row.metTarget
                             )
-                            Divider()
-                                .padding(.leading, AtlasTheme.Spacing.lg)
-                                .background(AtlasTheme.Colors.border)
                         }
                     }
+                    .padding(.horizontal, AppSpacing.lg)
+                    .padding(.bottom, AppSpacing.lg)
                 }
             }
 
@@ -552,31 +493,32 @@ private struct ExerciseOutcomeRow: View {
     let metTarget: Bool
 
     var body: some View {
-        HStack(spacing: AtlasTheme.Spacing.md) {
-            Image(systemName: metTarget ? "checkmark" : "xmark")
-                .font(.system(size: 11, weight: .bold))
-                .foregroundStyle(metTarget ? AtlasTheme.Colors.successAccent : AtlasTheme.Colors.failureAccent)
+        HStack(spacing: AppSpacing.md) {
+            (metTarget ? AppIcon.checkmark : AppIcon.close).image(size: 11, weight: .bold)
+                .foregroundStyle(metTarget ? AppColor.success : AppColor.error)
                 .frame(width: 20, height: 20)
                 .background(
                     Circle().fill(
-                        metTarget ? AtlasTheme.Colors.successAccent.opacity(0.12) : AtlasTheme.Colors.failureAccent.opacity(0.12)
+                        metTarget ? AppColor.success.opacity(0.12) : AppColor.error.opacity(0.12)
                     )
                 )
 
             Text(name)
-                .font(AtlasTheme.Typography.body)
-                .foregroundStyle(AtlasTheme.Colors.textPrimary)
+                .font(AppFont.body.font)
+                .foregroundStyle(AppColor.textPrimary)
                 .lineLimit(1)
 
             Spacer()
 
             Text("\(set.weight.weightString) kg × \(set.reps)")
-                .font(.system(.body, design: .rounded).weight(.semibold))
-                .foregroundStyle(AtlasTheme.Colors.textPrimary)
+                .font(AppFont.label.font)
+                .foregroundStyle(AppColor.textPrimary)
                 .monospacedDigit()
         }
-        .padding(.horizontal, AtlasTheme.Spacing.lg)
+        .padding(.horizontal, AppSpacing.md)
         .frame(minHeight: 52)
+        .background(AppColor.cardBackground)
+        .clipShape(RoundedRectangle(cornerRadius: AppRadius.md, style: .continuous))
     }
 }
 
@@ -592,5 +534,4 @@ extension Calendar {
 #Preview {
     HistoryView()
         .modelContainer(PreviewSampleData.makePreviewContainer())
-        .preferredColorScheme(.dark)
 }

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=402">
+<link rel="stylesheet" href="shared.css">
+<title>Cycles</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+</head>
+<body>
+
+<div class="status-bar">
+  <span class="time">9:41</span>
+  <span class="icons">
+    <svg width="17" height="12" fill="none"><rect x="0" y="3" width="3" height="9" rx="1" fill="#000"/><rect x="4.5" y="2" width="3" height="10" rx="1" fill="#000"/><rect x="9" y="0.5" width="3" height="11.5" rx="1" fill="#000"/><rect x="13.5" y="0" width="3" height="12" rx="1" fill="#000"/></svg>
+    <svg width="16" height="12" fill="none"><path d="M8 2.4C10.7 2.4 13 3.5 14.6 5.2L13.2 6.6C11.9 5.2 10.1 4.4 8 4.4S4.1 5.2 2.8 6.6L1.4 5.2C3 3.5 5.3 2.4 8 2.4ZM8 6.4C9.5 6.4 10.9 7 11.8 8L10.4 9.4C9.8 8.8 9 8.4 8 8.4S6.2 8.8 5.6 9.4L4.2 8C5.1 7 6.5 6.4 8 6.4ZM9.4 11.4L8 12.8L6.6 11.4C7 11 7.5 10.8 8 10.8S9 11 9.4 11.4Z" fill="#000"/></svg>
+    <svg width="27" height="12" fill="none"><rect x="0" y="1" width="22" height="10" rx="2.5" stroke="#000" stroke-width="1"/><rect x="1.5" y="2.5" width="18" height="7" rx="1.5" fill="#000"/><rect x="23" y="4" width="2.5" height="4" rx="1" fill="#000"/></svg>
+  </span>
+</div>
+
+<div class="nav-bar">
+  <div class="title">Cycles</div>
+  <div class="nav-btn">⚙</div>
+</div>
+
+<div class="content">
+  <!-- Active cycle card with progress ring -->
+  <div class="card">
+    <div class="flex-row" style="justify-content: space-between;">
+      <div class="flex-col gap-4">
+        <span class="hero-text">PPL Cycle 1</span>
+        <span class="caption">Week 3 of 8</span>
+      </div>
+      <!-- Progress Ring -->
+      <div style="position: relative; width: 56px; height: 56px;">
+        <svg width="56" height="56" viewBox="0 0 56 56">
+          <circle cx="28" cy="28" r="24" fill="none" stroke="var(--border)" stroke-width="5"/>
+          <circle cx="28" cy="28" r="24" fill="none" stroke="#000" stroke-width="5" stroke-linecap="round"
+            stroke-dasharray="150.8" stroke-dashoffset="94.2" transform="rotate(-90 28 28)"/>
+        </svg>
+        <span style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700;">38%</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Week rows -->
+  <div style="display: flex; flex-direction: column; gap: 6px;">
+    <!-- Week 1 - completed -->
+    <div style="background: #fff; border-radius: var(--radius-sm); padding: 0 16px; min-height: 52px; display: flex; align-items: center; gap: 16px;">
+      <span class="body-text" style="font-weight: 500; width: 60px;">Week 1</span>
+      <span class="caption text-secondary" style="flex:1;">Mar 3–9</span>
+      <span class="caption text-success">✓ Done</span>
+    </div>
+    <!-- Week 2 - failed -->
+    <div style="background: #fff; border-radius: var(--radius-sm); padding: 0 16px; min-height: 52px; display: flex; align-items: center; gap: 16px; border: 1.5px solid rgba(255,59,48,0.4);">
+      <span class="body-text" style="font-weight: 500; width: 60px;">Week 2</span>
+      <span class="caption text-secondary" style="flex:1;">Mar 10–16</span>
+      <span class="caption text-failure">✗ Failed</span>
+    </div>
+    <!-- Week 3 - current -->
+    <div style="background: #fff; border-radius: var(--radius-sm); padding: 0 16px; min-height: 52px; display: flex; align-items: center; gap: 16px; border: 2px solid #000;">
+      <span class="body-text" style="font-weight: 500; width: 60px;">Week 3</span>
+      <span class="caption text-secondary" style="flex:1;">Mar 17–23</span>
+      <div class="flex-row gap-4">
+        <span style="width: 8px; height: 8px; border-radius: 50%; background: #000;"></span>
+        <span class="caption" style="color: #000;">Current</span>
+      </div>
+    </div>
+    <!-- Week 4-8 - upcoming -->
+    <div style="background: #fff; border-radius: var(--radius-sm); padding: 0 16px; min-height: 52px; display: flex; align-items: center; gap: 16px;">
+      <span class="body-text" style="font-weight: 500; width: 60px;">Week 4</span>
+      <span class="caption text-secondary" style="flex:1;">Mar 24–30</span>
+      <span class="caption text-secondary">—</span>
+    </div>
+    <div style="background: #fff; border-radius: var(--radius-sm); padding: 0 16px; min-height: 52px; display: flex; align-items: center; gap: 16px;">
+      <span class="body-text" style="font-weight: 500; width: 60px;">Week 5</span>
+      <span class="caption text-secondary" style="flex:1;">Mar 31–Apr 6</span>
+      <span class="caption text-secondary">—</span>
+    </div>
+    <div style="background: #fff; border-radius: var(--radius-sm); padding: 0 16px; min-height: 52px; display: flex; align-items: center; gap: 16px;">
+      <span class="body-text" style="font-weight: 500; width: 60px;">Week 6</span>
+      <span class="caption text-secondary" style="flex:1;">Apr 7–13</span>
+      <span class="caption text-secondary">—</span>
+    </div>
+    <div style="background: #fff; border-radius: var(--radius-sm); padding: 0 16px; min-height: 52px; display: flex; align-items: center; gap: 16px;">
+      <span class="body-text" style="font-weight: 500; width: 60px;">Week 7</span>
+      <span class="caption text-secondary" style="flex:1;">Apr 14–20</span>
+      <span class="caption text-secondary">—</span>
+    </div>
+    <div style="background: #fff; border-radius: var(--radius-sm); padding: 0 16px; min-height: 52px; display: flex; align-items: center; gap: 16px;">
+      <span class="body-text" style="font-weight: 500; width: 60px;">Week 8</span>
+      <span class="caption text-secondary" style="flex:1;">Apr 21–27</span>
+      <span class="caption text-secondary">—</span>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

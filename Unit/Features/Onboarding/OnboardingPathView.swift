@@ -3,33 +3,31 @@
 //  Unit
 //
 //  Screen 2 — Setup path selection.
-//  Build my cycle (full flow) vs Try a sample cycle (condensed).
+//  Single entry point into the full setup flow.
 //
 
 import SwiftUI
 
 struct OnboardingPathView: View {
-    var onSelect: (OnboardingViewModel.SetupPath) -> Void
+    var progressStep: Int
+    var progressTotal: Int
+    var onContinue: () -> Void
 
     var body: some View {
-        OnboardingShell(title: "How do you want to start?") {
-            VStack(spacing: AtlasTheme.Spacing.sm) {
+        OnboardingShell(
+            title: "How do you want to start?",
+            progressStep: progressStep,
+            progressTotal: progressTotal
+        ) {
+            VStack(spacing: AppSpacing.sm) {
                 PathCard(
-                    icon: "slider.horizontal.3",
                     title: "Build my cycle",
                     subtitle: "I have a program — I'll enter it now."
                 ) {
-                    onSelect(.build)
-                }
-
-                PathCard(
-                    icon: "bolt.fill",
-                    title: "Try a sample cycle",
-                    subtitle: "See how Unit works with a pre-built Push / Pull / Legs program."
-                ) {
-                    onSelect(.sample)
+                    onContinue()
                 }
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
 }
@@ -37,47 +35,34 @@ struct OnboardingPathView: View {
 // MARK: - PathCard
 
 private struct PathCard: View {
-    let icon: String
     let title: String
     let subtitle: String
     let action: () -> Void
 
     var body: some View {
         Button(action: action) {
-            HStack(spacing: AtlasTheme.Spacing.md) {
-                Image(systemName: icon)
-                    .font(.system(size: 20, weight: .semibold))
-                    .foregroundStyle(AtlasTheme.Colors.accent)
-                    .frame(width: 36, height: 36)
-
-                VStack(alignment: .leading, spacing: 3) {
-                    Text(title)
-                        .font(AtlasTheme.Typography.sectionTitle)
-                        .foregroundStyle(AtlasTheme.Colors.textPrimary)
-                    Text(subtitle)
-                        .font(AtlasTheme.Typography.caption)
-                        .foregroundStyle(AtlasTheme.Colors.textSecondary)
-                        .multilineTextAlignment(.leading)
-                }
-
-                Spacer()
-
-                Image(systemName: "chevron.right")
-                    .font(.system(size: 12, weight: .semibold))
-                    .foregroundStyle(AtlasTheme.Colors.textSecondary)
+            VStack(alignment: .leading, spacing: 3) {
+                Text(title)
+                    .font(AppFont.sectionHeader.font)
+                    .foregroundStyle(AppColor.textPrimary)
+                Text(subtitle)
+                    .font(AppFont.caption.font)
+                    .foregroundStyle(AppColor.textSecondary)
+                    .multilineTextAlignment(.leading)
             }
-            .padding(AtlasTheme.Spacing.md)
-            .background(AtlasTheme.Colors.card)
-            .clipShape(RoundedRectangle(cornerRadius: AtlasTheme.Radius.lg, style: .continuous))
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(AppSpacing.md)
+            .background(AppColor.cardBackground)
+            .clipShape(RoundedRectangle(cornerRadius: AppRadius.lg, style: .continuous))
         }
         .buttonStyle(.plain)
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
 
 #Preview {
     NavigationStack {
-        OnboardingPathView { _ in }
-            .preferredColorScheme(.dark)
+        OnboardingPathView(progressStep: 1, progressTotal: 6) { }
     }
-    .tint(AtlasTheme.Colors.accent)
+    .tint(AppColor.accent)
 }

@@ -44,11 +44,11 @@ Principles that support “good design” and **always the one wins with the bes
 
 ---
 
-## 6. Dark Mode Native
+## 6. Atomic tokens & shared UI
 
-- **What**: Unit runs dark-only surfaces. Base is a softened near-black with a subtle blue-grey or neutral grey tone — not pure black, not AMOLED black. Cards are separated from the background through fill contrast alone, never shadows.
-- **Why**: The gym environment — overhead lit or backlit — makes dark surfaces easier to read. A softened base prevents eye strain and feels premium, not gaming-like.
-- **Apply**: Never hardcode white surfaces or pure black. Never use shadows. Use `Color(.systemBackground)` for base, `Color(.systemGroupedBackground)` for elevated context, a distinct card fill for cards. Borders (`Color(uiColor: .separator)`) are sparse — only when fill contrast is insufficient. Orange accent `#FF4400` is restrained: one primary CTA per screen, not used for decoration or passive states.
+- **What**: New and refactored UI uses the **atomic design system** — tokens (`AppColor`, `AppFont`, `AppSpacing`, `AppRadius`, `AppIcon`) in `Unit/UI/Atoms/AppAtoms.swift`, composed into molecules, organisms, and the `AppScreen` template. See `atomic-design-system.md`.
+- **Why**: Fewer one-off styles means faster iteration, fewer bugs, and screens that stay readable under stress (Gym Test).
+- **Apply**: Don’t add raw spacing, ad-hoc colors, or duplicate nav/card chrome in feature views when an atom or shared component already exists. Extend the atom or add a molecule/organism, then use it.
 
 ---
 
@@ -59,8 +59,8 @@ Principles that support “good design” and **always the one wins with the bes
 | Minimalism | Only what’s needed to log, track, and run a cycle. |
 | Clarity | Obvious purpose, controls, and state — including Target vs. Actual. |
 | Speed | Gym Test: log a set with RIR in under 3 seconds. |
-| Consistency | Same patterns and accent everywhere. |
+| Consistency | Same patterns and tokens everywhere. |
 | Accessibility | HIG-compliant: 44pt targets, 4.5:1 contrast, VoiceOver, Reduce Motion. |
-| Dark Mode Native | Softened near-black base, fill-contrast cards, no shadows, restrained orange. |
+| Atomic tokens | Use `AppAtoms` + `Unit/UI` layers; document changes in `atomic-design-system.md`. |
 
 Every design decision should be checked against these; when in doubt, favor **speed** and **minimalism** for the active workout experience.

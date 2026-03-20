@@ -15,11 +15,26 @@ import SwiftData
 struct OnboardingExercise: Identifiable, Equatable, Hashable {
     var id = UUID()
     var name: String
+    var targetSets: Int?
 }
 
 struct OnboardingBaseline {
     var weightKg: Double = 0
     var reps: Int = 8
+}
+
+struct ImportedProgramExercise: Identifiable, Equatable {
+    var id = UUID()
+    var name: String
+    var sets: Int?
+    var reps: Int?
+    var weightKg: Double?
+}
+
+struct ImportedProgramDay: Identifiable, Equatable {
+    var id = UUID()
+    var name: String
+    var exercises: [ImportedProgramExercise]
 }
 
 // MARK: - ViewModel
@@ -29,8 +44,15 @@ final class OnboardingViewModel {
 
     // MARK: Path
 
-    enum SetupPath { case build, sample }
+    enum SetupPath { case build }
     var setupPath: SetupPath = .build
+
+    enum ImportMethod {
+        case photo
+        case paste
+        case manual
+    }
+    var importMethod: ImportMethod = .manual
 
     // MARK: Units
 
@@ -49,7 +71,8 @@ final class OnboardingViewModel {
 
     // MARK: Progression
 
-    var globalIncrementKg: Double = 2.5
+    var compoundIncrementKg: Double = 2.5
+    var isolationIncrementKg: Double = 1.25
 
     // MARK: Start Date
 
@@ -85,29 +108,48 @@ final class OnboardingViewModel {
         unitSystem == "lb" ? displayValue / 2.20462 : displayValue
     }
 
-    var incrementDisplay: Double {
-        unitSystem == "lb" ? globalIncrementKg * 2.20462 : globalIncrementKg
+    var globalIncrementKg: Double {
+        get { compoundIncrementKg }
+        set { compoundIncrementKg = newValue }
     }
 
     var incrementStep: Double { unitSystem == "lb" ? 2.5 : 1.25 }
-    var incrementMin: Double { unitSystem == "lb" ? 2.5 : 1.25 }
+    var incrementMin: Double { 0 }
     var incrementMax: Double { unitSystem == "lb" ? 22.0 : 10.0 }
 
-    func incrementDisplayLabel() -> String {
-        let val = incrementDisplay
+    func incrementDisplay(for type: IncrementType) -> Double {
+        let valueKg = switch type {
+        case .compound: compoundIncrementKg
+        case .isolation: isolationIncrementKg
+        }
+        return unitSystem == "lb" ? valueKg * 2.20462 : valueKg
+    }
+
+    func incrementDisplayLabel(for type: IncrementType) -> String {
+        let val = incrementDisplay(for: type)
         let unit = unitSystem
         return "\(val.weightString) \(unit)"
     }
 
-    func stepUp() {
+    func stepUp(_ type: IncrementType) {
         let step = unitSystem == "lb" ? 2.5 / 2.20462 : 1.25
         let max = unitSystem == "lb" ? 22.0 / 2.20462 : 10.0
-        globalIncrementKg = min(max, globalIncrementKg + step)
+        switch type {
+        case .compound:
+            compoundIncrementKg = min(max, compoundIncrementKg + step)
+        case .isolation:
+            isolationIncrementKg = min(max, isolationIncrementKg + step)
+        }
     }
 
-    func stepDown() {
+    func stepDown(_ type: IncrementType) {
         let step = unitSystem == "lb" ? 2.5 / 2.20462 : 1.25
-        globalIncrementKg = max(step, globalIncrementKg - step)
+        switch type {
+        case .compound:
+            compoundIncrementKg = max(step, compoundIncrementKg - step)
+        case .isolation:
+            isolationIncrementKg = max(0, isolationIncrementKg - step)
+        }
     }
 
     // MARK: - Day Management
@@ -128,19 +170,19 @@ final class OnboardingViewModel {
         dayNames = ["Push", "Pull", "Legs"]
 
         let pushExs: [OnboardingExercise] = [
-            OnboardingExercise(name: "Bench Press"),
-            OnboardingExercise(name: "Overhead Press"),
-            OnboardingExercise(name: "Tricep Pushdown")
+            OnboardingExercise(name: "Bench Press", targetSets: 3),
+            OnboardingExercise(name: "Overhead Press", targetSets: 3),
+            OnboardingExercise(name: "Tricep Pushdown", targetSets: 3)
         ]
         let pullExs: [OnboardingExercise] = [
-            OnboardingExercise(name: "Barbell Row"),
-            OnboardingExercise(name: "Lat Pulldown"),
-            OnboardingExercise(name: "Pull-up")
+            OnboardingExercise(name: "Barbell Row", targetSets: 3),
+            OnboardingExercise(name: "Lat Pulldown", targetSets: 3),
+            OnboardingExercise(name: "Pull-up", targetSets: 3)
         ]
         let legsExs: [OnboardingExercise] = [
-            OnboardingExercise(name: "Back Squat"),
-            OnboardingExercise(name: "Romanian Deadlift"),
-            OnboardingExercise(name: "Leg Press")
+            OnboardingExercise(name: "Back Squat", targetSets: 3),
+            OnboardingExercise(name: "Romanian Deadlift", targetSets: 3),
+            OnboardingExercise(name: "Leg Press", targetSets: 3)
         ]
         dayExercises = [pushExs, pullExs, legsExs]
 
@@ -205,10 +247,17 @@ final class OnboardingViewModel {
         for day in dayExercises {
             for onbEx in day {
                 let key = onbEx.name.trimmingCharacters(in: .whitespaces).lowercased()
+                let isBodyweight = isBodyweightExercise(named: onbEx.name)
                 if let match = nameToExercise[key] {
+                    if isBodyweight && !match.isBodyweight {
+                        match.isBodyweight = true
+                    }
                     exerciseMap[onbEx.id] = match
                 } else {
-                    let ex = Exercise(displayName: onbEx.name.trimmingCharacters(in: .whitespaces))
+                    let ex = Exercise(
+                        displayName: onbEx.name.trimmingCharacters(in: .whitespaces),
+                        isBodyweight: isBodyweight
+                    )
                     modelContext.insert(ex)
                     exerciseMap[onbEx.id] = ex
                     nameToExercise[key] = ex
@@ -240,7 +289,7 @@ final class OnboardingViewModel {
             splitId: split.id,
             startDate: startDate,
             weekCount: 8,
-            globalIncrementKg: globalIncrementKg,
+            globalIncrementKg: compoundIncrementKg,
             isActive: true,
             isCompleted: false
         )
@@ -254,11 +303,13 @@ final class OnboardingViewModel {
                 guard !seenExerciseIds.contains(exercise.id) else { continue }
                 seenExerciseIds.insert(exercise.id)
                 let baseline = baselines[onbEx.id] ?? OnboardingBaseline()
+                let baseWeightKg = exercise.isBodyweight ? 0 : baseline.weightKg
+                let incrementKg = exercise.isBodyweight ? 0 : incrementKg(for: exercise.displayName)
                 let rule = ProgressionRule(
                     cycleId: cycle.id,
                     exerciseId: exercise.id,
-                    incrementKg: globalIncrementKg,
-                    baseWeightKg: baseline.weightKg,
+                    incrementKg: incrementKg,
+                    baseWeightKg: baseWeightKg,
                     baseReps: max(1, baseline.reps)
                 )
                 modelContext.insert(rule)
@@ -266,6 +317,80 @@ final class OnboardingViewModel {
         }
 
         try modelContext.save()
+    }
+}
+
+extension OnboardingViewModel {
+    enum IncrementType {
+        case compound
+        case isolation
+    }
+
+    func incrementKg(for exerciseName: String) -> Double {
+        isIsolationExercise(named: exerciseName) ? isolationIncrementKg : compoundIncrementKg
+    }
+
+    func isBodyweightExercise(named exerciseName: String) -> Bool {
+        let name = normalizedExerciseName(exerciseName)
+        let bodyweightKeywords = [
+            "pull up", "chin up", "push up", "dip", "plank", "hanging leg raise",
+            "ab wheel rollout", "sit up", "crunch", "mountain climber", "burpee",
+            "bodyweight squat"
+        ]
+        return bodyweightKeywords.contains { name.contains($0) }
+    }
+
+    func baselineIsValid(forDay dayIndex: Int) -> Bool {
+        guard dayExercises.indices.contains(dayIndex) else { return false }
+        return dayExercises[dayIndex].allSatisfy { (baselines[$0.id]?.reps ?? 0) > 0 }
+    }
+
+    func applyImportedProgram(_ days: [ImportedProgramDay]) {
+        let sanitizedDays = days.filter { !$0.exercises.isEmpty }
+        guard !sanitizedDays.isEmpty else { return }
+
+        dayCount = min(6, max(1, sanitizedDays.count))
+        dayNames = Array(sanitizedDays.prefix(dayCount).enumerated().map { index, day in
+            let trimmed = day.name.trimmingCharacters(in: .whitespacesAndNewlines)
+            return trimmed.isEmpty ? "Day \(index + 1)" : trimmed
+        })
+
+        dayExercises = Array(sanitizedDays.prefix(dayCount).map { day in
+            day.exercises.map { exercise in
+                OnboardingExercise(name: exercise.name, targetSets: exercise.sets)
+            }
+        })
+
+        baselines = [:]
+        for (dayIndex, day) in sanitizedDays.prefix(dayCount).enumerated() {
+            for (exerciseIndex, exercise) in day.exercises.enumerated() {
+                guard dayExercises.indices.contains(dayIndex),
+                      dayExercises[dayIndex].indices.contains(exerciseIndex) else { continue }
+                let onboardingExercise = dayExercises[dayIndex][exerciseIndex]
+                baselines[onboardingExercise.id] = OnboardingBaseline(
+                    weightKg: exercise.weightKg ?? 0,
+                    reps: max(1, exercise.reps ?? 8)
+                )
+            }
+        }
+    }
+
+    private func isIsolationExercise(named exerciseName: String) -> Bool {
+        let name = exerciseName.lowercased()
+        let isolationKeywords = [
+            "curl", "pushdown", "pushdown", "extension", "raise", "fly", "flye",
+            "lateral", "rear delt", "tricep", "bicep", "calf", "leg curl",
+            "leg extension", "adductor", "abductor", "crunch", "plank",
+            "pullover", "face pull", "shrug", "kickback"
+        ]
+        return isolationKeywords.contains { name.contains($0) }
+    }
+
+    private func normalizedExerciseName(_ name: String) -> String {
+        name
+            .lowercased()
+            .replacingOccurrences(of: "-", with: " ")
+            .replacingOccurrences(of: "_", with: " ")
     }
 }
 

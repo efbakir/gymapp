@@ -46,7 +46,13 @@
 		OB10000000000000000000A /* OnboardingProgressionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = OB00000000000000000000A /* OnboardingProgressionView.swift */; };
 		OB10000000000000000000B /* OnboardingCycleStartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = OB00000000000000000000B /* OnboardingCycleStartView.swift */; };
 		OB10000000000000000000C /* OnboardingSignInView.swift in Sources */ = {isa = PBXBuildFile; fileRef = OB00000000000000000000C /* OnboardingSignInView.swift */; };
+		OB10000000000000000000D /* OnboardingImportMethodView.swift in Sources */ = {isa = PBXBuildFile; fileRef = OB00000000000000000000D /* OnboardingImportMethodView.swift */; };
+		OB10000000000000000000E /* OnboardingProgramImportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = OB00000000000000000000E /* OnboardingProgramImportView.swift */; };
 		SB100000000000000000001 /* SubscribeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SB000000000000000000001 /* SubscribeView.swift */; };
+		UI100000000000000000001 /* AppAtoms.swift in Sources */ = {isa = PBXBuildFile; fileRef = UI000000000000000000001 /* AppAtoms.swift */; };
+		UI100000000000000000002 /* AppMolecules.swift in Sources */ = {isa = PBXBuildFile; fileRef = UI000000000000000000002 /* AppMolecules.swift */; };
+		UI100000000000000000003 /* AppOrganisms.swift in Sources */ = {isa = PBXBuildFile; fileRef = UI000000000000000000003 /* AppOrganisms.swift */; };
+		UI100000000000000000004 /* AppScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = UI000000000000000000004 /* AppScreen.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -93,7 +99,13 @@
 		OB00000000000000000000A /* OnboardingProgressionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingProgressionView.swift; sourceTree = "<group>"; };
 		OB00000000000000000000B /* OnboardingCycleStartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingCycleStartView.swift; sourceTree = "<group>"; };
 		OB00000000000000000000C /* OnboardingSignInView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingSignInView.swift; sourceTree = "<group>"; };
+		OB00000000000000000000D /* OnboardingImportMethodView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingImportMethodView.swift; sourceTree = "<group>"; };
+		OB00000000000000000000E /* OnboardingProgramImportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingProgramImportView.swift; sourceTree = "<group>"; };
 		SB000000000000000000001 /* SubscribeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscribeView.swift; sourceTree = "<group>"; };
+		UI000000000000000000001 /* AppAtoms.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppAtoms.swift; sourceTree = "<group>"; };
+		UI000000000000000000002 /* AppMolecules.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppMolecules.swift; sourceTree = "<group>"; };
+		UI000000000000000000003 /* AppOrganisms.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppOrganisms.swift; sourceTree = "<group>"; };
+		UI000000000000000000004 /* AppScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppScreen.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -141,6 +153,7 @@
 				544D8D052F5F58C100E4C17E /* Unit.entitlements */,
 				A20000000000000000000001 /* UnitApp.swift */,
 				A20000000000000000000002 /* ContentView.swift */,
+				UI200000000000000000001 /* UI */,
 				A40000000000000000000004 /* Models */,
 				A40000000000000000000005 /* Features */,
 				A2000000000000000000000F /* Assets.xcassets */,
@@ -249,6 +262,8 @@
 				OB00000000000000000000A /* OnboardingProgressionView.swift */,
 				OB00000000000000000000B /* OnboardingCycleStartView.swift */,
 				OB00000000000000000000C /* OnboardingSignInView.swift */,
+				OB00000000000000000000D /* OnboardingImportMethodView.swift */,
+				OB00000000000000000000E /* OnboardingProgramImportView.swift */,
 			);
 			path = Onboarding;
 			sourceTree = "<group>";
@@ -259,6 +274,49 @@
 				SB000000000000000000001 /* SubscribeView.swift */,
 			);
 			path = Subscription;
+			sourceTree = "<group>";
+		};
+		UI200000000000000000001 /* UI */ = {
+			isa = PBXGroup;
+			children = (
+				UI200000000000000000002 /* Atoms */,
+				UI200000000000000000003 /* Molecules */,
+				UI200000000000000000004 /* Organisms */,
+				UI200000000000000000005 /* Templates */,
+			);
+			path = UI;
+			sourceTree = "<group>";
+		};
+		UI200000000000000000002 /* Atoms */ = {
+			isa = PBXGroup;
+			children = (
+				UI000000000000000000001 /* AppAtoms.swift */,
+			);
+			path = Atoms;
+			sourceTree = "<group>";
+		};
+		UI200000000000000000003 /* Molecules */ = {
+			isa = PBXGroup;
+			children = (
+				UI000000000000000000002 /* AppMolecules.swift */,
+			);
+			path = Molecules;
+			sourceTree = "<group>";
+		};
+		UI200000000000000000004 /* Organisms */ = {
+			isa = PBXGroup;
+			children = (
+				UI000000000000000000003 /* AppOrganisms.swift */,
+			);
+			path = Organisms;
+			sourceTree = "<group>";
+		};
+		UI200000000000000000005 /* Templates */ = {
+			isa = PBXGroup;
+			children = (
+				UI000000000000000000004 /* AppScreen.swift */,
+			);
+			path = Templates;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -363,7 +421,13 @@
 				OB10000000000000000000A /* OnboardingProgressionView.swift in Sources */,
 				OB10000000000000000000B /* OnboardingCycleStartView.swift in Sources */,
 				OB10000000000000000000C /* OnboardingSignInView.swift in Sources */,
+				OB10000000000000000000D /* OnboardingImportMethodView.swift in Sources */,
+				OB10000000000000000000E /* OnboardingProgramImportView.swift in Sources */,
 				SB100000000000000000001 /* SubscribeView.swift in Sources */,
+				UI100000000000000000001 /* AppAtoms.swift in Sources */,
+				UI100000000000000000002 /* AppMolecules.swift in Sources */,
+				UI100000000000000000003 /* AppOrganisms.swift in Sources */,
+				UI100000000000000000004 /* AppScreen.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -490,7 +554,7 @@
 				DEVELOPMENT_ASSET_PATHS = "";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = "Unit - Progressive Overload Tracker";
+				INFOPLIST_KEY_CFBundleDisplayName = "Unit";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -528,7 +592,7 @@
 				DEVELOPMENT_ASSET_PATHS = "";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = "Unit - Progressive Overload Tracker";
+				INFOPLIST_KEY_CFBundleDisplayName = "Unit";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

@@ -10,71 +10,103 @@ import SwiftUI
 
 struct OnboardingProgressionView: View {
     @Environment(OnboardingViewModel.self) private var vm
+    var progressStep: Int
+    var progressTotal: Int
     var onContinue: () -> Void
 
     var body: some View {
         OnboardingShell(
             title: "How much weight do you add per week?",
             ctaLabel: "Continue",
+            progressStep: progressStep,
+            progressTotal: progressTotal,
             onContinue: onContinue
         ) {
-            VStack(alignment: .leading, spacing: AtlasTheme.Spacing.lg) {
+            VStack(alignment: .leading, spacing: AppSpacing.lg) {
 
-                // Description
-                Text("When you hit your target, Unit adds:")
-                    .font(AtlasTheme.Typography.body)
-                    .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                Text("Set one default for compound lifts and one for isolation work.")
+                    .font(AppFont.body.font)
+                    .foregroundStyle(AppColor.textSecondary)
 
-                // Increment selector
-                HStack {
-                    Button {
-                        vm.stepDown()
-                    } label: {
-                        Image(systemName: "minus")
-                            .font(.system(size: 16, weight: .semibold))
-                            .foregroundStyle(AtlasTheme.Colors.textPrimary)
-                            .frame(width: 48, height: 48)
-                            .background(AtlasTheme.Colors.card)
-                            .clipShape(RoundedRectangle(cornerRadius: AtlasTheme.Radius.md, style: .continuous))
-                    }
+                VStack(spacing: AppSpacing.sm) {
+                    IncrementSelectorRow(
+                        title: "Compound exercises",
+                        subtitle: "Bench, squat, row, overhead press",
+                        value: vm.incrementDisplayLabel(for: .compound),
+                        onDecrease: { vm.stepDown(.compound) },
+                        onIncrease: { vm.stepUp(.compound) }
+                    )
 
-                    Spacer()
-
-                    Text(vm.incrementDisplayLabel())
-                        .font(.system(size: 32, weight: .bold, design: .rounded).monospacedDigit())
-                        .foregroundStyle(AtlasTheme.Colors.textPrimary)
-
-                    Spacer()
-
-                    Button {
-                        vm.stepUp()
-                    } label: {
-                        Image(systemName: "plus")
-                            .font(.system(size: 16, weight: .semibold))
-                            .foregroundStyle(AtlasTheme.Colors.textPrimary)
-                            .frame(width: 48, height: 48)
-                            .background(AtlasTheme.Colors.card)
-                            .clipShape(RoundedRectangle(cornerRadius: AtlasTheme.Radius.md, style: .continuous))
-                    }
+                    IncrementSelectorRow(
+                        title: "Isolation exercises",
+                        subtitle: "Curls, raises, pushdowns, extensions",
+                        value: vm.incrementDisplayLabel(for: .isolation),
+                        onDecrease: { vm.stepDown(.isolation) },
+                        onIncrease: { vm.stepUp(.isolation) }
+                    )
                 }
-                .padding(AtlasTheme.Spacing.md)
-                .background(AtlasTheme.Colors.elevatedBackground)
-                .clipShape(RoundedRectangle(cornerRadius: AtlasTheme.Radius.lg, style: .continuous))
+                .padding(AppSpacing.md)
+                .background(AppColor.surface)
+                .clipShape(RoundedRectangle(cornerRadius: AppRadius.lg, style: .continuous))
 
-                // Guidance
-                VStack(alignment: .leading, spacing: AtlasTheme.Spacing.xs) {
-                    GuidanceRow(label: "Most lifters", value: "2.5 \(vm.weightUnitLabel)")
-                    GuidanceRow(label: "Upper body compounds", value: "2.5 \(vm.weightUnitLabel)")
-                    GuidanceRow(label: "Lower body compounds", value: "5 \(vm.weightUnitLabel)")
-                    GuidanceRow(label: "Accessories / isolation", value: "1.25–2.5 \(vm.weightUnitLabel)")
+                VStack(alignment: .leading, spacing: AppSpacing.sm) {
+                    GuidanceRow(label: "Compound default", value: "2.5–5 \(vm.weightUnitLabel)")
+                    GuidanceRow(label: "Isolation default", value: "0–2.5 \(vm.weightUnitLabel)")
                 }
-                .padding(AtlasTheme.Spacing.md)
-                .background(AtlasTheme.Colors.card)
-                .clipShape(RoundedRectangle(cornerRadius: AtlasTheme.Radius.lg, style: .continuous))
+                .padding(AppSpacing.md)
+                .background(AppColor.cardBackground)
+                .clipShape(RoundedRectangle(cornerRadius: AppRadius.lg, style: .continuous))
 
-                Text("You can override this per-exercise in settings after your first session.")
-                    .font(AtlasTheme.Typography.caption)
-                    .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                Text("Isolation can stay at 0 if you don't want automatic jumps there.")
+                    .font(AppFont.caption.font)
+                    .foregroundStyle(AppColor.textSecondary)
+            }
+        }
+    }
+}
+
+private struct IncrementSelectorRow: View {
+    let title: String
+    let subtitle: String
+    let value: String
+    let onDecrease: () -> Void
+    let onIncrease: () -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: AppSpacing.sm) {
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title)
+                    .font(AppFont.sectionHeader.font)
+                    .foregroundStyle(AppColor.textPrimary)
+                Text(subtitle)
+                    .font(AppFont.caption.font)
+                    .foregroundStyle(AppColor.textSecondary)
+            }
+
+            HStack {
+                Button(action: onDecrease) {
+                    AppIcon.remove.image(size: 16, weight: .semibold)
+                        .foregroundStyle(AppColor.textPrimary)
+                        .frame(width: 48, height: 48)
+                        .background(AppColor.cardBackground)
+                        .clipShape(RoundedRectangle(cornerRadius: AppRadius.md, style: .continuous))
+                }
+
+                Spacer()
+
+                Text(value)
+                    .font(AppFont.numericLarge)
+                    .foregroundStyle(AppColor.textPrimary)
+
+                Spacer()
+
+                Button(action: onIncrease) {
+                    AppIcon.add.image(size: 16, weight: .semibold)
+                        .foregroundStyle(AppColor.textPrimary)
+                        .frame(width: 48, height: 48)
+                        .background(AppColor.cardBackground)
+                        .clipShape(RoundedRectangle(cornerRadius: AppRadius.md, style: .continuous))
+                }
             }
         }
     }
@@ -87,21 +119,20 @@ private struct GuidanceRow: View {
     var body: some View {
         HStack {
             Text(label)
-                .font(AtlasTheme.Typography.caption)
-                .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                .font(AppFont.caption.font)
+                .foregroundStyle(AppColor.textSecondary)
             Spacer()
             Text(value)
-                .font(.system(.caption, design: .rounded).weight(.semibold))
-                .foregroundStyle(AtlasTheme.Colors.textPrimary)
+                .font(AppFont.captionBold.font)
+                .foregroundStyle(AppColor.textPrimary)
         }
     }
 }
 
 #Preview {
     NavigationStack {
-        OnboardingProgressionView { }
+        OnboardingProgressionView(progressStep: 5, progressTotal: 6) { }
             .environment(OnboardingViewModel())
-            .preferredColorScheme(.dark)
     }
-    .tint(AtlasTheme.Colors.accent)
+    .tint(AppColor.accent)
 }

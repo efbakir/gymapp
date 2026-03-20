@@ -25,7 +25,7 @@ struct WeekDetailView: View {
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: AtlasTheme.Spacing.sm) {
+            VStack(alignment: .leading, spacing: AppSpacing.sm) {
                 // Week date range header
                 let range = cycle.dateRange(for: weekNumber)
                 let fmt: DateFormatter = {
@@ -34,31 +34,30 @@ struct WeekDetailView: View {
                     return f
                 }()
                 Text("\(fmt.string(from: range.lowerBound)) – \(fmt.string(from: range.upperBound))")
-                    .font(AtlasTheme.Typography.caption)
-                    .foregroundStyle(AtlasTheme.Colors.textSecondary)
-                    .padding(.top, AtlasTheme.Spacing.xs)
+                    .font(AppFont.caption.font)
+                    .foregroundStyle(AppColor.textSecondary)
+                    .padding(.top, AppSpacing.sm)
 
                 if cycleRules.isEmpty {
-                    VStack(spacing: AtlasTheme.Spacing.sm) {
-                        Image(systemName: "slider.horizontal.3")
-                            .font(.system(size: 32, weight: .light))
-                            .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                    VStack(spacing: AppSpacing.sm) {
+                        AppIcon.sliders.image(size: 32, weight: .light)
+                            .foregroundStyle(AppColor.textSecondary)
                         Text("No progression rules for this cycle.")
-                            .font(AtlasTheme.Typography.body)
-                            .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                            .font(AppFont.body.font)
+                            .foregroundStyle(AppColor.textSecondary)
                             .multilineTextAlignment(.center)
                     }
                     .frame(maxWidth: .infinity)
-                    .padding(.vertical, AtlasTheme.Spacing.xl)
+                    .padding(.vertical, AppSpacing.xl)
                 } else {
                     ForEach(cycleRules, id: \.id) { rule in
                         exerciseCard(rule: rule)
                     }
                 }
             }
-            .padding(AtlasTheme.Spacing.md)
+            .padding(AppSpacing.md)
         }
-        .background(AtlasTheme.Colors.background)
+        .background(AppColor.background)
         .navigationTitle("Week \(weekNumber)")
         .navigationBarTitleDisplayMode(.large)
     }
@@ -75,15 +74,18 @@ struct WeekDetailView: View {
         let name = exercises.first(where: { $0.id == rule.exerciseId })?.displayName ?? "Exercise"
         let actualSets = weekSessions.flatMap { $0.setEntries }.filter { $0.exerciseId == rule.exerciseId && $0.isCompleted }
 
-        return VStack(alignment: .leading, spacing: AtlasTheme.Spacing.sm) {
+        return VStack(alignment: .leading, spacing: AppSpacing.sm) {
             HStack(alignment: .firstTextBaseline) {
                 Text(name)
-                    .font(AtlasTheme.Typography.sectionTitle)
+                    .font(AppFont.sectionHeader.font)
                 Spacer(minLength: 0)
                 if rule.isDeloaded {
-                    Label("Deload", systemImage: "arrow.down.circle.fill")
-                        .font(AtlasTheme.Typography.caption)
-                        .foregroundStyle(AtlasTheme.Colors.deloadBadge)
+                    HStack(spacing: AppSpacing.xs) {
+                        AppIcon.deload.image()
+                        Text("Deload")
+                    }
+                    .font(AppFont.caption.font)
+                    .foregroundStyle(AppColor.warning)
                 }
             }
 
@@ -91,12 +93,12 @@ struct WeekDetailView: View {
             if let target = weekTarget {
                 HStack {
                     Text("Target")
-                        .font(AtlasTheme.Typography.caption)
-                        .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                        .font(AppFont.caption.font)
+                        .foregroundStyle(AppColor.textSecondary)
                     Spacer(minLength: 0)
                     Text("\(target.weightKg.weightString)kg × \(target.reps)")
-                        .font(AtlasTheme.Typography.body)
-                        .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                        .font(AppFont.body.font)
+                        .foregroundStyle(AppColor.textSecondary)
                         .monospacedDigit()
                 }
                 .accessibilityElement(children: .combine)
@@ -106,29 +108,29 @@ struct WeekDetailView: View {
             // Actual sets
             if actualSets.isEmpty {
                 Text("Not logged yet")
-                    .font(AtlasTheme.Typography.caption)
-                    .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                    .font(AppFont.caption.font)
+                    .foregroundStyle(AppColor.textSecondary)
             } else {
                 ForEach(actualSets.sorted(by: { $0.setIndex < $1.setIndex }), id: \.id) { entry in
                     let met = entry.targetWeight > 0 ? (entry.weight >= entry.targetWeight && entry.reps >= entry.targetReps) : true
                     HStack {
                         Text("Set \(entry.setIndex + 1)")
-                            .font(AtlasTheme.Typography.caption)
-                            .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                            .font(AppFont.caption.font)
+                            .foregroundStyle(AppColor.textSecondary)
                             .frame(width: 44, alignment: .leading)
                         Text("\(entry.weight.weightString)kg × \(entry.reps)")
-                            .font(AtlasTheme.Typography.body)
+                            .font(AppFont.body.font)
                             .monospacedDigit()
                         Spacer(minLength: 0)
-                        Image(systemName: met ? "checkmark.circle.fill" : "xmark.circle.fill")
-                            .foregroundStyle(met ? AtlasTheme.Colors.accent : AtlasTheme.Colors.failureAccent)
+                        (met ? AppIcon.checkmarkFilled : AppIcon.xmarkFilled).image()
+                            .foregroundStyle(met ? AppColor.success : AppColor.error)
                     }
                     .accessibilityElement(children: .combine)
                     .accessibilityValue("Set \(entry.setIndex + 1): \(entry.weight.weightString)kg × \(entry.reps). \(met ? "Met target." : "Missed target.")")
                 }
             }
         }
-        .atlasCardStyle()
+        .appCardStyle()
     }
 
 }

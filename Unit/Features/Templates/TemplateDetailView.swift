@@ -24,30 +24,39 @@ struct TemplateDetailView: View {
     var body: some View {
         List {
             Section("Day") {
-                TextField("Template name", text: $template.name)
-                    .font(AtlasTheme.Typography.body)
+                TextField("e.g. Upper Body A", text: $template.name)
+                    .font(AppFont.body.font)
                     .frame(minHeight: 44)
             }
-            .listRowBackground(AtlasTheme.Colors.elevatedBackground)
+            .listRowBackground(AppColor.cardBackground)
+            .listRowSeparator(.hidden)
 
             Section {
-                ForEach(Array(orderedExercises.enumerated()), id: \.element.id) { index, exercise in
-                    HStack(spacing: AtlasTheme.Spacing.sm) {
-                        Text("\(index + 1).")
-                            .font(AtlasTheme.Typography.caption)
-                            .foregroundStyle(AtlasTheme.Colors.textSecondary)
-                            .frame(width: 24, alignment: .leading)
-                        VStack(alignment: .leading, spacing: AtlasTheme.Spacing.xxs) {
+                if orderedExercises.isEmpty {
+                    Text("Add exercises to build this day.")
+                        .font(AppFont.caption.font)
+                        .foregroundStyle(AppColor.textSecondary)
+                        .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
+                        .listRowSeparator(.hidden)
+                }
+
+                ForEach(orderedExercises, id: \.id) { exercise in
+                    HStack(spacing: AppSpacing.sm) {
+                        AppIcon.reorder.image(size: 15)
+                            .foregroundStyle(AppColor.textSecondary.opacity(0.85))
+                            .frame(width: 20, alignment: .leading)
+                        VStack(alignment: .leading, spacing: AppSpacing.xs) {
                             Text(exercise.displayName)
-                                .font(AtlasTheme.Typography.body)
+                                .font(AppFont.body.font)
                             if !exercise.aliases.isEmpty {
                                 Text(exercise.aliases.joined(separator: ", "))
-                                    .font(AtlasTheme.Typography.caption)
-                                    .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                                    .font(AppFont.caption.font)
+                                    .foregroundStyle(AppColor.textSecondary)
                             }
                         }
                     }
                     .frame(minHeight: 44)
+                    .listRowSeparator(.hidden)
                 }
                 .onDelete(perform: removeExercises)
                 .onMove(perform: moveExercises)
@@ -55,22 +64,30 @@ struct TemplateDetailView: View {
                 Button {
                     showingAddExercise = true
                 } label: {
-                    Label("Add Exercise", systemImage: "plus.circle.fill")
-                        .font(AtlasTheme.Typography.sectionTitle)
-                        .frame(minHeight: 44)
+                    HStack(spacing: AppSpacing.xs) {
+                        AppIcon.addCircle.image()
+                        Text("Add Exercise")
+                    }
+                    .font(AppFont.sectionHeader.font)
+                    .frame(minHeight: 44)
                 }
-                .foregroundStyle(AtlasTheme.Colors.accent)
+                .foregroundStyle(AppColor.accent)
+                .listRowSeparator(.hidden)
             } header: {
                 Text("Exercises")
             } footer: {
                 Text("Drag and drop to reorder. Search matches display name and aliases.")
             }
-            .listRowBackground(AtlasTheme.Colors.elevatedBackground)
+            .listRowBackground(AppColor.cardBackground)
+            .listSectionSeparator(.hidden)
         }
+        .listStyle(.plain)
         .scrollContentBackground(.hidden)
-        .background(AtlasTheme.Colors.background.ignoresSafeArea())
-        .navigationTitle(template.name)
+        .contentMargins(.top, AppSpacing.md, for: .scrollContent)
+        .background(AppColor.background.ignoresSafeArea())
+        .navigationTitle(template.name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? "New Training Day" : template.name)
         .navigationBarTitleDisplayMode(.inline)
+        .tint(AppColor.accent)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 EditButton()
@@ -141,57 +158,66 @@ struct AddExerciseToTemplateView: View {
                         Button {
                             addExercise(exercise)
                         } label: {
-                            HStack(spacing: AtlasTheme.Spacing.sm) {
-                                VStack(alignment: .leading, spacing: AtlasTheme.Spacing.xxs) {
+                            HStack(spacing: AppSpacing.sm) {
+                                VStack(alignment: .leading, spacing: AppSpacing.xs) {
                                     Text(exercise.displayName)
-                                        .font(AtlasTheme.Typography.body)
-                                        .foregroundStyle(AtlasTheme.Colors.textPrimary)
+                                        .font(AppFont.body.font)
+                                        .foregroundStyle(AppColor.textPrimary)
                                     if !exercise.aliases.isEmpty {
                                         Text(exercise.aliases.joined(separator: " • "))
-                                            .font(AtlasTheme.Typography.caption)
-                                            .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                                            .font(AppFont.caption.font)
+                                            .foregroundStyle(AppColor.textSecondary)
                                     }
                                 }
                                 Spacer()
-                                Image(systemName: "plus")
-                                    .foregroundStyle(AtlasTheme.Colors.accent)
+                                AppIcon.add.image()
+                                    .foregroundStyle(AppColor.accent)
                             }
                             .frame(minHeight: 44)
                         }
                         .buttonStyle(.plain)
+                        .listRowSeparator(.hidden)
                     }
 
                     if filteredExercises.isEmpty {
                         Text("No matching exercises")
-                            .font(AtlasTheme.Typography.caption)
-                            .foregroundStyle(AtlasTheme.Colors.textSecondary)
+                            .font(AppFont.caption.font)
+                            .foregroundStyle(AppColor.textSecondary)
                             .frame(minHeight: 44)
+                            .listRowSeparator(.hidden)
                     }
                 } header: {
                     Text("Results")
                 }
-                .listRowBackground(AtlasTheme.Colors.elevatedBackground)
+                .listRowBackground(AppColor.cardBackground)
 
                 if !trimmedQuery.isEmpty && !hasExactNameMatch {
                     Section("Create") {
                         TextField("Aliases (optional, comma separated)", text: $aliasesText)
                             .frame(minHeight: 44)
+                            .listRowSeparator(.hidden)
                         Button {
                             createAndAdd()
                         } label: {
-                            Label("Create \"\(trimmedQuery)\"", systemImage: "plus.circle.fill")
-                                .foregroundStyle(AtlasTheme.Colors.accent)
-                                .frame(minHeight: 44)
+                            HStack(spacing: AppSpacing.xs) {
+                                AppIcon.addCircle.image()
+                                Text("Create \"\(trimmedQuery)\"")
+                            }
+                            .foregroundStyle(AppColor.accent)
+                            .frame(minHeight: 44)
                         }
+                        .listRowSeparator(.hidden)
                     }
-                    .listRowBackground(AtlasTheme.Colors.elevatedBackground)
+                    .listRowBackground(AppColor.cardBackground)
                 }
             }
+            .listStyle(.plain)
             .scrollContentBackground(.hidden)
-            .background(AtlasTheme.Colors.background.ignoresSafeArea())
+            .background(AppColor.background.ignoresSafeArea())
             .navigationTitle("Add Exercise")
             .navigationBarTitleDisplayMode(.inline)
             .searchable(text: $query, prompt: "Search by name or alias")
+            .tint(AppColor.accent)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Close") { dismiss() }
@@ -238,5 +264,4 @@ struct AddExerciseToTemplateView: View {
             }
         }
     }
-    .preferredColorScheme(.dark)
 }
